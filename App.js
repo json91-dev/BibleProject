@@ -6,36 +6,37 @@
  * @flow
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import {
-  SafeAreaView,
+  Platform,
   StyleSheet,
-  ScrollView,
-  View,
   Text,
-  StatusBar,
+  View,
+  Image,
+  TextInput,
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const instructions = Platform.select({
+  ios: 'IOS 입니다.',
+  android: 'android 입니다.!',
+});
 
+type Props = {};
 
+import LoginScreen from './src/LoginScreen';
 
-const App: () => React$Node = () => {
-  return (
-    <>
-      <Text>HI</Text>
-    </>
-  );
-};
+export default class App extends Component<Props> {
+  state = {};
+
+  render() {
+    return (
+      <View style={{flex: 1}}>
+        <LoginScreen/>
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
 
 });
-
-export default App;
