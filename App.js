@@ -24,6 +24,7 @@ const instructions = Platform.select({
 type Props = {};
 
 import LoginScreen from './src/LoginScreen';
+import MainScreen from './src/MainScreen';
 
 export default class App extends Component<Props> {
   state = {};
@@ -31,7 +32,8 @@ export default class App extends Component<Props> {
   render() {
     return (
       <View style={{flex: 1}}>
-        <LoginScreen/>
+        {/*<LoginScreen/>*/}
+        <MainScreen/>
       </View>
     );
   }
