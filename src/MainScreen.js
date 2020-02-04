@@ -9,7 +9,6 @@ import {
   TouchableOpacity
 
 } from 'react-native';
-import { vw, vh, vmin, vmax } from 'react-native-expo-viewport-units';
 
 
 
@@ -102,6 +101,4 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     marginTop: '5%'
   },
-
-
 });

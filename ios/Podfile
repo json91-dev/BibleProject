@@ -35,8 +35,11 @@ target 'BibleProject' do
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
 
-  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
   pod 'RNGoogleSignin', :path => '../node_modules/@react-native-community/google-signin'
+  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
+  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+  pod 'RNScreens', :path => '../node_modules/react-native-screens'
+
 
   target 'BibleProjectTests' do
     inherit! :search_paths
