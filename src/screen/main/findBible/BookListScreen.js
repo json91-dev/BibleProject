@@ -10,11 +10,10 @@ import {
 
 } from 'react-native';
 
-
-export default class BibleScreen extends Component {
+export default class BookListScreen extends Component {
   render() {
     return (
-      <View></View>
+
     )
   }
 }

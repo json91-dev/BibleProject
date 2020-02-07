@@ -23,20 +23,21 @@ const instructions = Platform.select({
 
 type Props = {};
 
-import LoginScreen from './src/LoginScreen';
-import MainScreen from './src/MainScreen';
-import MainScreensNavigator from './src/MainScreensNavigator'
+import LoginScreen from './src/screen/login/LoginScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+const Stack = createStackNavigator();
 
 export default class App extends Component<Props> {
   state = {};
 
   render() {
     return (
-      <View style={{flex: 1}}>
-        <LoginScreen/>
-        {/*<MainScreen/>*/}
-        {/*<MainScreensNavigator/>*/}
-      </View>
+      <NavigationContainer >
+        <Stack.Navigator initialRouteName = "Login">
+          <Stack.Screen  options={{ headerShown: false }} name="Login" component = {LoginScreen}/>
+        </Stack.Navigator>
+      </NavigationContainer>
     );
   }
 }

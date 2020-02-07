@@ -15,6 +15,20 @@ import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-com
 GoogleSignin.configure();
 
 export default class LoginScreen extends Component {
+  // 구글 로그인 성공시에 화면 이동.
+  _navigate() {
+    // this.props.navigation.navigate('')
+  }
+
+  // 시작화면 (LoginScreen)으로 이동
+  // _logout() {
+  //   const resetAction = StackActions.reset({
+  //     index: 0,
+  //     key: null,
+  //     actions: [NavigationActions.navigate({ routeName: 'LoginScreen'})],
+  //   });
+  //   this.props.navigation.dispatch(resetAction);
+  // }
 
   state = {
     userInfo: null,
@@ -33,6 +47,7 @@ export default class LoginScreen extends Component {
     }
   };
 
+  // 현재 정보를 가져온다.
   componentDidMount() {
     let login = this.getCurrentInfo()
   }
@@ -59,23 +74,16 @@ export default class LoginScreen extends Component {
 
   render() {
     return (
-      <LinearGradient colors={['#F9DA4F', '#F7884F']} style={styles.linearGradient}>
-        <View>
-          <Image
-            source={require('./assets/icon_thecross.png')}
-            style={styles.icon}
-          />
 
-          <Text style={styles.titleText}>THE BIBLE</Text>
-          <Text style={styles.titleInfo}>로그인해서 성경공부를 해보세요.</Text>
-          <GoogleSigninButton
-            style={{ width: 250, height: 48 }}
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-            onPress={this.signIn}
-            disabled={this.state.isSigninInProgress} />
-        </View>
-      </LinearGradient>
+      <View>
+      <GoogleSigninButton
+    style={{ width: 250, height: 48 }}
+    size={GoogleSigninButton.Size.Wide}
+    color={GoogleSigninButton.Color.Dark}
+    onPress={this.signIn}
+    disabled={this.state.isSigninInProgress} />
+
+      </View>
     );
   }
 }

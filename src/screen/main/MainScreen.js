@@ -12,6 +12,7 @@ import {
 
 
 
+
 export default class MainScreen extends Component {
 
   render() {
@@ -27,7 +28,7 @@ export default class MainScreen extends Component {
           <View style={{flex: 9}}>
             <TouchableOpacity
               style={styles.oldBibleLink}
-              onPress={this.onPress}>
+              onPress={() => this.props.navigation.navigate('')}>
               <Text> 구약 성경</Text>
             </TouchableOpacity>
 
