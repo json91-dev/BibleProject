@@ -12,18 +12,25 @@ import {
 } from 'react-native';
 
 import GoogleSigninButton from '../../../src/components/GoogleSigninButton'
+import { useNavigation}  from '@react-navigation/native';
 
 export default function LoginScreen() {
+  const navigation = useNavigation();
+
+  const aa = () => {
+    navigation.navigate('Main');
+  };
+
   return (
     <LinearGradient colors={['#F9DA4F', '#F7884F']} style={styles.linearGradient}>
       <View>
         <Image
-          source={require('../../assets/icon_thecross.png')}
+          source={require('../../assets/ic_thecross.png')}
           style={styles.icon}
         />
         <Text style={styles.titleText}>THE BIBLE</Text>
         <Text style={styles.titleInfo}>로그인해서 성경공부를 해보세요.</Text>
-        <GoogleSigninButton  />
+        <GoogleSigninButton navigation= {navigation} test='zz' />
       </View>
     </LinearGradient>
   )

@@ -28,7 +28,7 @@ export default class MainScreen extends Component {
           <View style={{flex: 9}}>
             <TouchableOpacity
               style={styles.oldBibleLink}
-              onPress={() => this.props.navigation.navigate('')}>
+              onPress={() => this.props.navigation.navigate('BookListScreen')}>
               <Text> 구약 성경</Text>
             </TouchableOpacity>
 

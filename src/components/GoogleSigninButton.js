@@ -35,6 +35,8 @@ export default class LoginScreen extends Component {
     error: null,
   };
 
+
+
   getCurrentInfo = async () => {
     try {
       const userInfo = await GoogleSignin.signInSilently();
@@ -49,7 +51,7 @@ export default class LoginScreen extends Component {
 
   // 현재 정보를 가져온다.
   componentDidMount() {
-    let login = this.getCurrentInfo()
+    let login = this.getCurrentInfo();
   }
 
   signIn = async () => {
@@ -71,18 +73,21 @@ export default class LoginScreen extends Component {
     }
   };
 
+  goMain = () => {
+    this.props.navigation.navigate('Main');
+  };
+
 
   render() {
     return (
-
       <View>
       <GoogleSigninButton
-    style={{ width: 250, height: 48 }}
-    size={GoogleSigninButton.Size.Wide}
-    color={GoogleSigninButton.Color.Dark}
-    onPress={this.signIn}
-    disabled={this.state.isSigninInProgress} />
-
+        style={{ width: 250, height: 48 }}
+        size={GoogleSigninButton.Size.Wide}
+        color={GoogleSigninButton.Color.Dark}
+        // onPress={this.signIn}
+        onPress={this.goMain}
+        disabled={this.state.isSigninInProgress} />
       </View>
     );
   }

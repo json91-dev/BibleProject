@@ -23,21 +23,15 @@ const instructions = Platform.select({
 
 type Props = {};
 
-import LoginScreen from './src/screen/login/LoginScreen';
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
-const Stack = createStackNavigator();
+import RootNavigator from './src/screen/RootNavigator';
+
 
 export default class App extends Component<Props> {
   state = {};
 
   render() {
     return (
-      <NavigationContainer >
-        <Stack.Navigator initialRouteName = "Login">
-          <Stack.Screen  options={{ headerShown: false }} name="Login" component = {LoginScreen}/>
-        </Stack.Navigator>
-      </NavigationContainer>
+      RootNavigator()
     );
   }
 }

@@ -13,7 +13,8 @@ import {
 export default class ContentScreen extends Component {
   render() {
     return (
-
+      <>
+      </>
     )
   }
 }
