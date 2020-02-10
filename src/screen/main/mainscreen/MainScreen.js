@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     borderWidth: 1,
     borderColor: 'black',
+    backgroundColor: 'white'
   },
 
   t_todayLabel: {
