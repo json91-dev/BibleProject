@@ -38,34 +38,60 @@ export default class ChapterListScreen extends Component {
 
     /**
      * SQLITE LOAD
+     * 성경의 장을 모두 가져오는 쿼리
      */
     let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
     bibleDB.transaction((tx) => {
       console.log(`bookCode : ${this.state.bookCode}`);
-      tx.executeSql(`SELECT max(chapter) as count FROM bible_korHRV where book = ${this.state.bookCode}`, [], (tx, results) => {
+      const query = `SELECT max(chapter) as count FROM bible_korHRV where book = ${this.state.bookCode}`
+      tx.executeSql(query, [], (tx, results) => {
         let chapterItemsLength = results.rows.item(0).count;
         const chapterItems = [];
+        /**
+         * Item insert
+         */
         for (let i = 0; i < chapterItemsLength ; i++) {
-          chapterItems.push({content: this.state.bookName})
+          chapterItems.push(
+            {
+              bookCode: this.state.bookCode,
+              bookName: this.state.bookName,
+            })
         }
         this.setState({chapterItems});
       })
     })
   }
 
+  goToChapterListScreen = (bookInfo) => {
+    console.log(bookInfo.bookName);
+    this.props.navigation.navigate('VerseListScreen',
+      {
+        bookName: bookInfo.bookName,
+        bookCode: bookInfo.bookCode,
+        chapterCode: bookInfo.chapterCode,
+      });
+  };
+
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.titleText}>장을 선택해주세요.</Text>
-        <Text>{this.state.result}</Text>
         <FlatList
           style={styles.flatList}
           data={this.state.chapterItems}
           keyExtractor={item => item.id}
           renderItem={({item, index}) => {
+            let chapterCode = index + 1;
             return (
-                <TouchableOpacity style={styles.flatListItem}>
-                  <Text style={styles.flatListItemText}>{index + 1}.    {item.content}{index + 1}장</Text>
+                <TouchableOpacity
+                  style={styles.flatListItem}
+                  onPress={this.goToChapterListScreen.bind(this,
+                  {
+                    bookName: item.bookName,
+                    bookCode: item.bookCode,
+                    chapterCode: chapterCode,
+                  })}>
+                  <Text style={styles.flatListItemText}>{chapterCode}.    {item.bookName}{chapterCode}장</Text>
                 </TouchableOpacity>
               )
           }}
@@ -88,7 +114,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5
+    marginBottom: 15
   },
   flatList: {
 

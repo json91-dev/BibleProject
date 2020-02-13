@@ -7,7 +7,7 @@ import MainScreen from './MainScreen'
 import BookListScreen from './BookListScreen';
 import ChapterListScreen from './ChapterListScreen';
 import VerseListScreen from './VerseListScreen';
-import ContentScreen from './ContentScreen';
+import ContentListScreen from './ContentListScreen';
 import {TouchableOpacity, Image} from 'react-native';
 
 const Stack = createStackNavigator();
@@ -26,7 +26,7 @@ const BookListScreenOption = {
 };
 
 const ChapterListScreenOption = ({route}) => ({title: route.params.bookName, headerTitleAlign: 'center',});
-
+const VerseListScreenOption = ({route}) => ({title: route.params.bookName + " " + route.params.chapterCode + "장", headerTitleAlign: 'center',});
 
 function MainScreenNavigator () {
   return (
@@ -34,8 +34,8 @@ function MainScreenNavigator () {
       <Stack.Screen name="MainScreen" options={{ headerShown: false }} component={MainScreen}/>
       <Stack.Screen name="BookListScreen" options={BookListScreenOption} component={BookListScreen}/>
       <Stack.Screen name="ChapterListScreen" options={ChapterListScreenOption} component={ChapterListScreen} />
-      <Stack.Screen name="VerseListScreen" options={{ headerShown: false }} component={VerseListScreen} />
-      <Stack.Screen name="ContentScreen" options={{ headerShown: false }} component={ContentScreen} />
+      <Stack.Screen name="VerseListScreen" options={VerseListScreenOption} component={VerseListScreen} />
+      <Stack.Screen name="ContentListScreen" options={{ headerShown: false }} component={ContentListScreen} />
     </Stack.Navigator>
   )
 }

@@ -50,7 +50,7 @@ export default class BookListScreen extends Component {
             <TouchableOpacity
               style={[styles.itemContainer, { backgroundColor: '#F3F4F9' }]}
               // sqlite조회를 위한 bookId를 넘겨줍니다.
-              onPress={() => this.props.navigation.navigate('ChapterListScreen',{bookName: item.bookName, bookIndex: index + 1, bookCode: item.bookCode})}
+              onPress={() => this.props.navigation.navigate('ChapterListScreen',{bookName: item.bookName, bookCode: item.bookCode})}
             >
               <Text style={styles.itemName}>{item.name}</Text>
               <Text style={styles.itemCode}>{item.bookName}</Text>
