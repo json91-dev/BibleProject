@@ -25,8 +25,22 @@ const BookListScreenOption = {
   ),
 };
 
-const ChapterListScreenOption = ({route}) => ({title: route.params.bookName, headerTitleAlign: 'center',});
-const VerseListScreenOption = ({route}) => ({title: route.params.bookName + " " + route.params.chapterCode + "장", headerTitleAlign: 'center',});
+const ChapterListScreenOption = ({route}) => (
+  {
+    title: route.params.bookName,
+    headerTitleAlign: 'center',
+  });
+const VerseListScreenOption = ({route}) => (
+  {
+    title: `${route.params.bookName} ${route.params.chapterCode}장`,
+    headerTitleAlign: 'center',
+  });
+const ContentListScreenOption = ({route}) => (
+  {
+    title: `${route.params.bookName}`,
+    headerTitleAlign: 'center',
+  }
+)
 
 function MainScreenNavigator () {
   return (
@@ -35,7 +49,7 @@ function MainScreenNavigator () {
       <Stack.Screen name="BookListScreen" options={BookListScreenOption} component={BookListScreen}/>
       <Stack.Screen name="ChapterListScreen" options={ChapterListScreenOption} component={ChapterListScreen} />
       <Stack.Screen name="VerseListScreen" options={VerseListScreenOption} component={VerseListScreen} />
-      <Stack.Screen name="ContentListScreen" options={{ headerShown: false }} component={ContentListScreen} />
+      <Stack.Screen name="ContentListScreen" options={ContentListScreenOption} component={ContentListScreen} />
     </Stack.Navigator>
   )
 }

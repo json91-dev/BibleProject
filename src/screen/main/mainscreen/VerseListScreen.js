@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
 import {
-
   StyleSheet,
   View,
   Text,
-  Image,
-  Alert,
-  Button, FlatList, TouchableOpacity,
-
+  FlatList, TouchableOpacity,
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 
@@ -43,7 +39,6 @@ export default class VerseListScreen extends Component {
   state = {
     bookCode: 0,
     chapterCode: 0,
-    navigation: null,
     verseItems: [],
   };
 
@@ -53,16 +48,14 @@ export default class VerseListScreen extends Component {
       bookName: route.params.bookName,
       bookCode: route.params.bookCode,
       chapterCode: route.params.chapterCode,
-      navigation: this.props.navigation,
     });
 
     /**
      * SQLITE LOAD
-     * 성경의 절을 모두 가져오는 쿼리
      */
     let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
     bibleDB.transaction((tx) => {
-
+      //성경의 절과 내용을 모두 가져오는 쿼리를 선언
       const query = `SELECT verse, content FROM bible_korHRV where book = ${this.state.bookCode} and chapter = ${this.state.chapterCode}`;
 
       tx.executeSql(query, [],
@@ -98,19 +91,29 @@ export default class VerseListScreen extends Component {
       });
   };
 
+  // // ScrollTo 테스트
+  // flatListRef;
+  // scrollTo = () =>{
+  //   console.log('scrollTo');
+  //   this.flatListRef.scrollToIndex({animated: true, index: 20-1})
+  // };
+
+
+
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.titleText}>절을 선택해주세요.</Text>
         <FlatList
           style={styles.flatList}
           data={this.state.verseItems}
           keyExtractor={item => item.id}
+          ref={(ref) => {this.flatListRef = ref;}}
           renderItem={({item, index}) => {
             let verseCode = index + 1;
             return (
-              <TouchableOpacity style={styles.flatListItem} onPress={this.goToContentListScreen.bind(item.bookName, item.bookCode, item.bookCode)}>
-                <Text style={styles.flatListItemText}>{verseCode}.    {textLengthOverCut(item.content)}</Text>
+              <TouchableOpacity style={styles.flatListItem}  onLongPress={this.onLongPressButton}
+              >
+                <Text style={styles.flatListItemText}>{verseCode}.    {item.content}</Text>
               </TouchableOpacity>
             )
           }}
@@ -139,16 +142,15 @@ const styles = StyleSheet.create({
 
   },
   flatListItem: {
-    height: 57,
+
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'column',
-    paddingTop: 30,
-    paddingBottom: 30,
+    paddingTop: 15,
+    paddingBottom: 15,
     paddingLeft: 2,
     paddingRight: 2,
-    borderBottomColor: '#AABBCC',
-    borderBottomWidth: 1,
+
   },
   flatListItemText: {
     color: 'black'

@@ -24,7 +24,6 @@ export default class ChapterListScreen extends Component {
   state = {
     bookName: '업데이트전',
     bookCode: 0,
-    navigation: null,
     chapterItems: [],
   };
 
@@ -32,7 +31,6 @@ export default class ChapterListScreen extends Component {
     const { route } = this.props;
     this.setState({
       bookName: route.params.bookName,
-      navigation: this.props.navigation,
       bookCode: route.params.bookCode
     });
 
