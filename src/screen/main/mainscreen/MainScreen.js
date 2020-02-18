@@ -6,7 +6,9 @@ import {
   Text,
   Image,
   Alert,
-  TouchableOpacity
+  TouchableOpacity,
+  ScrollView,
+  TextInput
 
 } from 'react-native';
 
@@ -17,29 +19,32 @@ export default class MainScreen extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <View style={styles.t_container}>
-          <Text style={styles.t_todayLabel}>오늘의 말씀</Text>
-          <Text style={styles.t_todayWord}>너는 하나님과 화목하고 평안하라. 그리하면 복이 네게 임하리라.</Text>
-          <Text style={styles.t_todayWordDetail}>요한복음 1장 27절</Text>
-        </View>
-        <View style = {{flex: 1}}>
-          <Text style={styles.linkLabel}>성경책 읽기</Text>
-          <View style={{flex: 9}}>
-            <TouchableOpacity
-              style={styles.oldBibleLink}
-              onPress={() => this.props.navigation.navigate('BookListScreen')}>
-              <Text> 구약 성경</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.newBibleLink}
-              onPress={this.onPress}>
-              <Text> 신약 성경 </Text>
-            </TouchableOpacity>
-          </View>
+      <ScrollView style={styles.container}>
+        <View style={styles.searchView} >
+          <Image style={styles.searchIconImage} source={require('assets/ic_search.png')}/>
+          <TextInput style={styles.searchTextInput}  placeholder='다시 읽고 싶은 말씀이 있나요?'></TextInput>
         </View>
-      </View>
+
+        <Image style={styles.todayImage} source={require('assets/ic_today_title.png')}/>
+        <Text style={styles.todayWord}>너는 하나님과 화목하고 평안하라. 그리하면 복이 네게 임하리라.</Text>
+        <Text style={styles.todayWordDetail}>요한복음 1장 27절</Text>
+        <Text style={styles.linkLabel}>성경책 읽기</Text>
+
+        <TouchableOpacity
+          style={[styles.bibleLink, {marginTop: 30}]}
+          onPress={() => this.props.navigation.navigate('BookListScreen')}>
+          <Image style={styles.bibleLinkImage} source={require('assets/btn_old_bible.png')}/>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.bibleLink}
+          onPress={this.onPress}>
+          <Image style={styles.bibleLinkImage} source={require('assets/btn_new_bible.png')}/>
+        </TouchableOpacity>
+
+      </ScrollView>
+
     )
   }
 }
@@ -50,57 +55,68 @@ export default class MainScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    resizeMode: 'contain',
     borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'white'
+    borderColor: 'red',
+  },
+  searchIconImage: {
+    borderWidth: 1,
+    borderColor:'black',
+    height:'100%',
+    width:'20%',
+    resizeMode: 'contain'
   },
 
-  t_todayLabel: {
+  searchTextInput: {
+    borderWidth: 1,
+    borderColor:'black',
+    width:'60%',
+    height:'100%',
+  },
+
+  searchView: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    borderWidth: 1,
+    borderColor:'black'
+  },
+
+  todayImage: {
     textAlign: 'left',
-    marginTop: 110,
+    marginTop: 32,
     fontSize: 15,
     paddingLeft: 36,
     paddingRight: 36,
+    marginLeft: 36,
+    width:96,
+    height:34,
   },
-  t_container: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'black',
-  },
-  t_todayWord: {
+
+  todayWord: {
     paddingLeft: 36,
     paddingRight: 36,
     marginTop: 30,
     fontSize: 18,
   },
-  t_todayWordDetail: {
+  todayWordDetail: {
     textAlign: 'right',
     paddingTop: 34,
     paddingRight: 36
   },
   linkLabel: {
-    flex:1,
-    paddingLeft: '10%'
+    paddingLeft: 36,
+    marginTop: 10,
+    marginBottom: 20,
   },
 
-  oldBibleLink: {
-    width: '80%',
-    height: '30%',
-    borderWidth: 1,
-    borderColor: 'black',
-    marginLeft: 'auto',
-    marginRight: 'auto'
-  },
-
-  newBibleLink: {
-    width: '80%',
-    height: '30%',
-    borderWidth: 1,
-    borderColor: 'black',
+  bibleLink: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginTop: '5%'
+    marginBottom: 20
+  },
+
+  bibleLinkImage: {
+    width:327,
+    height:102,
   },
 });

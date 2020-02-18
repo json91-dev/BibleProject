@@ -39,13 +39,12 @@ const ContentListScreenOption = ({route}) => (
   {
     title: `${route.params.bookName}`,
     headerTitleAlign: 'center',
-  }
-)
+  });
 
 function MainScreenNavigator () {
   return (
     <Stack.Navigator initialRouteName = "MainScreen">
-      <Stack.Screen name="MainScreen" options={{ headerShown: false }} component={MainScreen}/>
+      <Stack.Screen name="MainScreen" options={{ headerShown: false}} component={MainScreen}/>
       <Stack.Screen name="BookListScreen" options={BookListScreenOption} component={BookListScreen}/>
       <Stack.Screen name="ChapterListScreen" options={ChapterListScreenOption} component={ChapterListScreen} />
       <Stack.Screen name="VerseListScreen" options={VerseListScreenOption} component={VerseListScreen} />

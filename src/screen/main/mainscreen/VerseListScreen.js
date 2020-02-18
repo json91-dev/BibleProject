@@ -4,9 +4,13 @@ import {
   View,
   Text,
   FlatList, TouchableOpacity,
+  Modal,
+  TouchableHighlight,
+  Alert
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 
+import PopoverTooltip from 'react-native-popover-tooltip';
 
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
@@ -40,6 +44,7 @@ export default class VerseListScreen extends Component {
     bookCode: 0,
     chapterCode: 0,
     verseItems: [],
+    modalVisible: false,
   };
 
   componentDidMount() {
@@ -98,11 +103,40 @@ export default class VerseListScreen extends Component {
   //   this.flatListRef.scrollToIndex({animated: true, index: 20-1})
   // };
 
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
 
+  onLongPressButton = () => {
+    this.setModalVisible(true);
+  };
 
   render() {
     return (
       <View style={styles.container}>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            console.log('모달 닫힘');
+            Alert.alert('Modal has been closed.');
+          }}>
+          <View style={{marginTop: 22}}>
+            <View>
+              <Text>Hello World!</Text>
+
+              <TouchableHighlight
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}>
+                <Text>Hide Modal</Text>
+              </TouchableHighlight>
+            </View>
+          </View>
+        </Modal>
+
+
         <FlatList
           style={styles.flatList}
           data={this.state.verseItems}
@@ -111,14 +145,14 @@ export default class VerseListScreen extends Component {
           renderItem={({item, index}) => {
             let verseCode = index + 1;
             return (
-              <TouchableOpacity style={styles.flatListItem}  onLongPress={this.onLongPressButton}
-              >
+              <TouchableOpacity style={styles.flatListItem} onLongPress={this.onLongPressButton.bind(this)} >
                 <Text style={styles.flatListItemText}>{verseCode}.    {item.content}</Text>
               </TouchableOpacity>
             )
           }}
         />
       </View>
+
     )
   }
 }
@@ -142,10 +176,6 @@ const styles = StyleSheet.create({
 
   },
   flatListItem: {
-
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'column',
     paddingTop: 15,
     paddingBottom: 15,
     paddingLeft: 2,
