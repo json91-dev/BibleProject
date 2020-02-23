@@ -55,11 +55,9 @@ export default class BibleMainScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: 'red',
   },
+
   searchIconImage: {
-    borderWidth: 1,
     borderColor:'black',
     height:'100%',
     width:'20%',
@@ -67,7 +65,6 @@ const styles = StyleSheet.create({
   },
 
   searchTextInput: {
-    borderWidth: 1,
     borderColor:'black',
     width:'60%',
     height:'100%',
@@ -96,11 +93,13 @@ const styles = StyleSheet.create({
     marginTop: 30,
     fontSize: 18,
   },
+
   todayWordDetail: {
     textAlign: 'right',
     paddingTop: 34,
     paddingRight: 36
   },
+
   linkLabel: {
     paddingLeft: 36,
     marginTop: 10,

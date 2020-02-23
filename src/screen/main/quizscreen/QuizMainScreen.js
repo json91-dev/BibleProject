@@ -2,22 +2,26 @@ import React, {Component} from 'react';
 import {
   StyleSheet,
   View,
+  ScrollView,
   Text,
   Image,
   TouchableOpacity
 } from 'react-native';
+import QuizItem from 'components/QuizItem'
 
 
 export default class QuizScreen extends Component {
   render() {
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle ={{justifyContent: 'center'}}>
+        <QuizItem/>
+        <QuizItem/>
         <Image style={styles.titleImage} source={require('assets/ic_jesus.png')}/>
         <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 시작할 준비가{"\n"}되셨나요?</Text>
         <TouchableOpacity style={styles.quizButton}>
             <Text style={styles.quizButtonText}>오늘의 세례문답 시작!</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     )
   }
 }
@@ -27,7 +31,6 @@ export default class QuizScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     paddingTop: 15,
     paddingBottom: 15,
     paddingLeft: 20,

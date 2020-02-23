@@ -89,7 +89,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     paddingLeft: 24,
     paddingRight: 24
-
   },
   gridView: {
     marginTop: 20,

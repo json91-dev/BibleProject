@@ -3,14 +3,14 @@ import {
   StyleSheet,
   View,
   Text,
-  FlatList, TouchableOpacity,
+  FlatList,
+  TouchableOpacity,
   Modal,
-  TouchableHighlight,
-  Alert
+  Alert,
+  Image
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
-
-import PopoverTooltip from 'react-native-popover-tooltip';
+import BibleScreenNavigator from './BibleScreenNavigator';
 
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
@@ -112,27 +112,46 @@ export default class VerseListScreen extends Component {
     return (
       <View style={styles.container}>
         <Modal
-          animationType="slide"
-          transparent={false}
+          style={styles.modal}
+
+          transparent={true}
           visible={this.state.modalVisible}
           onRequestClose={() => {
-            console.log('모달 닫힘');
             Alert.alert('Modal has been closed.');
           }}>
-          <View style={{marginTop: 22}}>
-            <View>
-              <Text>Hello World!</Text>
-
-              <TouchableHighlight
+          <View style={styles.modalContainer}>
+            <View style={styles.modalView}>
+              <TouchableOpacity
+                style={styles.modalItem}
                 onPress={() => {
                   this.setModalVisible(!this.state.modalVisible);
                 }}>
-                <Text>Hide Modal</Text>
-              </TouchableHighlight>
+                <Text style={styles.modalItemText}>복사</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}>
+                <Text style={styles.modalItemText}>형광펜</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}>
+                <Text style={styles.modalItemText}>메모</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}>
+                <Text style={styles.modalItemText}>취소</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
-
 
         <FlatList
           style={styles.flatList}
@@ -148,6 +167,21 @@ export default class VerseListScreen extends Component {
             )
           }}
         />
+
+        <View style={styles.footerOptionContainer}>
+          <TouchableOpacity style={styles.footerOptionContainerItem}>
+            <Image style={styles.footerOptionIcon} source={require('assets/ic_option_list_off.png')} />
+            <Text>목차</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerOptionContainerItem}>
+            <Image style={styles.footerOptionIcon} source={require('assets/ic_option_note_off.png')} />
+            <Text>성경노트</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerOptionContainerItem}>
+            <Image style={styles.footerOptionIcon} source={require('assets/ic_option_font_off.png')} />
+            <Text>보기설정</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
     )
@@ -162,8 +196,10 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     paddingLeft: 20,
     paddingRight: 20,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+
   },
+
   titleText: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -172,6 +208,7 @@ const styles = StyleSheet.create({
   flatList: {
 
   },
+
   flatListItem: {
     paddingTop: 15,
     paddingBottom: 15,
@@ -179,7 +216,69 @@ const styles = StyleSheet.create({
     paddingRight: 2,
 
   },
+
   flatListItemText: {
     color: 'black'
+  },
+
+  modal: {
+    borderWidth: 1,
+    borderColor: 'red',
+  },
+
+  modalContainer: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    width: '100%',
+    height: '100%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  modalView: {
+    width: 200,
+    height: 150,
+    borderWidth: 1,
+    borderColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#AEAEAE'
+  },
+
+  modalItem: {
+
+  },
+
+  modalItemText: {
+    color: 'white',
+    fontSize: 15
+  },
+
+  footerOptionContainer: {
+    borderWidth: 1,
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    bottom: '5%',
+    width: '100%',
+    height: 70,
+    borderRadius: 5,
+    backgroundColor: 'white',
+    justifyContent: 'space-around',
+    flexDirection: 'row'
+  },
+
+  footerOptionContainerItem: {
+    width: '30%',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  footerOptionIcon: {
+    width: 40,
+    height: 30,
+    resizeMode: 'contain',
   }
+
 });
