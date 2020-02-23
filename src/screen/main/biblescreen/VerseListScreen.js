@@ -66,14 +66,12 @@ export default class VerseListScreen extends Component {
       tx.executeSql(query, [],
         (tx, results) => {
         let verseItemsLength = results.rows.length;
-        console.log(verseItemsLength +'아이템갯수');
         const verseItems = [];
         /**
          * Item insert
          */
         for (let i = 0; i < verseItemsLength; i++) {
           const content = results.rows.item(i).content;
-          console.log(i + 1, content);
           verseItems.push(
             {
               bookCode: this.state.bookCode,
@@ -87,7 +85,6 @@ export default class VerseListScreen extends Component {
   }
 
   goToContentListScreen = (bookInfo) => {
-    console.log(bookInfo.bookName);
     this.props.navigation.navigate('ContentListScreen',
       {
         bookName: bookInfo.bookName,

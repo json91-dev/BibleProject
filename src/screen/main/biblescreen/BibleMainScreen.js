@@ -15,7 +15,7 @@ import {
 
 
 
-export default class MainScreen extends Component {
+export default class BibleMainScreen extends Component {
 
   render() {
     return (
@@ -33,13 +33,13 @@ export default class MainScreen extends Component {
 
         <TouchableOpacity
           style={[styles.bibleLink, {marginTop: 30}]}
-          onPress={() => this.props.navigation.navigate('BookListScreen')}>
+          onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 'old'})}>
           <Image style={styles.bibleLinkImage} source={require('assets/btn_old_bible.png')}/>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.bibleLink}
-          onPress={this.onPress}>
+          onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 'new'})}>
           <Image style={styles.bibleLinkImage} source={require('assets/btn_new_bible.png')}/>
         </TouchableOpacity>
 
@@ -82,9 +82,7 @@ const styles = StyleSheet.create({
   },
 
   todayImage: {
-    textAlign: 'left',
     marginTop: 32,
-    fontSize: 15,
     paddingLeft: 36,
     paddingRight: 36,
     marginLeft: 36,

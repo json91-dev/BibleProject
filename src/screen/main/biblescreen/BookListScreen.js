@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
 import {
-
   StyleSheet,
   View,
   Text,
-  Image,
-  Alert,
-  Button, TouchableOpacity,
-
+  TouchableHighlight,
 } from 'react-native';
 
 import { FlatGrid } from 'react-native-super-grid';
@@ -15,7 +11,10 @@ import { FlatGrid } from 'react-native-super-grid';
 export default class BookListScreen extends Component {
 
   render() {
-    const items = [
+    const { route } = this.props;
+    const navigation = this.props.navigation;
+
+    const oldBibleItems = [
       { name: '창', bookName: '창세기', bookCode: 1}, { name: '출', bookName: '출애굽기', bookCode: 2},
       { name: '레', bookName: '레위기', bookCode: 3}, { name: '민', bookName: '민수기' , bookCode: 4},
       { name: '신', bookName: '신명기', bookCode: 5}, { name: '수', bookName: '여호수아', bookCode: 6 },
@@ -45,35 +44,37 @@ export default class BookListScreen extends Component {
       { name: '고전', bookName: '고린도전서', bookCode: 46}, { name: '고후', bookName: '고린도후서', bookCode: 47 },
       { name: '갈', bookName: '갈라디아서', bookCode: 48}, { name: '엡', bookName: '에베소', bookCode: 49 },
       { name: '빌', bookName: '빌립보서', bookCode: 50}, { name: '골', bookName: '골로새서', bookCode: 51 },
-      { name: '살전', bookName: '데살로니아전서', bookCode: 52 }, { name: '살후', bookName: '데살로니아후서', bookCode: 53 },
+      { name: '살전', bookName: '데살로전서', bookCode: 52 }, { name: '살후', bookName: '데살로후서', bookCode: 53 },
       { name: '딤전', bookName: '디모데전서', bookCode: 54 }, { name: '딤후', bookName: '디모데후서', bookCode: 55 },
       { name: '딛', bookName: '디도서', bookCode: 56 }, { name: '몬', bookName: '빌레몬서', bookCode: 57 },
       { name: '히', bookName: '히브리서', bookCode: 58 }, { name: '약', bookName: '야보고서', bookCode: 59 },
       { name: '벧전', bookName: '베드로전서', bookCode: 60 }, { name: '벧후', bookName: '베드로후서', bookCode: 61 },
       { name: '요1', bookName: '요한1서', bookCode: 62 }, { name: '요2', bookName: '요한2서', bookCode: 63 },
       { name: '요3', bookName: '요한3서', bookCode: 64 }, { name: '유', bookName: '유다서', bookCode: 65 },
-      { name: '요한계시록', bookName: '계', bookCode: 66 },
+      { name: '계', bookName: '요한계시록', bookCode: 66 },
     ];
-
+    const item = (route.params.bibleType === 'old')? oldBibleItems : newBibleItems ;
+    const activeItemColor = (route.params.bibleType === 'old')? '#F9DA4F' : '#F8924F' ;
 
     return (
       <View style={styles.rootContainer}>
         <FlatGrid
           itemDimension={70}
-          items={items}
+          items={item}
           style={styles.gridView}
-          // staticDimension={300}
-          // fixed
-          // spacing={20}
           renderItem={({ item, index }) => (
-            <TouchableOpacity
-              style={[styles.itemContainer, { backgroundColor: '#F3F4F9' }]}
+            <TouchableHighlight
+              style={[styles.itemContainer, { backgroundColor: '#F3F4F9'}]}
+              activeOpacity={0.8}
+              underlayColor={activeItemColor}
               // sqlite조회를 위한 bookId를 넘겨줍니다.
               onPress={() => this.props.navigation.navigate('ChapterListScreen',{bookName: item.bookName, bookCode: item.bookCode})}
             >
-              <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemCode}>{item.bookName}</Text>
-            </TouchableOpacity>
+              <View>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.itemCode}>{item.bookName}</Text>
+              </View>
+            </TouchableHighlight>
           )}
         />
       </View>
@@ -90,7 +91,6 @@ const styles = StyleSheet.create({
     paddingRight: 24
 
   },
-
   gridView: {
     marginTop: 20,
     flex: 1,

@@ -10,11 +10,10 @@ import {
 
 } from 'react-native';
 
-export default class ContentScreen extends Component {
+export default class MainScreen extends Component {
   render() {
     return (
-      <>
-      </>
+      <View></View>
     )
   }
 }

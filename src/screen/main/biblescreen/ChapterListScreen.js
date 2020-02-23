@@ -40,8 +40,7 @@ export default class ChapterListScreen extends Component {
      */
     let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
     bibleDB.transaction((tx) => {
-      console.log(`bookCode : ${this.state.bookCode}`);
-      const query = `SELECT max(chapter) as count FROM bible_korHRV where book = ${this.state.bookCode}`
+      const query = `SELECT max(chapter) as count FROM bible_korHRV where book = ${this.state.bookCode}`;
       tx.executeSql(query, [], (tx, results) => {
         let chapterItemsLength = results.rows.item(0).count;
         const chapterItems = [];
@@ -61,7 +60,6 @@ export default class ChapterListScreen extends Component {
   }
 
   goToChapterListScreen = (bookInfo) => {
-    console.log(bookInfo.bookName);
     this.props.navigation.navigate('VerseListScreen',
       {
         bookName: bookInfo.bookName,
@@ -77,7 +75,7 @@ export default class ChapterListScreen extends Component {
         <FlatList
           style={styles.flatList}
           data={this.state.chapterItems}
-          keyExtractor={item => item.id}
+          keyExtractor={(item, index) => index.toString()}
           renderItem={({item, index}) => {
             let chapterCode = index + 1;
             return (

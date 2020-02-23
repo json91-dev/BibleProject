@@ -1,9 +1,9 @@
 import React from 'react';
 
-import MainScreenNavigator from './mainscreen/MainScreenNavigator';
-import BibleScreen from './BibleScreen';
-import QuizScreen from './QuizScreen';
-import OptionScreen from './OptionScreen'
+import BibleScreenNavigator from './biblescreen/BibleScreenNavigator';
+import QuizScreenNavigator from './quizscreen/QuizScreenNavigator';
+import OptionScreenNavigator from './optionscreen/OptionScreenNavigator';
+import MainScreen from './MainScreen';
 
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -20,7 +20,6 @@ const Tab = createBottomTabNavigator();
 
 const setBottomIconImagePath = (navName, focused) => {
   const key = navName + (focused? 'Focus': '');
-  console.log(key);
 
   const imagePath = {
     MainScreen: require('assets/ic_heart_off.png'),
@@ -32,7 +31,7 @@ const setBottomIconImagePath = (navName, focused) => {
     OptionScreen: require('assets/ic_option_off.png'),
     OptionScreenFocus: require('assets/ic_option_on.png')
   };
-  console.log(key);
+
   return imagePath[key];
 };
 
@@ -44,39 +43,36 @@ const MainBottomTabNavigator = function() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           const iconPath = setBottomIconImagePath(route.name, focused);
-          console.log('----------');
-          console.log(iconPath);
           // You can return any component that you like here!
           return <Image style={{width: 25, height: 25}} source={iconPath}/>;
 
         },
       })}
-
     >
       <Tab.Screen
         name="MainScreen"
-        component={MainScreenNavigator}
+        component={MainScreen}
         options = {({route}) => ({
           tabBarLabel: '메인',
         })}
       />
       <Tab.Screen
         name="BibleScreen"
-        component={BibleScreen}
+        component={BibleScreenNavigator}
         options = {({route}) => ({
           tabBarLabel: '성경',
         })}
       />
       <Tab.Screen
         name="QuizScreen"
-        component={QuizScreen}
+        component={QuizScreenNavigator}
         options = {({route}) => ({
           tabBarLabel: '세례문답',
         })}
       />
       <Tab.Screen
         name="OptionScreen"
-        component={OptionScreen}
+        component={OptionScreenNavigator}
         options={{
           tabBarLabel: '더보기',
         }}

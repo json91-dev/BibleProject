@@ -3,11 +3,10 @@
 import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 
-import MainScreen from './MainScreen'
+import BibleMainScreen from './BibleMainScreen'
 import BookListScreen from './BookListScreen';
 import ChapterListScreen from './ChapterListScreen';
 import VerseListScreen from './VerseListScreen';
-import ContentListScreen from './ContentListScreen';
 import {TouchableOpacity, Image} from 'react-native';
 
 const Stack = createStackNavigator();
@@ -41,16 +40,21 @@ const ContentListScreenOption = ({route}) => (
     headerTitleAlign: 'center',
   });
 
-function MainScreenNavigator () {
+function BibleScreenNavigator ({navigation, route}) {
+  /* 하단 탭바 출력 설정 */
+  if (route.state && route.state.index > 0) {
+    navigation.setOptions({tabBarVisible: false})
+  } else {
+    navigation.setOptions({tabBarVisible: true})
+  }
   return (
-    <Stack.Navigator initialRouteName = "MainScreen">
-      <Stack.Screen name="MainScreen" options={{ headerShown: false}} component={MainScreen}/>
+    <Stack.Navigator initialRouteName = "BibleMainScreen">
+      <Stack.Screen name="BibleMainScreen" options={{ headerShown: false, }}  component={BibleMainScreen}/>
       <Stack.Screen name="BookListScreen" options={BookListScreenOption} component={BookListScreen}/>
       <Stack.Screen name="ChapterListScreen" options={ChapterListScreenOption} component={ChapterListScreen} />
       <Stack.Screen name="VerseListScreen" options={VerseListScreenOption} component={VerseListScreen} />
-      <Stack.Screen name="ContentListScreen" options={ContentListScreenOption} component={ContentListScreen} />
     </Stack.Navigator>
   )
 }
 
-export default MainScreenNavigator;
+export default BibleScreenNavigator;
