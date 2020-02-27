@@ -13,29 +13,101 @@ import {
 
 } from 'react-native';
 
+function replaceAll(str, searchStr, replaceStr) {
+  return str.split(searchStr).join(replaceStr);
+}
+
 export default class QuizItem extends Component {
+  state = {
+    isOpenAnswer: false,
+  };
+
+  // 성경 텍스트 문장에 공백을 만들어 반환하는 메서드
+  makeBlankQuizSentence = (quizSentence, quizWord) => {
+    let dummy = '____________________________________________________';
+    let blank = dummy.substr(dummy.length - quizWord.length * 2);
+    let blankQuizSentence = replaceAll(quizSentence, quizWord, blank);
+    return blankQuizSentence;
+  };
+
+  // 정답을 눌렀을때 공백을 없애주고 정답 문장 <Text>를 반환하는 메서드
+  highlightText = (quizSentence, quizWord) => {
+    let splitTextArray;
+    let resultTextArray = [];
+    try{
+      splitTextArray = quizSentence.split(quizWord);
+      splitTextArray.map((item, index) => {
+        if(index > 0 && index < splitTextArray.length)
+        {
+          resultTextArray.push(quizWord);
+        }
+        resultTextArray.push(item);
+      });
+    } catch(err) {
+      console.log(err);
+      return;
+    }
+    return (
+      <Text style={{marginTop: 5}}>
+        {
+          resultTextArray.map((item) => {
+            if (item === quizWord) {
+              return (
+                <Text style={{color: '#F9DA4F'}}>{item}</Text>
+              )
+            } else {
+              return (
+                <Text style={{color: 'white'}}>{item}</Text>
+              )
+            }
+          })
+        }
+      </Text>
+    )
+  };
+
+  showBlankQuiz() {
+    this.setState({
+      isOpenAnswer: true
+    });
+  }
+
   render() {
     // const {index, quizVerse, quizWord, quizSentence} = this.props;
+    const {index,quizVerse, quizWord, quizSentence} = this.props;
     return (
       <View style={styles.container}>
         <View style={styles.quizHeaderContainer}>
-          <Text style={styles.quizIndexText}>세례문답 복습 1/5</Text>
-          <Text style={styles.quizVerseText}>요한복음 1장 27절</Text>
+          <Text style={styles.quizIndexText}>세례문답 복습 {index}/5</Text>
+           <Text style={styles.quizVerseText}>{quizVerse}</Text>
         </View>
         <View style={styles.quizMainContainer}>
-          <Text style={styles.quizSentenceText}>요셉도 다윗의 집 족속이므로 갈리리 나사렛 동네에서 유대를 향하여 ____이라하는 다윗의 동네로 요셉도 다윗의 집 족속이므로 갈리리 나사렛 동네에서 유대를 향하여 ____이라하는 다윗의 동네로</Text>
-          <TouchableHighlight style={styles.answerButton}>
-            <Text>정답보기</Text>
-          </TouchableHighlight>
+          {
+            this.state.isOpenAnswer
+            ? this.highlightText(quizSentence, quizWord)
+            : <Text style={styles.quizSentenceText}>
+                {this.makeBlankQuizSentence(quizSentence, quizWord)}
+              </Text>
+          }
+          {
+            this.state.isOpenAnswer
+              ? <Text style={styles.answerText}>정답은 "{quizWord}" 입니다.</Text>
+              : <TouchableOpacity
+                  style={styles.answerButton}
+                  onPress={this.showBlankQuiz.bind(this)}>
+                  <Text>정답보기</Text>
+                </TouchableOpacity>
+          }
         </View>
       </View>
+
     )
   }
 }
 
+
 const styles = StyleSheet.create({
   container: {
-
     marginTop: 10,
     marginBottom: 10,
   },
@@ -64,7 +136,6 @@ const styles = StyleSheet.create({
   quizSentenceText: {
     marginTop: 5,
     color: 'white'
-
   },
 
   answerButton: {
@@ -75,4 +146,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+
+  answerText: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 20,
+    marginTop: 26,
+    color: '#F9DA4F',
+    fontSize: 20
+  }
 });

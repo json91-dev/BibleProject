@@ -4,7 +4,7 @@ import {
   View,
 } from 'react-native';
 
-export default class BibleListOption extends Component {
+export default class FontChangeOption extends Component {
   state = {
     isOpenAnswer: false,
   };
@@ -22,12 +22,12 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'absolute',
     width: '100%',
-    top: 30,
+    bottom: 110,
     borderRadius: 5,
     backgroundColor: 'white',
     left: 20,
     right: 20,
-    height: 200,
+    height: 150,
     borderWidth: 1
   },
 });

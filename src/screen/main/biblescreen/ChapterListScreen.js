@@ -22,25 +22,17 @@ const okCallback = (result) => {
 
 export default class ChapterListScreen extends Component {
   state = {
-    bookName: '업데이트전',
-    bookCode: 0,
     chapterItems: [],
   };
 
   componentDidMount() {
     const { route } = this.props;
-    this.setState({
-      bookName: route.params.bookName,
-      bookCode: route.params.bookCode
-    });
+    const {bookName, bookCode} = route.params;
 
-    /**
-     * SQLITE LOAD
-     * 성경의 장을 모두 가져오는 쿼리
-     */
+    // 성경의 장을 모두 가져오는 쿼리를 수행.
     let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
     bibleDB.transaction((tx) => {
-      const query = `SELECT max(chapter) as count FROM bible_korHRV where book = ${this.state.bookCode}`;
+      const query = `SELECT max(chapter) as count FROM bible_korHRV where book = ${bookCode}`;
       tx.executeSql(query, [], (tx, results) => {
         let chapterItemsLength = results.rows.item(0).count;
         const chapterItems = [];
@@ -50,8 +42,8 @@ export default class ChapterListScreen extends Component {
         for (let i = 0; i < chapterItemsLength ; i++) {
           chapterItems.push(
             {
-              bookCode: this.state.bookCode,
-              bookName: this.state.bookName,
+              bookCode,
+              bookName,
             })
         }
         this.setState({chapterItems});

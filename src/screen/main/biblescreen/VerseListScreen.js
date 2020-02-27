@@ -7,19 +7,24 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
-  Image
+  Image,
+  Clipboard,
+  AsyncStorage,
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
-import BibleScreenNavigator from './BibleScreenNavigator';
+import BibleListOption from '/components/option/BibleListOption';
+import BibleNoteOption from '/components/option/BibleNoteOption';
+import FontChangeOption from '/components/option/FontChangeOption';
+
 
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
   console.log('Error');
-  console.log(e.message);
+  // console.log(e.message);
 };
 const okCallback = (result) => {
   console.log('okay');
-  console.log(result);
+  // console.log(result);
 };
 
 /**
@@ -40,43 +45,44 @@ function textLengthOverCut(txt, len, lastTxt) {
 
 
 export default class VerseListScreen extends Component {
-  state = {
-    bookCode: 0,
-    chapterCode: 0,
-    verseItems: [],
-    modalVisible: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      verseItems: [],
+      modalVisible: false,
+      bibleListOptionIconUri: require('assets/ic_option_list_off.png'),
+      bibleNoteOptionIconUri: require('assets/ic_option_note_off.png'),
+      fontChangeOptionIconUri: require('assets/ic_option_font_off.png'),
+      optionComponentState: '',
+    };
+    this.hightlightList = [];
+    this.clipboardText = null;
+    this.modalBibleItem = null;
+  }
 
   componentDidMount() {
     const { route } = this.props;
-    this.setState({
-      bookName: route.params.bookName,
-      bookCode: route.params.bookCode,
-      chapterCode: route.params.chapterCode,
-    });
-
-    /**
-     * SQLITE LOAD
-     */
+    const {bookName, bookCode, chapterCode}  = route.params;
     let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
+
     bibleDB.transaction((tx) => {
       //성경의 절과 내용을 모두 가져오는 쿼리를 선언
-      const query = `SELECT verse, content FROM bible_korHRV where book = ${this.state.bookCode} and chapter = ${this.state.chapterCode}`;
-
+      const query = `SELECT verse, content FROM bible_korHRV where book = ${bookCode} and chapter = ${chapterCode}`;
       tx.executeSql(query, [],
         (tx, results) => {
         let verseItemsLength = results.rows.length;
         const verseItems = [];
-        /**
-         * Item insert
-         */
+
         for (let i = 0; i < verseItemsLength; i++) {
           const content = results.rows.item(i).content;
+          const verseCode = results.rows.item(i).verse;
           verseItems.push(
             {
-              bookCode: this.state.bookCode,
-              bookName: this.state.bookName,
+              bookName,
+              bookCode,
+              chapterCode,
               content,
+              verseCode
             })
         }
         this.setState({verseItems});
@@ -100,20 +106,83 @@ export default class VerseListScreen extends Component {
   //   this.flatListRef.scrollToIndex({animated: true, index: 20-1})
   // };
 
-  setModalVisible(visible) {
+  // 모달 화면을 on/off 하는 메서드.
+  setModalVisible(visible, modalAction) {
     this.setState({modalVisible: visible});
+    const {bibleName, bibleCode, chapterCode, verseCode, content} = this.modalBibleItem;
+    switch (modalAction) {
+      case 'copy':
+        console.log('복사');
+        console.log(content);
+        Clipboard.setString(content);
+        //TODO: 토스트 기능 구현
+        break;
+      case 'highlight':
+        break;
+      case 'memo':
+        break;
+    }
   }
 
-  onLongPressButton = () => {
+  // 성경의 아이템을 길게 눌렀을때 모달 화면을 보여주는 메서드.
+  // 복사, 형광펜, 메모 기능을 위해 해당 값을 전달받는다.
+  onLongPressButton = (item) => () => {
+    this.modalBibleItem = item;
     this.setModalVisible(true);
   };
+
+  // 하단 3개의 옵션 버튼 클릭시 아이콘을 바꿔주고 해당 옵션에 대한 컴포넌트를 렌더링 하기 위한 state를 바꿔줌.
+  onClickOptionButton = (optionType) => () => {
+    switch (optionType) {
+      case 'bibleList':
+        this.setState({
+          bibleListOptionIconUri: require('assets/ic_option_list_on.png'),
+          bibleNoteOptionIconUri: require('assets/ic_option_note_off.png'),
+          fontChangeOptionIconUri: require('assets/ic_option_font_off.png'),
+          optionComponentState: 'bibleList',
+        });
+        break;
+      case 'bibleNote':
+        this.setState({
+          bibleListOptionIconUri: require('assets/ic_option_list_off.png'),
+          bibleNoteOptionIconUri: require('assets/ic_option_note_on.png'),
+          fontChangeOptionIconUri: require('assets/ic_option_font_off.png'),
+          optionComponentState: 'bibleNote',
+        });
+        break;
+      case 'fontChange':
+        this.setState({
+          bibleListOptionIconUri: require('assets/ic_option_list_off.png'),
+          bibleNoteOptionIconUri: require('assets/ic_option_note_off.png'),
+          fontChangeOptionIconUri: require('assets/ic_option_font_on.png'),
+          optionComponentState: 'fontChange',
+        });
+        break;
+    }
+  };
+
+  // 각 옵션에 대한 컴포넌트를 화면에 그려주는 메서드.
+  showOptionComponent() {
+    let visibleOptionComponent;
+    switch (this.state.optionComponentState) {
+      case 'bibleList':
+        visibleOptionComponent = <BibleListOption/>;
+        break;
+      case 'bibleNote':
+        visibleOptionComponent = <BibleNoteOption/>;
+        break;
+      case 'fontChange':
+        visibleOptionComponent = <FontChangeOption/>;
+        break;
+    }
+    return visibleOptionComponent;
+  }
 
   render() {
     return (
       <View style={styles.container}>
         <Modal
           style={styles.modal}
-
           transparent={true}
           visible={this.state.modalVisible}
           onRequestClose={() => {
@@ -124,28 +193,28 @@ export default class VerseListScreen extends Component {
               <TouchableOpacity
                 style={styles.modalItem}
                 onPress={() => {
-                  this.setModalVisible(!this.state.modalVisible);
+                  this.setModalVisible(false, 'copy');
                 }}>
                 <Text style={styles.modalItemText}>복사</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalItem}
                 onPress={() => {
-                  this.setModalVisible(!this.state.modalVisible);
+                  this.setModalVisible(false, 'highlight');
                 }}>
                 <Text style={styles.modalItemText}>형광펜</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalItem}
                 onPress={() => {
-                  this.setModalVisible(!this.state.modalVisible);
+                  this.setModalVisible(false, 'memo');
                 }}>
                 <Text style={styles.modalItemText}>메모</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalItem}
                 onPress={() => {
-                  this.setModalVisible(!this.state.modalVisible);
+                  this.setModalVisible(false);
                 }}>
                 <Text style={styles.modalItemText}>취소</Text>
               </TouchableOpacity>
@@ -161,7 +230,7 @@ export default class VerseListScreen extends Component {
           renderItem={({item, index}) => {
             let verseCode = index + 1;
             return (
-              <TouchableOpacity style={styles.flatListItem} onLongPress={this.onLongPressButton.bind(this)} >
+              <TouchableOpacity style={styles.flatListItem} onLongPress={this.onLongPressButton(item)}>
                 <Text style={styles.flatListItemText}>{verseCode}.    {item.content}</Text>
               </TouchableOpacity>
             )
@@ -169,19 +238,21 @@ export default class VerseListScreen extends Component {
         />
 
         <View style={styles.footerOptionContainer}>
-          <TouchableOpacity style={styles.footerOptionContainerItem}>
-            <Image style={styles.footerOptionIcon} source={require('assets/ic_option_list_off.png')} />
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.onClickOptionButton('bibleList')}>
+            <Image style={styles.footerOptionIcon} source={this.state.bibleListOptionIconUri} />
             <Text>목차</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerOptionContainerItem}>
-            <Image style={styles.footerOptionIcon} source={require('assets/ic_option_note_off.png')} />
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.onClickOptionButton('bibleNote')}>
+            <Image style={styles.footerOptionIcon} source={this.state.bibleNoteOptionIconUri} />
             <Text>성경노트</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerOptionContainerItem}>
-            <Image style={styles.footerOptionIcon} source={require('assets/ic_option_font_off.png')} />
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.onClickOptionButton('fontChange')}>
+            <Image style={styles.footerOptionIcon} source={this.state.fontChangeOptionIconUri} />
             <Text>보기설정</Text>
           </TouchableOpacity>
         </View>
+
+        {this.showOptionComponent()}
       </View>
 
     )
@@ -272,13 +343,12 @@ const styles = StyleSheet.create({
     width: '30%',
     textAlign: 'center',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
 
   footerOptionIcon: {
     width: 40,
     height: 30,
     resizeMode: 'contain',
-  }
-
+  },
 });
