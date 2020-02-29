@@ -57,49 +57,43 @@ export default class BookListScreen extends Component {
     const activeItemColor = (route.params.bibleType === 'old')? '#F9DA4F' : '#F8924F' ;
 
     return (
-      <View style={styles.rootContainer}>
-        <FlatGrid
-          itemDimension={70}
-          items={item}
-          style={styles.gridView}
-          renderItem={({ item, index }) => (
-            <TouchableHighlight
-              style={[styles.itemContainer, { backgroundColor: '#F3F4F9'}]}
-              activeOpacity={0.8}
-              underlayColor={activeItemColor}
-              // sqlite조회를 위한 bookId를 넘겨줍니다.
-              onPress={() => this.props.navigation.navigate('ChapterListScreen',{bookName: item.bookName, bookCode: item.bookCode})}
-            >
-              <View>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemCode}>{item.bookName}</Text>
-              </View>
-            </TouchableHighlight>
-          )}
-        />
-      </View>
+      <FlatGrid
+        itemDimension={71}
+        items={item}
+        style={styles.gridView}
+        renderItem={({ item, index }) => (
+          <TouchableHighlight
+            style={[styles.itemContainer, { backgroundColor: '#F3F4F9'}]}
+            activeOpacity={0.8}
+            underlayColor={activeItemColor}
+            // sqlite조회를 위한 bookId를 넘겨줍니다.
+            onPress={() => this.props.navigation.navigate('ChapterListScreen',{bookName: item.bookName, bookCode: item.bookCode})}
+          >
+            <View>
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemCode}>{item.bookName}</Text>
+            </View>
+          </TouchableHighlight>
+        )}
+      />
     )
   }
 }
 
 const styles = StyleSheet.create({
-  rootContainer: {
-    backgroundColor: 'white',
-    flex: 1,
-    flexDirection: 'column',
-    paddingLeft: 24,
-    paddingRight: 24
-  },
   gridView: {
     marginTop: 20,
-    flex: 1,
   },
+
   itemContainer: {
     justifyContent: 'center',
     borderRadius: 5,
     width: 70,
-    aspectRatio: 1
+    aspectRatio: 1,
+    marginLeft: 'auto',
+    marginRight: 'auto'
   },
+
   itemName: {
     fontSize: 16,
     color: 'black',
@@ -107,6 +101,7 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto'
   },
+
   itemCode: {
     fontWeight: '600',
     fontSize: 12,

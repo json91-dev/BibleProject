@@ -10,6 +10,8 @@ import VerseListScreen from './VerseListScreen';
 import {TouchableOpacity, Image} from 'react-native';
 
 const Stack = createStackNavigator();
+let stackIndex = 0;
+let tabNavigation = null;
 
 const BookListScreenOption = {
   headerTitle: '구약성경',
@@ -23,6 +25,16 @@ const BookListScreenOption = {
     </TouchableOpacity>
   ),
 };
+
+// route에 BookListScreen, ChapterListScreen에 대한 정보를 담고 있음.
+// 애니메이션이 끝난 후 tarBar을 보여주기 위한 기본 Screen 옵션 설정.
+function DefaultScreenOption({navigation, route}) {
+  navigation.addListener('transitionEnd', (e) => {
+    if(stackIndex === 0 && tabNavigation !== null) {
+      tabNavigation.setOptions({tabBarVisible: true})
+    }
+  });
+}
 
 const ChapterListScreenOption = ({route}) => (
   {
@@ -41,14 +53,18 @@ const ContentListScreenOption = ({route}) => (
   });
 
 function BibleScreenNavigator ({navigation, route}) {
+  if(route.state) {
+    stackIndex = route.state.index;
+    tabNavigation = navigation;
+  }
   /* 하단 탭바 출력 설정 */
   if (route.state && route.state.index > 0) {
     navigation.setOptions({tabBarVisible: false})
   } else {
-    navigation.setOptions({tabBarVisible: true})
+
   }
   return (
-    <Stack.Navigator initialRouteName = "BibleMainScreen">
+    <Stack.Navigator screenOptions={DefaultScreenOption} initialRouteName = "BibleMainScreen">
       <Stack.Screen name="BibleMainScreen" options={{ headerShown: false, }}  component={BibleMainScreen}/>
       <Stack.Screen name="BookListScreen" options={BookListScreenOption} component={BookListScreen}/>
       <Stack.Screen name="ChapterListScreen" options={ChapterListScreenOption} component={ChapterListScreen} />

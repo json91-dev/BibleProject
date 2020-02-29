@@ -4,7 +4,7 @@ import {
   View,
 } from 'react-native';
 
-export default class FontChangeOption extends Component {
+export default class BibleNoteMemo extends Component {
   state = {
     isOpenAnswer: false,
   };
@@ -21,12 +21,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'absolute',
-    width: '95%',
-    bottom: 110,
+    width: '100%',
+    top: 30,
     borderRadius: 5,
     backgroundColor: 'white',
-    left: '2.5%',
-    height: 150,
+    left: 20,
+    right: 20,
+    height: 200,
     borderWidth: 1
   },
 });

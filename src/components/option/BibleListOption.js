@@ -21,12 +21,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'absolute',
-    width: '100%',
+    width: '95%',
     top: 30,
     borderRadius: 5,
     backgroundColor: 'white',
-    left: 20,
-    right: 20,
+    left: '2.5%',
     height: 200,
     borderWidth: 1
   },
