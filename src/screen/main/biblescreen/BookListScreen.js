@@ -58,7 +58,7 @@ export default class BookListScreen extends Component {
 
     return (
       <FlatGrid
-        itemDimension={71}
+        itemDimension={80}
         items={item}
         style={styles.gridView}
         renderItem={({ item, index }) => (
@@ -82,7 +82,7 @@ export default class BookListScreen extends Component {
 
 const styles = StyleSheet.create({
   gridView: {
-    marginTop: 20,
+    backgroundColor: 'white'
   },
 
   itemContainer: {

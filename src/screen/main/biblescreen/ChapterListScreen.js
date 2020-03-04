@@ -12,12 +12,12 @@ import SQLite from 'react-native-sqlite-storage';
 
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
-  console.log('Error');
-  console.log(e.message);
+  console.log('DB connection fail');
+  // console.log(e.message);
 };
 const okCallback = (result) => {
-  console.log('okay');
-  console.log(result);
+  console.log('DB connection success');
+  // console.log(result);
 };
 
 export default class ChapterListScreen extends Component {

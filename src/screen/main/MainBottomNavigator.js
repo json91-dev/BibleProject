@@ -3,8 +3,6 @@ import React from 'react';
 import BibleScreenNavigator from './biblescreen/BibleScreenNavigator';
 import QuizScreenNavigator from './quizscreen/QuizScreenNavigator';
 import OptionScreenNavigator from './optionscreen/OptionScreenNavigator';
-import MainScreen from './MainScreen';
-
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Button, Image } from 'react-native';
@@ -39,7 +37,7 @@ const setBottomIconImagePath = (navName, focused) => {
 const MainBottomTabNavigator = function() {
   return (
     <Tab.Navigator
-      initialRouteName="MainScreen"
+      initialRouteName="BibleScreen"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           const iconPath = setBottomIconImagePath(route.name, focused);
@@ -49,13 +47,6 @@ const MainBottomTabNavigator = function() {
         },
       })}
     >
-      <Tab.Screen
-        name="MainScreen"
-        component={MainScreen}
-        options = {({route}) => ({
-          tabBarLabel: '메인',
-        })}
-      />
       <Tab.Screen
         name="BibleScreen"
         component={BibleScreenNavigator}
