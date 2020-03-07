@@ -9,11 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput
-
 } from 'react-native';
-
-
-
 
 export default class BibleMainScreen extends Component {
   state = {
@@ -35,7 +31,6 @@ export default class BibleMainScreen extends Component {
     const isOpenSearchView = this.state.isOpenSearchView;
     let searchView, mainView;
 
-
     return (
       <ScrollView style={styles.container}>
         <View style={styles.searchView} >
@@ -50,6 +45,7 @@ export default class BibleMainScreen extends Component {
         </View>
         <Image style={styles.searchViewBottom}  source={require('assets/ic_search_bottom.png')}/>
 
+        {/* 성경 검색 TextInput에 focus에 따라 View를 다르게 보여줌. */}
         {
           isOpenSearchView ? (
             <View>
@@ -75,9 +71,7 @@ export default class BibleMainScreen extends Component {
             </View>
           )
         }
-
       </ScrollView>
-
     )
   }
 }

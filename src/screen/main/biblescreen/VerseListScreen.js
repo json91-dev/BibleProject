@@ -16,6 +16,7 @@ import Toast, {DURATION} from 'react-native-easy-toast';
 import BibleListOption from '/components/option/BibleListOption';
 import BibleNoteOption from '/components/option/BibleNoteOption';
 import FontChangeOption from '/components/option/FontChangeOption';
+import {uuidv4} from '/utils';
 
 
 // SQLITE 성공/실패 예외처리
@@ -132,7 +133,12 @@ export default class VerseListScreen extends Component {
   //   this.flatListRef.scrollToIndex({animated: true, index: 20-1})
   // };
 
-  // 모달 화면을 on/off 하고 모달 화면시 나오는 옵션들에 대한 동작을 수행함.
+  /**
+   * LongClick시 나오는 클립보드, 형광펜, 메모에대한 동작을 수행한다.
+   * 클립보드 : 클립보드 복사.
+   * 하이라이트 : 해당 성경의 verse를 Asynctask를 통해 highlightList에 입력.
+   * 메모 : 메모 모달 화면 열기
+   */
   setModalVisible(visible, modalAction) {
     this.setState({modalVisible: visible});
     const {bookName, bookCode, chapterCode, verseCode, content} = this.modalBibleItem;
@@ -166,7 +172,11 @@ export default class VerseListScreen extends Component {
   }
 
   setMemoModalVisible(visible) {
-    this.setState({memoModalVisible: visible});
+    this.setState(
+      {
+        memoModalVisible: visible,
+        memoModalSaveButtonActive: false,
+      });
   }
 
   // 성경의 아이템을 길게 눌렀을때 모달 화면을 보여주는 메서드.
@@ -177,7 +187,7 @@ export default class VerseListScreen extends Component {
   };
 
   // 하단 3개의 옵션 버튼 클릭시 아이콘을 바꿔주고 해당 옵션에 대한 컴포넌트를 렌더링 하기 위한 state를 바꿔줌.
-  onClickOptionButton = (optionType) => () => {
+  switchFooterOptionButtonIconAndState = (optionType) => () => {
     switch (optionType) {
       case 'bibleList':
         this.setState({
@@ -203,7 +213,19 @@ export default class VerseListScreen extends Component {
           optionComponentState: 'fontChange',
         });
         break;
+      case "default":
+        this.setState({
+          bibleListOptionIconUri: require('assets/ic_option_list_off.png'),
+          bibleNoteOptionIconUri: require('assets/ic_option_note_off.png'),
+          fontChangeOptionIconUri: require('assets/ic_option_font_off.png'),
+          optionComponentState: 'default',
+        })
     }
+  };
+
+  closeFooterOption = () => {
+    let closeFunction = this.switchFooterOptionButtonIconAndState("default");
+    closeFunction();
   };
 
   // 각 옵션에 대한 컴포넌트를 화면에 그려주는 메서드.
@@ -214,11 +236,13 @@ export default class VerseListScreen extends Component {
         visibleOptionComponent = <BibleListOption/>;
         break;
       case 'bibleNote':
-        visibleOptionComponent = <BibleNoteOption/>;
+        visibleOptionComponent = <BibleNoteOption closeHandler={this.closeFooterOption}/>;
         break;
       case 'fontChange':
         visibleOptionComponent = <FontChangeOption/>;
         break;
+      case 'default':
+        visibleOptionComponent = null;
     }
     return visibleOptionComponent;
   }
@@ -276,6 +300,7 @@ export default class VerseListScreen extends Component {
     const {bookName, bookCode, chapterCode, verseCode, content} = this.modalBibleItem;
     // 메모 입력시 왼쪽 상단위의 저장버튼에 대한 활성화를 지정한다.
     // inputText의 값 0 => inactive / 1 => active
+    let memo;
     const onChangeText = (text) => {
       if (text.length === 0) {
         this.setState({
@@ -288,21 +313,27 @@ export default class VerseListScreen extends Component {
           memoModalSaveButtonActive: true,
         })
       }
+      memo = text;
     };
 
     const onPressSaveButton = () => {
-      // const _memoInput = async () => {
-      //   try {
-      //     let value = await AsyncStorage.getItem('memoList');
-      //     let memoList = JSON.parse(value);
-      //     const index = (memoList === null) ? 0 : memoList.length;
-      //     memoList.push({index, bookName, chapterCode, verseCode, content});
-      //     await AsyncStorage.setItem('memoList', JSON.stringify(memoList));
-      //   } catch(err) {
-      //     console.log(err)
-      //   }
-      // };
-      // _memoInput();
+      const _memoInput = async () => {
+        try {
+          let value = await AsyncStorage.getItem('memoList');
+          let memoList = JSON.parse(value);
+          if (memoList === null) memoList = [];
+          console.log(memoList);
+          const objectId = uuidv4();
+          const date = new Date();
+          memoList.push({objectId, bookName, chapterCode, verseCode, memo, date, content});
+          await AsyncStorage.setItem('memoList', JSON.stringify(memoList));
+        } catch(err) {
+          console.log(err)
+        }
+      };
+      _memoInput();
+      this.setMemoModalVisible(false);
+
     };
 
     return (
@@ -321,7 +352,7 @@ export default class VerseListScreen extends Component {
                 }
               </TouchableOpacity>
               <Text style={styles.memoModalHeaderText}>메모</Text>
-              <TouchableOpacity style={styles.memoModalHeaderCancel} onPress={() =>this.setMemoModalVisible(false)}>
+              <TouchableOpacity style={styles.memoModalHeaderCancel} onPress={() => this.setMemoModalVisible(false)}>
                 <Image style={styles.memoModalHeaderCancelImage} source={require('/assets/ic_close.png')}/>
               </TouchableOpacity>
             </View>
@@ -359,20 +390,22 @@ export default class VerseListScreen extends Component {
         />
 
         {/* 하단 목차, 성경노트, 보기설정에 대한 footer option */}
-        <View style={styles.footerOptionContainer}>
-          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.onClickOptionButton('bibleList')}>
+
+        <View keyboardVerticalOffset={10} contentContainerStyle={{borderColor: 'red'}} style={styles.footerOptionContainer}>
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.switchFooterOptionButtonIconAndState('bibleList')}>
             <Image style={styles.footerOptionIcon} source={this.state.bibleListOptionIconUri} />
             <Text>목차</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.onClickOptionButton('bibleNote')}>
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.switchFooterOptionButtonIconAndState('bibleNote')}>
             <Image style={styles.footerOptionIcon} source={this.state.bibleNoteOptionIconUri} />
             <Text>성경노트</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.onClickOptionButton('fontChange')}>
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.switchFooterOptionButtonIconAndState('fontChange')}>
             <Image style={styles.footerOptionIcon} source={this.state.fontChangeOptionIconUri} />
             <Text>보기설정</Text>
           </TouchableOpacity>
         </View>
+
         {this.showOptionComponent()}
         <Toast ref="toast"
                positionValue={130}
@@ -569,7 +602,6 @@ const styles = StyleSheet.create({
 
   memoModalTextInput: {
     width: '100%',
-
     height: 100,
     textAlignVertical: 'top',
     padding: '5%'
@@ -583,7 +615,8 @@ const styles = StyleSheet.create({
     left: '2.5%',
     bottom: '5%',
     width: '95%',
-    height: 70,
+    paddingTop: 10,
+    paddingBottom: 10,
     borderRadius: 5,
     backgroundColor: 'white',
     justifyContent: 'space-around',
