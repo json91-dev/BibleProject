@@ -1,3 +1,5 @@
+import { AsyncStorage } from 'react-native';
+
 /**
  * 문자열이 특정길이 이상일때 ...으로 출력해주는 메서드
  */
@@ -32,4 +34,30 @@ export const uuidv4 = () => {
     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
+};
+
+export const getArrayItemsFromAsyncStorage = (arrayName) => {
+  if(arrayName === null || arrayName === undefined)
+    return null;
+  return new Promise((resolve, reject) => {
+    AsyncStorage.getItem(arrayName, (err, result) => {
+      if(err) { reject(err); }
+      if(result === null) { resolve(null) }
+
+      resolve(JSON.parse(result));
+    })
+  })
+};
+
+export const setArrayItemsToAsyncStorage = (arrayName, arrayItems) => {
+  if(arrayName === null || arrayName === undefined)
+    return null;
+  return new Promise((resolve, reject) => {
+    AsyncStorage.setItem(arrayName, JSON.stringify(arrayItems), (error) => {
+      if(error) {
+        reject(error);
+      }
+      resolve('입력 성공');
+    });
+  })
 };

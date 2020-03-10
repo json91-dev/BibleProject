@@ -9,15 +9,13 @@ import {
   TextInput,
   Image,
   Clipboard,
-  AsyncStorage,
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import BibleListOption from '/components/option/BibleListOption';
 import BibleNoteOption from '/components/option/BibleNoteOption';
 import FontChangeOption from '/components/option/FontChangeOption';
-import {uuidv4} from '/utils';
-
+import {uuidv4, getArrayItemsFromAsyncStorage, setArrayItemsToAsyncStorage} from '/utils';
 
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
@@ -95,7 +93,6 @@ export default class VerseListScreen extends Component {
       })
     };
 
-
     /**
      * VerseItem을 입력받아 isHighlight 값을 설정하는 메서드.
      * 1. Json 파싱을 통해 highlightList에서부터 하이라이트 목록을 받아온다.
@@ -103,19 +100,19 @@ export default class VerseListScreen extends Component {
      */
     const getHighlight = (verseItems) => {
       return new Promise((resolve, reject) => {
-        AsyncStorage.getItem('highlightList', (err, result) => {
-          let highlightList = JSON.parse(result);
+        getArrayItemsFromAsyncStorage('highlightList').then((items) => {
           verseItems.map((verse) => {
-            if (highlightList === null || highlightList === undefined)
-              highlightList = [];
-            const index = highlightList.findIndex((highlight) => {
+            // || items === undefined
+            if (items === null)
+              items = [];
+            const index = items.findIndex((highlight) => {
               return ((highlight.bookCode === verse.bookCode) && (highlight.chapterCode === verse.chapterCode) && (highlight.verseCode === verse.verseCode))
             });
             (index > -1) ? verse.isHighlight = true : verse.isHighlight = false;
             return verse;
           });
           resolve(verseItems);
-        })
+        });
       })
     };
 
@@ -148,19 +145,14 @@ export default class VerseListScreen extends Component {
         this.refs.toast.show('클립보드에 복사되었습니다.');
         break;
       case 'highlight':
-        const _highlightInput = async () => {
-          try {
-            let value = await AsyncStorage.getItem('highlightList');
-            let highlightList = JSON.parse(value);
-            if (highlightList === null) highlightList = [];
-            highlightList.push({bookCode, chapterCode, verseCode});
-            console.log(highlightList);
-            await AsyncStorage.setItem('highlightList', JSON.stringify(highlightList));
-          } catch(err) {
-            console.log(err)
-          }
-        };
-        _highlightInput();
+        getArrayItemsFromAsyncStorage('highlightList').then((items) => {
+          if (items === null) items = [];
+          items.push({bookCode, chapterCode, verseCode});
+          setArrayItemsToAsyncStorage('highlightList', items).then((result) => {
+            console.log(result);
+          })
+        });
+
         this.componentDidMount();
         this.refs.toast.show('형광펜으로 밑줄 ^^');
         break;
@@ -317,23 +309,16 @@ export default class VerseListScreen extends Component {
     };
 
     const onPressSaveButton = () => {
-      const _memoInput = async () => {
-        try {
-          let value = await AsyncStorage.getItem('memoList');
-          let memoList = JSON.parse(value);
-          if (memoList === null) memoList = [];
-          console.log(memoList);
-          const objectId = uuidv4();
-          const date = new Date();
-          memoList.push({objectId, bookName, chapterCode, verseCode, memo, date, content});
-          await AsyncStorage.setItem('memoList', JSON.stringify(memoList));
-        } catch(err) {
-          console.log(err)
-        }
-      };
-      _memoInput();
-      this.setMemoModalVisible(false);
+      getArrayItemsFromAsyncStorage('memoList').then((items) => {
+        const objectId = uuidv4();
+        const date = new Date();
+        items.push({objectId, bookName, chapterCode, verseCode, memo, date, content});
+        setArrayItemsToAsyncStorage('memoList', items).then((result) => {
+          console.log(result);
+        })
+      });
 
+      this.setMemoModalVisible(false);
     };
 
     return (

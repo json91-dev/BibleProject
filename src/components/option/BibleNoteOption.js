@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {
-  AsyncStorage,
   FlatList,
   StyleSheet,
   Text,
@@ -10,7 +9,7 @@ import {
   TextInput,
 } from 'react-native';
 
-
+import {getArrayItemsFromAsyncStorage, setArrayItemsToAsyncStorage} from '/utils'
 /**
  * 60분 내외 : n분전
  * 1시간 ~ 24시간 : n시간전
@@ -59,7 +58,7 @@ export default class BibleNoteOption extends Component {
     memoEditVerseText: null,
     memoEditContent: null,
     memoEditMemo: null,
-
+    memoEditTextInput: '',
   };
 
   /**
@@ -67,21 +66,28 @@ export default class BibleNoteOption extends Component {
    * id, bookName, chapterCode, verseCode, content, date를 가져옴.
    */
   componentDidMount() {
-    AsyncStorage.getItem('memoList', (err, result) => {
-      // 메모 List 배열 획득
-      if(result === null) return;
-
-      let memoList = JSON.parse(result);
+    getArrayItemsFromAsyncStorage('memoList').then((items) => {
       let noteItems = [];
-      memoList.forEach((memoItem) => {
+      items.forEach((memoItem) => {
         let passTimeText = getPassTimeText(memoItem.date);
-        noteItems.push({id: memoItem.id, bookName: memoItem.bookName, chapterCode: memoItem.chapterCode, verseCode: memoItem.verseCode,memo: memoItem.memo ,content: memoItem.content, passTimeText: passTimeText});
+        noteItems.push({objectId: memoItem.objectId, bookName: memoItem.bookName, chapterCode: memoItem.chapterCode, verseCode: memoItem.verseCode,memo: memoItem.memo ,content: memoItem.content, passTimeText: passTimeText});
       });
       this.setState({noteItems, isNoteItemUpdate: true});
-    })
+    });
   }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    // 성경의 textInput이 변경되었을때는 해당 노트 컴포넌트를 리렌더링 하지 않음
+    if (this.state.memoEditTextInput !== nextState.memoEditTextInput) {
+      return false;
+    }
+    return true;
+  }
+
   /**
-   * Async
+   * 메모 수정 화면을 열어줌.
+   * 메모 수정화면에 전달할 값들을 setState를 통해 지정
+   * isOpenMemoEdit을 true로 만들어줌. (해당 값을 기준으로 화면 렌더링)
    */
   openMemoEdit = (objectId, verseText, content, memo) => () => {
     this.setState({
@@ -89,6 +95,7 @@ export default class BibleNoteOption extends Component {
       memoEditVerseText: verseText,
       memoEditContent: content,
       memoEditMemo: memo,
+      memoEditTextInput: memo,
       isOpenMemoEdit: true,
     })
   };
@@ -104,12 +111,17 @@ export default class BibleNoteOption extends Component {
     }
   };
 
+  /**
+   * 메모 리스트를 보여주는 화면
+   */
   MemoList = () => {
     if(!this.state.isOpenMemoEdit) {
+      // 최근에 입력한 노트가 위로오도록 array를 역순으로 바꿔줌.
+      let noteItems = this.state.noteItems.reverse();
       return (
         <FlatList
           style={styles.flatList}
-          data={this.state.noteItems}
+          data={noteItems}
           keyExtractor={item => item.id}
           ref={(ref) => {
             this.flatListRef = ref;
@@ -148,22 +160,66 @@ export default class BibleNoteOption extends Component {
             <Text style={styles.memoEditVerseText}>{memoEditVerseText}</Text>
             <Text style={styles.memoEditContent}>{memoEditContent}</Text>
           </View>
-          <TextInput style={styles.memoEditMemo} onContentSizeChange={this._onTextContentSizeChange}>{memoEditMemo}</TextInput>
+          <TextInput style={styles.memoEditMemo} onContentSizeChange={this._onTextContentSizeChange} onChangeText={text => this.setState({memoEditTextInput: text})}>{memoEditMemo}</TextInput>
         </View>
       )
     }
   };
 
+  backToMemoList = () => {
+    // 바뀐 내용을 저장한다.
+    // 공백이 있다면 해당 item을 메모리스트에서 삭제한다.
+
+    getArrayItemsFromAsyncStorage('memoList').then((items) => {
+      const editItemIndex = items.findIndex((item) => {
+        console.log(item.objectId);
+        console.log(this.state.memoEditObjectId);
+        return item.objectId === this.state.memoEditObjectId;
+      });
+      items[editItemIndex].memo = this.state.memoEditTextInput;
+
+      setArrayItemsToAsyncStorage('memoList', items).then(() => {
+        this.setState({
+          isOpenMemoEdit: false,
+          noteItems: items,
+        });
+      });
+    })
+  };
+
+  closeMemoComponent = () => {
+    if(this.state.isOpenMemoEdit) {
+      getArrayItemsFromAsyncStorage('memoList').then((items) => {
+        const editItemIndex = items.findIndex((item) => {
+          console.log(item.objectId);
+          console.log(this.state.memoEditObjectId);
+          return item.objectId === this.state.memoEditObjectId;
+        });
+        items[editItemIndex].memo = this.state.memoEditTextInput;
+
+        setArrayItemsToAsyncStorage('memoList', items).then(() => {
+          this.props.closeHandler();
+        });
+      })
+    } else {
+      this.props.closeHandler();
+    }
+  };
 
   render() {
+    console.log('렌더링');
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity>
-            <Image style={styles.headerLeftImage} source={require('/assets/ic_left_arrow.png')}/>
+          <TouchableOpacity onPress={this.backToMemoList}>
+            {
+              this.state.isOpenMemoEdit
+                ? <Image style={styles.headerLeftImage} source={require('/assets/ic_left_arrow.png')}/>
+                : <View style={{marginRight: 20}}></View>
+            }
           </TouchableOpacity>
           <Text style={styles.headerText}>성경노트</Text>
-          <TouchableOpacity onPress={this.props.closeHandler}>
+          <TouchableOpacity onPress={this.closeMemoComponent}>
             <Image style={styles.headerRightImage} source={require('/assets/ic_close.png')}/>
           </TouchableOpacity>
         </View>
@@ -204,13 +260,13 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginTop: 5,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
 
   headerText: {
     marginTop: 4,
     fontSize: 18,
-    marginLeft: 10,
+    marginLeft: 5,
     fontWeight: 'bold'
   },
 
@@ -278,7 +334,6 @@ const styles = StyleSheet.create({
     color: '#828282',
     marginTop: 7
   },
-
 
   memoEditHeader: {
     paddingTop: 30,
