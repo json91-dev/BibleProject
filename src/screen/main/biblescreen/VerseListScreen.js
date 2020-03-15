@@ -229,37 +229,23 @@ export default class VerseListScreen extends Component {
   };
 
   changeScreenNavigation = (bookName, bookCode, chapterCode, verseCode) => () => {
-
     const navigation = this.props.navigation;
 
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 3,
-        routes: [
-          {
-            name: 'bookListScreen',
-            params: {
-              bibleType: this.state.bibleType,
-            }
-          },
-          {
-            name: 'chapterListScreen',
-            params: {
-              bookName,
-              bookCode,
-            }
-          },
-          {
-            name: 'verseListScreen',
-            params: {
-              bookCode,
-              bookName,
-              chapterCode,
-            }
-          },
-        ]
-      })
-    );
+    const popAction = StackActions.pop(2);
+    navigation.dispatch(popAction);
+
+    const pushChapterList = StackActions.push('ChapterListScreen', {
+      bookCode,
+      bookName,
+    });
+    navigation.dispatch(pushChapterList);
+
+    const pushVerseList = StackActions.push('VerseListScreen', {
+      bookCode,
+      bookName,
+      chapterCode,
+    });
+    navigation.dispatch(pushVerseList);
 
   };
 

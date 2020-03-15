@@ -6,7 +6,7 @@ const Stack = createStackNavigator();
 
 import  MainBottomTabNavigator  from './main/MainBottomNavigator';
 
-const RootNavigator = function() {
+function Root() {
   return (
     <NavigationContainer >
       <Stack.Navigator initialRouteName = "Login">
@@ -17,5 +17,5 @@ const RootNavigator = function() {
   )
 };
 
-export default RootNavigator
+export default Root;
 

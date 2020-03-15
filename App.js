@@ -23,7 +23,7 @@ const instructions = Platform.select({
 
 type Props = {};
 
-import RootNavigator from './src/screen/RootNavigator';
+import Root from './src/screen/RootNavigator';
 
 
 export default class App extends Component<Props> {
@@ -31,7 +31,7 @@ export default class App extends Component<Props> {
 
   render() {
     return (
-      RootNavigator()
+      Root()
     );
   }
 }
