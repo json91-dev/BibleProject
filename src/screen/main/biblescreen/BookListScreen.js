@@ -53,8 +53,8 @@ export default class BookListScreen extends Component {
       { name: '요3', bookName: '요한3서', bookCode: 64 }, { name: '유', bookName: '유다서', bookCode: 65 },
       { name: '계', bookName: '요한계시록', bookCode: 66 },
     ];
-    const item = (route.params.bibleType === 'old')? oldBibleItems : newBibleItems ;
-    const activeItemColor = (route.params.bibleType === 'old')? '#F9DA4F' : '#F8924F' ;
+    const item = (route.params.bibleType === 0)? oldBibleItems : newBibleItems ;
+    const activeItemColor = (route.params.bibleType === 0)? '#F9DA4F' : '#F8924F' ;
 
     return (
       <FlatGrid

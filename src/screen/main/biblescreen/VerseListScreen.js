@@ -12,10 +12,12 @@ import {
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import Toast, {DURATION} from 'react-native-easy-toast';
-import BibleListOption from '/components/option/BibleListOption';
+import BibleListOption from '/components/option/biblelist/BibleListOption';
 import BibleNoteOption from '/components/option/BibleNoteOption';
 import FontChangeOption from '/components/option/FontChangeOption';
 import {uuidv4, getArrayItemsFromAsyncStorage, setArrayItemsToAsyncStorage} from '/utils';
+import { CommonActions, StackActions } from '@react-navigation/native';
+
 
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
@@ -55,6 +57,8 @@ export default class VerseListScreen extends Component {
       bibleNoteOptionIconUri: require('assets/ic_option_note_off.png'),
       fontChangeOptionIconUri: require('assets/ic_option_font_off.png'),
       optionComponentState: '',
+      changeVerse: false,
+      bibleType: 0,
     };
 
     this.modalBibleItem = {};
@@ -119,7 +123,11 @@ export default class VerseListScreen extends Component {
     new getBibleVerseItems()
       .then(getHighlight)
       .then((verseItems) => {
-        this.setState({verseItems});
+        const bibleType = (verseItems[0].bookCode < 40 ? 0 : 1);
+        this.setState({
+          verseItems,
+          bibleType,
+        });
       })
   }
 
@@ -220,12 +228,48 @@ export default class VerseListScreen extends Component {
     closeFunction();
   };
 
+  changeScreenNavigation = (bookName, bookCode, chapterCode, verseCode) => () => {
+
+    const navigation = this.props.navigation;
+
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 3,
+        routes: [
+          {
+            name: 'bookListScreen',
+            params: {
+              bibleType: this.state.bibleType,
+            }
+          },
+          {
+            name: 'chapterListScreen',
+            params: {
+              bookName,
+              bookCode,
+            }
+          },
+          {
+            name: 'verseListScreen',
+            params: {
+              bookCode,
+              bookName,
+              chapterCode,
+            }
+          },
+        ]
+      })
+    );
+
+  };
+
   // 각 옵션에 대한 컴포넌트를 화면에 그려주는 메서드.
   showOptionComponent() {
     let visibleOptionComponent;
     switch (this.state.optionComponentState) {
       case 'bibleList':
-        visibleOptionComponent = <BibleListOption/>;
+        // 성경이 구약인지 신약인지 BibleListOption컴포넌트에 전달한다.
+        visibleOptionComponent = <BibleListOption changeScreenHandler={this.changeScreenNavigation}  bibleType={this.state.bibleType} closeHandler={this.closeFooterOption}/>;
         break;
       case 'bibleNote':
         visibleOptionComponent = <BibleNoteOption closeHandler={this.closeFooterOption}/>;

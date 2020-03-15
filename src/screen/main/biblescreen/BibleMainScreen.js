@@ -59,13 +59,13 @@ export default class BibleMainScreen extends Component {
 
               <TouchableOpacity
                 style={[styles.bibleLink, {marginTop: 30}]}
-                onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 'old'})}>
+                onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 0})}>
                 <Image style={styles.bibleLinkImage} source={require('assets/btn_old_bible.png')}/>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.bibleLink}
-                onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 'new'})}>
+                onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 1})}>
                 <Image style={styles.bibleLinkImage} source={require('assets/btn_new_bible.png')}/>
               </TouchableOpacity>
             </View>
