@@ -51,18 +51,18 @@ const styles = StyleSheet.create({
     marginRight: 'auto'
   },
   titleText: {
-    fontWeight: '300',
+    fontWeight: 'normal',
     fontSize: 24,
     textAlign: 'center',
     margin: 20,
     color: 'white'
   },
   titleInfo: {
-    fontWeight: '300',
     fontSize: 14,
     textAlign: 'center',
     margin: 20,
-    color: 'white'
+    color: 'white',
+    fontWeight: 'bold',
   },
   loginButton: {
   }

@@ -14,7 +14,7 @@ import {
 export default class BibleMainScreen extends Component {
   state = {
     isOpenSearchView: false,
-    searchWordItems: [1,2,3],
+    searchWordItems: ['예수님','하나님','둘님','셋님','넷님'],
   };
 
 
@@ -51,6 +51,7 @@ export default class BibleMainScreen extends Component {
   };
 
 
+  // 최상단의 SearchView Bar 부분을 그려줌.
   SearchView = () => {
     // 버튼이 포커스되면 searchView를 보여줌
     const onFocus = () => {
@@ -71,6 +72,14 @@ export default class BibleMainScreen extends Component {
       console.log(text);
     };
 
+    const onCancelPress = () => {
+      this.setState({
+        isOpenSearchView: false
+      });
+      this.refs.textInputRef.blur();
+    };
+
+
     return (
       <View style={styles.searchView}>
         <TouchableOpacity style={styles.searchIcon}>
@@ -83,10 +92,11 @@ export default class BibleMainScreen extends Component {
             onFocus = {onFocus}
             onBlur = {onBlur}
             onChangeText = {(value) => onChangeText(value)}
+            ref="textInputRef"
           >
           </TextInput>
         </View>
-        <TouchableOpacity style={styles.searchCancel}>
+        <TouchableOpacity style={styles.searchCancel} onPress={onCancelPress}>
           <Image style={styles.searchCancelImage} source={require('assets/ic_close.png')}/>
         </TouchableOpacity>
       </View>
@@ -101,6 +111,7 @@ export default class BibleMainScreen extends Component {
   render() {
     const isOpenSearchView = this.state.isOpenSearchView;
     let searchView, mainView;
+    const searchWordItems = this.state.searchWordItems;
 
     return (
       <View style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}>
@@ -108,9 +119,16 @@ export default class BibleMainScreen extends Component {
         <Image style={styles.searchViewBottom} source={require('assets/ic_search_bottom.png')}/>
         {/* 성경 검색 TextInput에 focus에 따라 View를 다르게 보여줌. */}
         {this.MainView()}
-        {/*<View style={styles.searchWord}>*/}
-          {/*<Text style={styles.searchWordTitle}>최근검색어</Text>*/}
-        {/*</View>*/}
+        <View style={styles.searchWord}>
+          <Text style={styles.searchWordTitle}>최근검색어</Text>
+          {searchWordItems.map((item, index) => {
+            return (
+              <TouchableOpacity>
+                <Text style={styles.searchWordItem}>{item}</Text>
+              </TouchableOpacity>
+            )
+          })}
+        </View>
       </View>
     )
   }
@@ -224,17 +242,19 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'column',
+    paddingBottom: '3%',
   },
 
   searchWordTitle: {
-
+    marginBottom: '5%',
+    color: '#BDBDBD',
   },
 
-  searchWordFlatList: {
-
-  },
-
-  searchWordFlatListItem: {
-    borderWidth: 1,
+  searchWordItem: {
+    color: 'black',
+    fontSize: 24,
+    marginBottom: '2%',
+    fontWeight: 'bold',
   }
 });
