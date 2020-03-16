@@ -8,70 +8,110 @@ import {
   Alert,
   TouchableOpacity,
   ScrollView,
-  TextInput
+  TextInput, FlatList,
 } from 'react-native';
 
 export default class BibleMainScreen extends Component {
   state = {
-    isOpenSearchView: false
+    isOpenSearchView: false,
+    searchWordItems: [1,2,3],
   };
 
-  openSearchView = () => {
-    this.setState({
-      isOpenSearchView: true
-    })
+
+  /**
+   * 함수형 컴포넌트 영역
+   */
+
+  MainView = () => {
+    const isOpenSearchView = this.state.isOpenSearchView;
+
+    if (isOpenSearchView) {
+      return null
+    } else {
+      return (
+        <View style={styles.mainView}>
+          <Image style={styles.todayImage} source={require('assets/ic_today_title.png')}/>
+          <Text style={styles.todayWord}>너는 하나님과 화목하고 평안하라. 그리하면 복이 네게 임하리라.</Text>
+          <Text style={styles.todayWordDetail}>요한복음 1장 27절</Text>
+          <Text style={styles.linkLabel}>성경책 읽기</Text>
+          <TouchableOpacity
+            style={styles.bibleLink}
+            onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 0})}>
+            <Image style={styles.bibleLinkImage} source={require('assets/btn_old_bible.png')}/>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.bibleLink}
+            onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 1})}>
+            <Image style={styles.bibleLinkImage} source={require('assets/btn_new_bible.png')}/>
+          </TouchableOpacity>
+        </View>
+      )
+    }
   };
-  closeSearchView = () => {
-    this.setState({
-      isOpenSearchView: false
-    })
+
+
+  SearchView = () => {
+    // 버튼이 포커스되면 searchView를 보여줌
+    const onFocus = () => {
+      this.setState({
+        isOpenSearchView: true
+      })
+    };
+
+    // 버튼의 Focus가 풀렸을 시 동작함.
+    const onBlur = () => {
+      // this.setState({
+      //   isOpenSearchView: false
+      // })
+    };
+
+    // 버튼의 Text가 변경되었을 시.
+    const onChangeText = (text) => {
+      console.log(text);
+    };
+
+    return (
+      <View style={styles.searchView}>
+        <TouchableOpacity style={styles.searchIcon}>
+          <Image style={styles.searchIconImage} source={require('assets/ic_search.png')}/>
+        </TouchableOpacity>
+        <View style={styles.searchViewInput}>
+          <TextInput
+            style={styles.searchTextInput}
+            placeholder='다시 읽고 싶은 말씀이 있나요?'
+            onFocus = {onFocus}
+            onBlur = {onBlur}
+            onChangeText = {(value) => onChangeText(value)}
+          >
+          </TextInput>
+        </View>
+        <TouchableOpacity style={styles.searchCancel}>
+          <Image style={styles.searchCancelImage} source={require('assets/ic_close.png')}/>
+        </TouchableOpacity>
+      </View>
+    )
   };
+
+  SearchWordView = () => {
+
+  };
+
 
   render() {
     const isOpenSearchView = this.state.isOpenSearchView;
     let searchView, mainView;
 
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.searchView} >
-          <Image style={styles.searchIconImage} source={require('assets/ic_search.png')}/>
-          <TextInput
-            style={styles.searchTextInput}
-            placeholder='다시 읽고 싶은 말씀이 있나요?'
-            onFocus = {this.openSearchView}
-            onBlur = {this.closeSearchView}
-          >
-          </TextInput>
-        </View>
-        <Image style={styles.searchViewBottom}  source={require('assets/ic_search_bottom.png')}/>
-
+      <View style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}>
+        {this.SearchView()}
+        <Image style={styles.searchViewBottom} source={require('assets/ic_search_bottom.png')}/>
         {/* 성경 검색 TextInput에 focus에 따라 View를 다르게 보여줌. */}
-        {
-          isOpenSearchView ? (
-            <View>
-            </View>
-          ) : (
-            <View>
-              <Image style={styles.todayImage} source={require('assets/ic_today_title.png')}/>
-              <Text style={styles.todayWord}>너는 하나님과 화목하고 평안하라. 그리하면 복이 네게 임하리라.</Text>
-              <Text style={styles.todayWordDetail}>요한복음 1장 27절</Text>
-              <Text style={styles.linkLabel}>성경책 읽기</Text>
-
-              <TouchableOpacity
-                style={[styles.bibleLink, {marginTop: 30}]}
-                onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 0})}>
-                <Image style={styles.bibleLinkImage} source={require('assets/btn_old_bible.png')}/>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.bibleLink}
-                onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 1})}>
-                <Image style={styles.bibleLinkImage} source={require('assets/btn_new_bible.png')}/>
-              </TouchableOpacity>
-            </View>
-          )
-        }
-      </ScrollView>
+        {this.MainView()}
+        {/*<View style={styles.searchWord}>*/}
+          {/*<Text style={styles.searchWordTitle}>최근검색어</Text>*/}
+        {/*</View>*/}
+      </View>
     )
   }
 }
@@ -80,26 +120,53 @@ export default class BibleMainScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    height: '100%',
+    flexDirection: 'column',
   },
-
-  searchIconImage: {
-    borderColor:'black',
-    height:'100%',
-    width:'20%',
-    resizeMode: 'contain'
+  searchViewInput: {
+    width: '70%',
+    borderColor: 'green',
+    flexDirection: 'row',
+    justifyContent: 'flex-start'
   },
 
   searchTextInput: {
-    borderColor:'black',
-    width:'60%',
+    borderColor:'red',
     height:'100%',
+    width: '100%',
   },
 
   searchView: {
-    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
+    width: '100%',
+    height: 50,
+  },
+
+  searchIcon: {
+    width: '15%',
+    height: '100%',
+    position:'absolute',
+    left: 1,
+  },
+  searchIconImage: {
+    height:'100%',
+    width: '100%',
+    resizeMode: 'contain',
+  },
+
+  searchCancel: {
+    width: '15%',
+    height: '100%',
+    position:'absolute',
+    right: 1,
+  },
+
+  searchCancelImage: {
+    height:'100%',
+    width: '100%',
+    resizeMode: 'contain'
   },
 
   searchViewBottom: {
@@ -107,43 +174,67 @@ const styles = StyleSheet.create({
     height: 1
   },
 
+  mainView: {
+    height: '90%',
+  },
+
   todayImage: {
-    marginTop: '10%',
-    paddingLeft: 36,
-    paddingRight: 36,
+    marginTop: '5%',
     marginLeft: 36,
-    width:96,
-    height:34,
+    aspectRatio: 2,
+    height:'10%',
+    resizeMode:'contain',
   },
 
   todayWord: {
     paddingLeft: 36,
     paddingRight: 36,
-    marginTop: '10%',
+    marginTop: '5%',
     fontSize: 18,
   },
 
   todayWordDetail: {
     textAlign: 'right',
     paddingTop: 34,
-    paddingRight: 36
+    paddingRight: 36,
+    color: '#828282',
   },
 
   linkLabel: {
     paddingLeft: 36,
     marginTop: '10%',
-    marginBottom: 20,
+    marginBottom: '5%',
   },
 
   bibleLink: {
-    marginTop: '1%',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: 20
+    marginBottom: 20,
+    height: '20%',
   },
 
   bibleLinkImage: {
-    width:327,
-    height:102,
+    aspectRatio: 3,
+    height:'100%',
   },
+
+  searchWord: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  searchWordTitle: {
+
+  },
+
+  searchWordFlatList: {
+
+  },
+
+  searchWordFlatListItem: {
+    borderWidth: 1,
+  }
 });

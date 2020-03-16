@@ -42,7 +42,7 @@ export const getArrayItemsFromAsyncStorage = (arrayName) => {
   return new Promise((resolve, reject) => {
     AsyncStorage.getItem(arrayName, (err, result) => {
       if(err) { reject(err); }
-      if(result === null) { resolve(null) }
+      if(result === null) { resolve([]) }
 
       resolve(JSON.parse(result));
     })
