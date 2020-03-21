@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native';
+import AsyncStorage  from '@react-native-community/async-storage';
 
 /**
  * 문자열이 특정길이 이상일때 ...으로 출력해주는 메서드
