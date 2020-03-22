@@ -8,17 +8,7 @@ import {
 
 } from 'react-native';
 
-import SQLite from 'react-native-sqlite-storage';
-
-// SQLITE 성공/실패 예외처리
-const errorCallback = (e) => {
-  console.log('DB connection fail');
-  // console.log(e.message);
-};
-const okCallback = (result) => {
-  console.log('DB connection success');
-  // console.log(result);
-};
+import {getSqliteDatabase} from '/utils'
 
 export default class ChapterListScreen extends Component {
   state = {
@@ -30,9 +20,9 @@ export default class ChapterListScreen extends Component {
     const {bookName, bookCode} = route.params;
 
     // 성경의 장을 모두 가져오는 쿼리를 수행.
-    let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
-    bibleDB.transaction((tx) => {
+    getSqliteDatabase().transaction((tx) => {
       const query = `SELECT max(chapter) as count FROM bible_korHRV where book = ${bookCode}`;
+      console.log(query);
       tx.executeSql(query, [], (tx, results) => {
         let chapterItemsLength = results.rows.item(0).count;
         const chapterItems = [];
@@ -67,7 +57,7 @@ export default class ChapterListScreen extends Component {
         <FlatList
           style={styles.flatList}
           data={this.state.chapterItems}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index) => item +index }
           renderItem={({item, index}) => {
             let chapterCode = index + 1;
             return (

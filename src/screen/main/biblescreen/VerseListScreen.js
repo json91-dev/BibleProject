@@ -17,7 +17,7 @@ import BibleNoteOption from '/components/option/BibleNoteOption';
 import FontChangeOption from '/components/option/FontChangeOption';
 import {uuidv4, getArrayItemsFromAsyncStorage, setArrayItemsToAsyncStorage} from '/utils';
 import { CommonActions, StackActions } from '@react-navigation/native';
-
+import {getSqliteDatabase} from '/utils'
 
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
@@ -70,8 +70,7 @@ export default class VerseListScreen extends Component {
 
     const getBibleVerseItems = () => {
       return new Promise((resolve, reject) => {
-        let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
-        bibleDB.transaction((tx) => {
+        getSqliteDatabase().transaction((tx) => {
           //성경의 절과 내용을 모두 가져오는 쿼리를 선언
           const query = `SELECT verse, content FROM bible_korHRV where book = ${bookCode} and chapter = ${chapterCode}`;
           tx.executeSql(query, [],

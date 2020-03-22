@@ -12,18 +12,24 @@ import {
   TextInput, FlatList,
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
+import Toast from 'react-native-easy-toast';
+
+import {printIsNewOrOldBibleByBookCode, getOldBibleItems, getNewBibleItems, getSqliteDatabase} from '/utils';
+
 
 export default class BibleMainScreen extends Component {
   state = {
-    isOpenSearchHeaderView: false,
+    isOpenSearchMode: false,
+    isOpenSearchWordListView: false,
     searchWordItems: [],
     searchText: "",
     searchTextPlaceHolder: '다시 읽고 싶은 말씀이 있나요?',
     isOpenCurrentWordView: false,
     currentWordText: "",
     isOpenSearchResultView: false,
-    searchResultItems: ['하이', '반가워', '오잇'],
+    searchResultItems: [],
   };
+
 
   componentDidMount() {
     // AsyncStorage에서 최근 검색어를 가져오는 기능 구현
@@ -38,9 +44,9 @@ export default class BibleMainScreen extends Component {
    * 함수형 컴포넌트 영역
    */
   MainView = () => {
-    const isOpenSearchHeaderView = this.state.isOpenSearchHeaderView;
+    const isOpenSearchMode = this.state.isOpenSearchMode;
 
-    if (isOpenSearchHeaderView) {
+    if (isOpenSearchMode) {
       return null
     } else {
       return (
@@ -70,14 +76,15 @@ export default class BibleMainScreen extends Component {
     // 버튼이 포커스되면 searchView를 보여줌
     const onFocus = () => {
       this.setState({
-        isOpenSearchHeaderView: true
+        isOpenSearchMode: true,
+        isOpenSearchWordListView: true,
       })
     };
 
     // 버튼의 Focus가 풀렸을 시 동작함.
     const onBlur = () => {
       // this.setState({
-      //   isOpenSearchHeaderView: false
+      //   isOpenSearchMode: false
       // })
     };
 
@@ -91,41 +98,97 @@ export default class BibleMainScreen extends Component {
 
     const onCancelPress = () => {
       this.setState({
-        isOpenSearchHeaderView: false,
+        isOpenSearchMode: false,
+        isOpenSearchWordListView: false,
+        isOpenCurrentWordView: false,
+        currentWordText: "",
         searchTextPlaceHolder: "다시 읽고 싶은 말씀이 있나요?",
       });
       this.refs.textInputRef.blur();
       this.refs.textInputRef.clear();
     };
 
+
     /**
      *  왼쪽 상단 검색버튼 눌렀을때의 동작 로직.
+     *  0. text가 2개 이상일때만 검색 수행
      *  1. AsyncStorage에 현재 textInput의 값 저장.
-     *  2. searchWordList가 6개 이상일경우 1개의 아이템을 제거함.
-     *  3. currentWordView를 열어서 현재 검색한 단어를 화면에 보여줌.
+     *  2. 현재 검색 단어(searchWordList) 가 6개 이상일경우 1개의 아이템을 제거함.
+     *  3. 현재 입력 단어(currentWordView)를 열어서 현재 검색한 단어를 화면에 보여줌.
+     *  4. 현재 검색 단어(searchWordList)를 화면에서 없애고, 검색 결과 성경(searchResultView)에 대한 쿼리 진행
      */
     const onSearchPress = () => {
+      const searchTextValue = this.state.searchText;
       this.refs.textInputRef.blur();
       this.refs.textInputRef.clear();
-      const {searchText} = this.state;
 
-      getArrayItemsFromAsyncStorage('searchWordList').then((items) => {
-        let searchWordItems = items;
-        searchWordItems.push(searchText);
-        const currentWordText = searchText;
-        // 5개가 넘어가면 searchWordItems(검색어 목록)에서 아이템 1개 삭제.
-        if (searchWordItems.length > 5) {
-          searchWordItems.shift();
-        }
+      if(searchTextValue.length < 2) {
+        this.refs.toast.show('2자 이상으로 검색어를 입력해주세요 :)');
+        return;
+      }
 
-        setArrayItemsToAsyncStorage('searchWordList', searchWordItems).then(() => {
-          this.setState({
-            searchWordItems,
-            searchText: '',
-            currentWordText
+      const pushSearchTextToSearchWordList = (text) => {
+        // 최근검색어에 대한 검색단어를 새로 입력하고 5개로 갯수를 맞춰준다.
+        // 이후 textInput을 clear한뒤 현재입력단어(currentWordView)를 보여준다.
+        getArrayItemsFromAsyncStorage('searchWordList').then((items) => {
+          let searchWordItems = items;
+          searchWordItems.push(text);
+          const currentWordText = text;
+          // 5개가 넘어가면 searchWordItems(검색어 목록)에서 아이템 1개 삭제.
+          if (searchWordItems.length > 5) {
+            searchWordItems.shift();
+          }
+          setArrayItemsToAsyncStorage('searchWordList', searchWordItems).then(() => {
+            this.setState({
+              searchWordItems,
+              searchText: '',
+              currentWordText
+            })
+          });
+        });
+      };
+      pushSearchTextToSearchWordList(searchTextValue);
+
+      const getSearchResult = (text) => {
+
+        getSqliteDatabase().transaction((tx) => {
+          const query = `SELECT book, chapter, verse, content from bible_korHRV WHERE content LIKE '%${text}%' `;
+          tx.executeSql(query, [], (tx, results) => {
+            const searchResultItems = [];
+            console.log(results.rows.length);
+            for (let i = 0; i < results.rows.length ; i++) {
+              const bookCode = results.rows.item(i).book;
+              const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
+              const bibleItems = (bibleName === '구약') ? getOldBibleItems() : getNewBibleItems();
+              const bookName = bibleItems.find((item, index) => {
+                return (item.bookCode === bookCode)
+              }).bookName;
+              const chapterCode = results.rows.item(i).chapter;
+              const verseCode = results.rows.item(i).verse;
+              const content = results.rows.item(i).content;
+
+              searchResultItems.push({
+                bibleName,
+                bookName,
+                bookCode,
+                chapterCode,
+                verseCode,
+                content,
+              })
+            }
+
+            this.setState({
+              isOpenSearchWordListView: false,
+              isOpenSearchResultView: true,
+              searchResultItems,
+            })
           })
         });
-      });
+      };
+
+      getSearchResult(searchTextValue);
+
+
 
       this.setState({
         isOpenCurrentWordView: true,
@@ -157,18 +220,18 @@ export default class BibleMainScreen extends Component {
 
 
   // 검색 결과를 보여주는 화면
-  SearchWordView = () => {
-    const {isOpenSearchHeaderView, searchWordItems} = this.state;
+  SearchWordListView = () => {
+    const {isOpenSearchWordListView, searchWordItems} = this.state;
     const searchWordItemsReverse = JSON.parse(JSON.stringify(searchWordItems));
     searchWordItemsReverse.reverse();
 
-    if (isOpenSearchHeaderView) {
+    if (isOpenSearchWordListView) {
       return (
         <View style={styles.searchWord}>
           <Text style={styles.searchWordTitle}>최근검색어</Text>
           {searchWordItemsReverse.map((item, index) => {
             return (
-              <TouchableOpacity>
+              <TouchableOpacity key={item+index}>
                 <Text style={styles.searchWordItem}>{item}</Text>
               </TouchableOpacity>
             )
@@ -209,29 +272,7 @@ export default class BibleMainScreen extends Component {
     const {isOpenSearchResultView, currentWordText} = this.state;
 
 
-    // 성경의 장을 모두 가져오는 쿼리를 수행.
-    let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, ()=>{}, ()=>{});
-    bibleDB.transaction((tx) => {
-      const query = `SELECT book, chapter, verse, content from bible_korHRV WHERE content LIKE '%${currentWordText}%' `;
-      tx.executeSql(query, [], (tx, results) => {
-        let chapterItemsLength = results.rows.item(0).count;
-        const chapterItems = [];
-        /**
-         * Item insert
-         */
-        for (let i = 0; i < chapterItemsLength ; i++) {
-          chapterItems.push(
-            {
-              bookCode,
-              bookName,
-            })
-        }
-        this.setState({chapterItems});
-      })
-    });
-
-    // if(isOpenSearchResultView)
-    if(true)
+    if(isOpenSearchResultView)
     {
       return (
         <View style={styles.searchResultView}>
@@ -243,8 +284,8 @@ export default class BibleMainScreen extends Component {
               return (
                 <TouchableOpacity style={styles.searchResultFlatItem}>
                   <View style={{width: '90%'}}>
-                    <Text style={styles.searchResultFlatItemTitle}>구약-누가복은 6장 32절</Text>
-                    <Text style={styles.searchResultFlatItemContent}>그리스도가 명하느니 세계여 재창도되리라. 그리스도가 명하느니 세계여 재창도되리라. 그리스도가 명하느니 세계여 재창도되리라.</Text>
+                    <Text style={styles.searchResultFlatItemTitle}>{item.bibleName}-{item.bookName} {item.chapterCode}장 {item.verseCode}절</Text>
+                    <Text style={styles.searchResultFlatItemContent}>{item.content}</Text>
                   </View>
                   <Image style={styles.searchResultFlatItemImage} source={require('/assets/ic_arrow.png')} />
 
@@ -267,10 +308,17 @@ export default class BibleMainScreen extends Component {
         {this.SearchHeaderView()}
         <Image style={styles.searchViewBottom} source={require('assets/ic_search_bottom.png')}/>
         {/* 성경 검색 TextInput에 focus에 따라 View를 다르게 보여줌. */}
-        {/*{this.MainView()}*/}
-        {this.SearchWordView()}
+        {this.MainView()}
+        {this.SearchWordListView()}
         {this.CurrentWordView()}
         {this.SearchResultView()}
+
+
+        <Toast ref="toast"
+               positionValue={130}
+               fadeInDuration={200}
+               fadeOutDuration={1000}
+        />
       </View>
     )
   }
@@ -367,15 +415,15 @@ const styles = StyleSheet.create({
   },
 
   bibleLink: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
     marginBottom: 20,
     height: '20%',
+    width: '100%',
   },
 
   bibleLinkImage: {
-    aspectRatio: 3,
-    height:'95%',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 
   searchWord: {

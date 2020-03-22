@@ -1,4 +1,5 @@
 import AsyncStorage  from '@react-native-community/async-storage';
+import SQLite from 'react-native-sqlite-storage';
 
 /**
  * 문자열이 특정길이 이상일때 ...으로 출력해주는 메서드
@@ -104,4 +105,19 @@ export const getNewBibleItems = () => {
     { name: '요3', bookName: '요한3서', bookCode: 64 }, { name: '유', bookName: '유다서', bookCode: 65 },
     { name: '계', bookName: '요한계시록', bookCode: 66 },
   ];
+};
+
+// SQLITE 성공/실패 예외처리
+const errorCallback = (e) => {
+  console.log('DB connection fail');
+  // console.log(e.message);
+};
+const okCallback = (result) => {
+  console.log('DB connection success');
+  // console.log(result);
+};
+let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
+export const getSqliteDatabase = () => {
+  console.log(bibleDB);
+  return bibleDB
 }
