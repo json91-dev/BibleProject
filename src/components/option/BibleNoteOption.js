@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import {getArrayItemsFromAsyncStorage, setArrayItemsToAsyncStorage} from '/utils'
+import Toast from 'react-native-easy-toast';
 /**
  * 60분 내외 : n분전
  * 1시간 ~ 24시간 : n시간전
@@ -62,8 +63,8 @@ export default class BibleNoteOption extends Component {
   };
 
   /**
-   * AsyncStorage의 memoList(기록한 메모들)을 이용하여 noteItem을 만들어줌.
-   * id, bookName, chapterCode, verseCode, content, date를 가져옴.
+   * 기록한 메모들 (memoList)을 이용하여 노트목록(noteItems)을 만들어줌.
+   * id, bookName, chapterCode, verseCode, content, date 를 가져옴.
    */
   componentDidMount() {
     getArrayItemsFromAsyncStorage('memoList').then((items) => {
@@ -74,14 +75,6 @@ export default class BibleNoteOption extends Component {
       });
       this.setState({noteItems, isNoteItemUpdate: true});
     });
-  }
-
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    // 성경의 textInput이 변경되었을때는 해당 노트 컴포넌트를 리렌더링 하지 않음
-    if (this.state.memoEditTextInput !== nextState.memoEditTextInput) {
-      return false;
-    }
-    return true;
   }
 
   /**
@@ -97,7 +90,7 @@ export default class BibleNoteOption extends Component {
       memoEditMemo: memo,
       memoEditTextInput: memo,
       isOpenMemoEdit: true,
-    })
+    });
   };
 
   MemoNone = () => {
@@ -166,22 +159,44 @@ export default class BibleNoteOption extends Component {
     }
   };
 
+  /**
+   * 메모 수정화면에서 백버튼이 눌렸을때 동작함.
+   * 백버튼이 눌리면 메모 수정화면에서, 메모목록 화면으로 넘어감.
+   * 이후 메모 목록에서 수정페이지에서 바뀐 텍스트가 있으면 해당 메모를 objectId로 조회후 수정후 반영.
+   */
   backToMemoList = () => {
-    // 바뀐 내용을 저장한다.
-    // 공백이 있다면 해당 item을 메모리스트에서 삭제한다.
-
     getArrayItemsFromAsyncStorage('memoList').then((items) => {
+      const inputText = this.state.memoEditTextInput;
+
+      let noteItems = [];
+      // 바꿀 아이템 id 검색 후 수정
       const editItemIndex = items.findIndex((item) => {
         console.log(item.objectId);
         console.log(this.state.memoEditObjectId);
         return item.objectId === this.state.memoEditObjectId;
       });
-      items[editItemIndex].memo = this.state.memoEditTextInput;
 
+      // 아무런 입력이 없다면 해당 노트 삭제
+      // 입력이 있다면 해당 노트 수정.
+      if(inputText.length < 1) {
+        items.splice(editItemIndex, 1);
+        this.refs.toast.show('노트가 삭제되었습니다 :)');
+      } else {
+        items[editItemIndex].memo = inputText;
+        this.refs.toast.show('노트가 수정되었습니다. :)');
+      }
+
+      // 시간 적용
+      items.forEach((memoItem) => {
+        let passTimeText = getPassTimeText(memoItem.date);
+        noteItems.push({objectId: memoItem.objectId, bookName: memoItem.bookName, chapterCode: memoItem.chapterCode, verseCode: memoItem.verseCode,memo: memoItem.memo ,content: memoItem.content, passTimeText: passTimeText});
+      });
+
+      // 아이템 갱신, 페이지 이동
       setArrayItemsToAsyncStorage('memoList', items).then(() => {
         this.setState({
           isOpenMemoEdit: false,
-          noteItems: items,
+          noteItems: noteItems,
         });
       });
     })
@@ -207,25 +222,32 @@ export default class BibleNoteOption extends Component {
   };
 
   render() {
-    console.log('렌더링');
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={this.backToMemoList}>
+          <TouchableOpacity style={{position:'absolute', left: 5}} onPress={this.backToMemoList}>
             {
               this.state.isOpenMemoEdit
-                ? <Image style={styles.headerLeftImage} source={require('/assets/ic_left_arrow.png')}/>
-                : <View style={{marginRight: 20}}></View>
+                ? <View style={styles.headerLeftImageWrapper}><Image style={styles.headerLeftImage} source={require('/assets/ic_left_arrow.png')}/></View>
+                : null
             }
           </TouchableOpacity>
           <Text style={styles.headerText}>성경노트</Text>
-          <TouchableOpacity onPress={this.closeMemoComponent}>
-            <Image style={styles.headerRightImage} source={require('/assets/ic_close.png')}/>
+          <TouchableOpacity style={{position:'absolute', right: 5}} onPress={this.closeMemoComponent}>
+            <View style={styles.headerRightImageWrapper}>
+              <Image style={styles.headerRightImage} source={require('/assets/ic_close.png')}/>
+            </View>
           </TouchableOpacity>
         </View>
         {this.MemoNone()}
         {this.MemoList()}
         {this.MemoEdit()}
+
+        <Toast ref="toast"
+               positionValue={250}
+               fadeInDuration={200}
+               fadeOutDuration={1000}
+        />
       </View>
     )
   }
@@ -246,7 +268,8 @@ const styles = StyleSheet.create({
 
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    width: '100%',
+    justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
     paddingTop: 13,
@@ -256,10 +279,13 @@ const styles = StyleSheet.create({
     height: '15%',
   },
 
+  headerLeftImageWrapper: {
+    padding: 10,
+  },
+
   headerLeftImage: {
-    width: 20,
-    height: 20,
-    marginTop: 5,
+    width: 25,
+    height: 25,
     resizeMode: 'contain',
   },
 
@@ -270,10 +296,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
 
+  headerRightImageWrapper: {
+    padding: 5,
+  },
+
   headerRightImage: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain'
+    width: 35,
+    height: 35,
+    resizeMode: 'contain',
   },
 
   memoNone: {

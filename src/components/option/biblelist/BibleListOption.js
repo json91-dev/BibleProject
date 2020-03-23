@@ -9,18 +9,6 @@ import BookListComponent from './BookListComponent';
 import ChapterListComponent from './ChapterListComponent';
 import VerseListComponent from './VerseListComponent';
 
-// SQLITE 성공/실패 예외처리
-const errorCallback = (e) => {
-  console.log('DB connection fail');
-  // console.log(e.message);
-};
-const okCallback = (result) => {
-  console.log('DB connection success');
-  // console.log(result);
-};
-
-
-
 export default class BibleListOption extends Component {
   state = {
     bookName: null,
@@ -39,8 +27,8 @@ export default class BibleListOption extends Component {
     const headerBackButton = () => {
       return (
         (pageStack === 0)
-          ? <View style={{marginRight: 20}}></View>
-          : <Image style={styles.headerLeftImage} source={require('/assets/ic_left_arrow.png')}/>
+          ? null
+          : <View style={styles.headerLeftImageWrapper}><Image style={styles.headerLeftImage} source={require('/assets/ic_left_arrow.png')}/></View>
       )
     };
 
@@ -54,12 +42,12 @@ export default class BibleListOption extends Component {
 
     return (
       <View style={styles.header}>
-        <TouchableOpacity onPress={this.backToMemoList}>
+        <TouchableOpacity style={{position: 'absolute', left: 5}} onPress={this.backToMemoList}>
           {headerBackButton()}
         </TouchableOpacity>
         {headerText()}
-        <TouchableOpacity onPress={this.closeMemoComponent}>
-          <Image style={styles.headerRightImage} source={require('/assets/ic_close.png')}/>
+        <TouchableOpacity style={{position: 'absolute', right: 5}} onPress={this.closeMemoComponent}>
+          <View style={styles.headerRightImageWrapper}><Image style={styles.headerRightImage} source={require('/assets/ic_close.png')}/></View>
         </TouchableOpacity>
       </View>
     )
@@ -117,15 +105,6 @@ export default class BibleListOption extends Component {
   }
 }
 
-/*
-      <BibleContext.Provider style={styles.container}>
-        <BookListComponent/>
-        <ChapterListComponent/>
-        <VerseListComponent/>
-      </BibleContext.Provider>
-
- */
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -142,7 +121,7 @@ const styles = StyleSheet.create({
 
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
     paddingTop: 13,
@@ -152,24 +131,29 @@ const styles = StyleSheet.create({
     height: '15%',
   },
 
+  headerLeftImageWrapper: {
+    padding: 10,
+  },
+
   headerLeftImage: {
-    width: 20,
-    height: 20,
-    marginTop: 5,
+    width: 22,
+    height: 22,
     resizeMode: 'contain',
   },
 
   headerText: {
-    marginTop: 4,
     fontSize: 18,
-    marginLeft: 5,
     fontWeight: 'bold'
   },
 
+  headerRightImageWrapper: {
+    padding: 5,
+  },
+
   headerRightImage: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain'
+    width: 35,
+    height: 35,
+    resizeMode: 'contain',
   },
 
 });

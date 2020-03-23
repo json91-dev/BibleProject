@@ -101,6 +101,7 @@ export default class BibleMainScreen extends Component {
         isOpenSearchMode: false,
         isOpenSearchWordListView: false,
         isOpenCurrentWordView: false,
+        isOpenSearchResultView: false,
         currentWordText: "",
         searchTextPlaceHolder: "다시 읽고 싶은 말씀이 있나요?",
       });
@@ -249,6 +250,8 @@ export default class BibleMainScreen extends Component {
       this.setState({
         currentWordText: "",
         isOpenCurrentWordView: false,
+        isOpenSearchResultView: false,
+        isOpenSearchWordListView: true,
         searchTextPlaceHolder: "다시 읽고 싶은 말씀이 있나요?",
       })
     };
@@ -334,7 +337,6 @@ const styles = StyleSheet.create({
   },
   searchViewInput: {
     width: '70%',
-    borderColor: 'green',
     flexDirection: 'row',
     justifyContent: 'flex-start'
   },
@@ -476,11 +478,9 @@ const styles = StyleSheet.create({
 
   searchResultView: {
     height: '90%',
-    borderWidth: 1,
-    borderColor: 'green',
     marginTop: 10,
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 15,
   },
 
   searchResultFlat: {
