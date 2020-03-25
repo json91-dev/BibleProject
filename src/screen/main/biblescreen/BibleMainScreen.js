@@ -24,6 +24,7 @@ export default class BibleMainScreen extends Component {
     searchWordItems: [],
     searchText: "",
     searchTextPlaceHolder: '다시 읽고 싶은 말씀이 있나요?',
+    searchTextEditable: true,
     isOpenCurrentWordView: false,
     currentWordText: "",
     isOpenSearchResultView: false,
@@ -71,6 +72,93 @@ export default class BibleMainScreen extends Component {
     }
   };
 
+
+  /**
+   *  왼쪽 상단 검색버튼 눌렀을때의 동작 로직.
+   *  0. text가 2개 이상일때만 검색 수행
+   *  1. AsyncStorage에 현재 textInput의 값 저장.
+   *  2. 현재 검색 단어(searchWordList) 가 6개 이상일경우 1개의 아이템을 제거함.
+   *  3. 현재 입력 단어(currentWordView)를 열어서 현재 검색한 단어를 화면에 보여줌.
+   *  4. 현재 검색 단어(searchWordList)를 화면에서 없애고, 검색 결과 성경(searchResultView)에 대한 쿼리 진행
+   */
+  searchWord = (text) => {
+    const searchTextValue = text;
+    this.refs.textInputRef.blur();
+    this.refs.textInputRef.clear();
+
+    if(searchTextValue.length < 2) {
+      this.refs.toast.show('2자 이상으로 검색어를 입력해주세요 :)');
+      return;
+    }
+
+    const pushSearchTextToSearchWordList = (text) => {
+      // 최근검색어에 대한 검색단어를 새로 입력하고 5개로 갯수를 맞춰준다.
+      // 이후 textInput을 clear한뒤 현재입력단어(currentWordView)를 보여준다.
+      getArrayItemsFromAsyncStorage('searchWordList').then((items) => {
+        let searchWordItems = items;
+        searchWordItems.push(text);
+        const currentWordText = text;
+        // 5개가 넘어가면 searchWordItems(검색어 목록)에서 아이템 1개 삭제.
+        if (searchWordItems.length > 5) {
+          searchWordItems.shift();
+        }
+        setArrayItemsToAsyncStorage('searchWordList', searchWordItems).then(() => {
+          this.setState({
+            searchWordItems,
+            searchText: '',
+            currentWordText,
+            searchTextEditable: false,
+          })
+        });
+      });
+    };
+    pushSearchTextToSearchWordList(searchTextValue);
+
+    const getSearchResult = (text) => {
+
+      getSqliteDatabase().transaction((tx) => {
+        const query = `SELECT book, chapter, verse, content from bible_korHRV WHERE content LIKE '%${text}%' `;
+        tx.executeSql(query, [], (tx, results) => {
+          const searchResultItems = [];
+          console.log(results.rows.length);
+          for (let i = 0; i < results.rows.length ; i++) {
+            const bookCode = results.rows.item(i).book;
+            const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
+            const bibleItems = (bibleName === '구약') ? getOldBibleItems() : getNewBibleItems();
+            const bookName = bibleItems.find((item, index) => {
+              return (item.bookCode === bookCode)
+            }).bookName;
+            const chapterCode = results.rows.item(i).chapter;
+            const verseCode = results.rows.item(i).verse;
+            const content = results.rows.item(i).content;
+
+            searchResultItems.push({
+              bibleName,
+              bookName,
+              bookCode,
+              chapterCode,
+              verseCode,
+              content,
+            })
+          }
+
+          this.setState({
+            isOpenSearchWordListView: false,
+            isOpenSearchResultView: true,
+            searchResultItems,
+          })
+        })
+      });
+    };
+
+    getSearchResult(searchTextValue);
+
+    this.setState({
+      isOpenCurrentWordView: true,
+      searchTextPlaceHolder: "",
+    })
+  };
+
   // 최상단의 SearchHeaderView Bar 부분을 그려줌. (상단 TextView, 왼쪽 검색버튼, 오른쪽 X버튼)
   SearchHeaderView = () => {
     // 버튼이 포커스되면 searchView를 보여줌
@@ -104,97 +192,15 @@ export default class BibleMainScreen extends Component {
         isOpenSearchResultView: false,
         currentWordText: "",
         searchTextPlaceHolder: "다시 읽고 싶은 말씀이 있나요?",
+        searchTextEditable: true,
       });
       this.refs.textInputRef.blur();
       this.refs.textInputRef.clear();
     };
 
-
-    /**
-     *  왼쪽 상단 검색버튼 눌렀을때의 동작 로직.
-     *  0. text가 2개 이상일때만 검색 수행
-     *  1. AsyncStorage에 현재 textInput의 값 저장.
-     *  2. 현재 검색 단어(searchWordList) 가 6개 이상일경우 1개의 아이템을 제거함.
-     *  3. 현재 입력 단어(currentWordView)를 열어서 현재 검색한 단어를 화면에 보여줌.
-     *  4. 현재 검색 단어(searchWordList)를 화면에서 없애고, 검색 결과 성경(searchResultView)에 대한 쿼리 진행
-     */
     const onSearchPress = () => {
       const searchTextValue = this.state.searchText;
-      this.refs.textInputRef.blur();
-      this.refs.textInputRef.clear();
-
-      if(searchTextValue.length < 2) {
-        this.refs.toast.show('2자 이상으로 검색어를 입력해주세요 :)');
-        return;
-      }
-
-      const pushSearchTextToSearchWordList = (text) => {
-        // 최근검색어에 대한 검색단어를 새로 입력하고 5개로 갯수를 맞춰준다.
-        // 이후 textInput을 clear한뒤 현재입력단어(currentWordView)를 보여준다.
-        getArrayItemsFromAsyncStorage('searchWordList').then((items) => {
-          let searchWordItems = items;
-          searchWordItems.push(text);
-          const currentWordText = text;
-          // 5개가 넘어가면 searchWordItems(검색어 목록)에서 아이템 1개 삭제.
-          if (searchWordItems.length > 5) {
-            searchWordItems.shift();
-          }
-          setArrayItemsToAsyncStorage('searchWordList', searchWordItems).then(() => {
-            this.setState({
-              searchWordItems,
-              searchText: '',
-              currentWordText
-            })
-          });
-        });
-      };
-      pushSearchTextToSearchWordList(searchTextValue);
-
-      const getSearchResult = (text) => {
-
-        getSqliteDatabase().transaction((tx) => {
-          const query = `SELECT book, chapter, verse, content from bible_korHRV WHERE content LIKE '%${text}%' `;
-          tx.executeSql(query, [], (tx, results) => {
-            const searchResultItems = [];
-            console.log(results.rows.length);
-            for (let i = 0; i < results.rows.length ; i++) {
-              const bookCode = results.rows.item(i).book;
-              const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
-              const bibleItems = (bibleName === '구약') ? getOldBibleItems() : getNewBibleItems();
-              const bookName = bibleItems.find((item, index) => {
-                return (item.bookCode === bookCode)
-              }).bookName;
-              const chapterCode = results.rows.item(i).chapter;
-              const verseCode = results.rows.item(i).verse;
-              const content = results.rows.item(i).content;
-
-              searchResultItems.push({
-                bibleName,
-                bookName,
-                bookCode,
-                chapterCode,
-                verseCode,
-                content,
-              })
-            }
-
-            this.setState({
-              isOpenSearchWordListView: false,
-              isOpenSearchResultView: true,
-              searchResultItems,
-            })
-          })
-        });
-      };
-
-      getSearchResult(searchTextValue);
-
-
-
-      this.setState({
-        isOpenCurrentWordView: true,
-        searchTextPlaceHolder: "",
-      })
+      this.searchWord(this.state.searchText);
     };
     return (
       <View style={styles.searchView}>
@@ -203,6 +209,7 @@ export default class BibleMainScreen extends Component {
         </TouchableOpacity>
         <View style={styles.searchViewInput}>
           <TextInput
+            editable={this.state.searchTextEditable}
             style={styles.searchTextInput}
             placeholder={this.state.searchTextPlaceHolder}
             onFocus = {onFocus}
@@ -226,13 +233,17 @@ export default class BibleMainScreen extends Component {
     const searchWordItemsReverse = JSON.parse(JSON.stringify(searchWordItems));
     searchWordItemsReverse.reverse();
 
+    const onSearchPress = (text) => () => {
+      this.searchWord(text);
+    };
+
     if (isOpenSearchWordListView) {
       return (
         <View style={styles.searchWord}>
           <Text style={styles.searchWordTitle}>최근검색어</Text>
           {searchWordItemsReverse.map((item, index) => {
             return (
-              <TouchableOpacity key={item+index}>
+              <TouchableOpacity key={item+index} onPress={onSearchPress(item)}>
                 <Text style={styles.searchWordItem}>{item}</Text>
               </TouchableOpacity>
             )
@@ -253,6 +264,7 @@ export default class BibleMainScreen extends Component {
         isOpenSearchResultView: false,
         isOpenSearchWordListView: true,
         searchTextPlaceHolder: "다시 읽고 싶은 말씀이 있나요?",
+        searchTextEditable: true,
       })
     };
     const {isOpenCurrentWordView, currentWordText} = this.state;
@@ -272,8 +284,7 @@ export default class BibleMainScreen extends Component {
   };
 
   SearchResultView = () => {
-    const {isOpenSearchResultView, currentWordText} = this.state;
-
+    const {isOpenSearchResultView} = this.state;
 
     if(isOpenSearchResultView)
     {
@@ -282,7 +293,7 @@ export default class BibleMainScreen extends Component {
           <FlatList
             style={styles.searchResultFlat}
             data={this.state.searchResultItems}
-            keyExtractor={item => item.id}
+            keyExtractor={(item,index) => item + index}
             renderItem={({item, index}) => {
               return (
                 <TouchableOpacity style={styles.searchResultFlatItem}>

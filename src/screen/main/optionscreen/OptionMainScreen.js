@@ -13,13 +13,18 @@ import {
 } from 'react-native';
 
 export default class ContentScreen extends Component {
+  moveToScreen = (screenName) => () => {
+    console.log(screenName);
+    this.props.navigation.navigate(screenName);
+  };
+
   render() {
     return (
       <ScrollView style={styles.container}>
         <Image style={styles.nicknameImage} source={require('assets/ic_jesus_nickname.png')} />
         <Text style={styles.nicknameText}>하이</Text>
-        <TouchableOpacity style={styles.nicknameChangeButton}>
-          <Text>프로필 수정</Text>
+        <TouchableOpacity style={styles.profileEditButton} onPress={this.moveToScreen('ProfileEditScreen')}>
+          <Text style={styles.profileEditButtonText}>프로필 수정</Text>
         </TouchableOpacity>
         <View style={styles.divider}></View>
 
@@ -122,8 +127,6 @@ export default class ContentScreen extends Component {
           </View>
         </TouchableOpacity>
         <View style={[styles.divider, {marginBottom: 20,}]}></View>
-
-
       </ScrollView>
     )
   }
@@ -150,8 +153,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 5,
   },
-  nicknameChangeButton: {
-    width: 100,
+
+  profileEditButton: {
     borderWidth: 1,
     borderRadius: 3,
     flexDirection: 'row',
@@ -159,8 +162,17 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto',
     marginTop: 5,
-    padding: 3,
+    paddingTop: 3,
+    paddingBottom: 3,
+    paddingLeft: 8,
+    paddingRight: 8,
     marginBottom: 22,
+    borderColor: '#828282'
+  },
+
+  profileEditButtonText: {
+    color: '#828282',
+    fontSize: 12,
   },
 
   bibleLabel: {
