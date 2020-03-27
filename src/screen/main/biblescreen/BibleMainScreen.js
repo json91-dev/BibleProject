@@ -194,6 +194,7 @@ export default class BibleMainScreen extends Component {
         currentWordText: "",
         searchTextPlaceHolder: "다시 읽고 싶은 말씀이 있나요?",
         searchTextEditable: true,
+        searchText: ''
       });
       this.refs.textInputRef.blur();
       this.refs.textInputRef.clear();
@@ -201,7 +202,9 @@ export default class BibleMainScreen extends Component {
 
     const onSearchPress = () => {
       const searchTextValue = this.state.searchText;
-      this.searchWord(this.state.searchText);
+      if(searchTextValue.length !== 0 ) {
+        this.searchWord(this.state.searchText);
+      }
     };
     return (
       <View style={styles.searchView}>
