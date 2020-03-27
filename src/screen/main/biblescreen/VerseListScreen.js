@@ -245,7 +245,6 @@ export default class VerseListScreen extends Component {
       chapterCode,
     });
     navigation.dispatch(pushVerseList);
-
   };
 
   // 각 옵션에 대한 컴포넌트를 화면에 그려주는 메서드.

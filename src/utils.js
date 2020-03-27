@@ -30,6 +30,16 @@ export const printIsNewOrOldBibleByBookCode = (bookCode) => {
   }
 };
 
+export const getBibleType = (bookCode) => {
+  if(bookCode >= 1 && bookCode < 40) {
+    return 0;
+  } else if (bookCode <= 66) {
+    return 1;
+  } else {
+    return -1;
+  }
+};
+
 export const uuidv4 = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);

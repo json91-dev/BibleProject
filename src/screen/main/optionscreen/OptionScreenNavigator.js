@@ -5,6 +5,8 @@ import React from 'react';
 
 import OptionMainScreen from './OptionMainScreen'
 import ProfileEditScreen from './ProfileEditScreen'
+import AppVersionScreen from './AppVersionScreen'
+import NoticeScreen from './NoticeScreen'
 
 import {TouchableOpacity, Image} from 'react-native';
 
@@ -15,6 +17,8 @@ function MainScreenNavigator () {
     <Stack.Navigator initialRouteName = "OptionMainScreen">
       <Stack.Screen name="OptionMainScreen" options={{ headerShown: false}} component={OptionMainScreen}/>
       <Stack.Screen name="ProfileEditScreen" options={{title: '프로필 수정', headerTitleAlign: 'center'}} component={ProfileEditScreen}/>
+      <Stack.Screen name="AppVersionScreen" options={{title: '앱 버전', headerTitleAlign: 'center'}} component={AppVersionScreen}/>
+      <Stack.Screen name="NoticeScreen" options={{title: '앱 버전', headerTitleAlign: 'center'}} component={NoticeScreen}/>
     </Stack.Navigator>
   )
 }

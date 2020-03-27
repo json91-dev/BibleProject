@@ -29,7 +29,7 @@ export default class ContentScreen extends Component {
         <View style={styles.divider}></View>
 
         <Text style={styles.bibleLabel}>The Bible</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={this.moveToScreen('NoticeScreen')}>
           <View style={styles.optionItem}>
             <Text>공지사항</Text>
             <Image style={styles.menuRightImage} source={require('/assets/ic_arrow.png')}/>
@@ -37,7 +37,7 @@ export default class ContentScreen extends Component {
         </TouchableOpacity>
         <View style={styles.divider}></View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={this.moveToScreen('AppVersionScreen')}>
           <View style={styles.optionItem}>
             <Text>앱버전</Text>
             <View style={styles.optionItemRight}>

@@ -11,10 +11,11 @@ import {
   ScrollView,
   TextInput, FlatList,
 } from 'react-native';
-import SQLite from 'react-native-sqlite-storage';
-import Toast from 'react-native-easy-toast';
 
-import {printIsNewOrOldBibleByBookCode, getOldBibleItems, getNewBibleItems, getSqliteDatabase} from '/utils';
+import Toast from 'react-native-easy-toast';
+import { StackActions } from '@react-navigation/native';
+
+import {printIsNewOrOldBibleByBookCode, getOldBibleItems, getNewBibleItems, getSqliteDatabase, getBibleType} from '/utils';
 
 
 export default class BibleMainScreen extends Component {
@@ -283,6 +284,45 @@ export default class BibleMainScreen extends Component {
     }
   };
 
+  // 읽던 성경 바로가기
+  ContinueBibleView = () => {
+      const changeScreenNavigation = (bookName, bookCode, chapterCode, verseCode) => () => {
+        const navigation = this.props.navigation;
+
+        const bibleType = getBibleType(bookCode);
+
+        const pushBookList = StackActions.push('BookListScreen', {
+          bibleType
+        });
+        navigation.dispatch(pushBookList);
+
+        const pushChapterList = StackActions.push('ChapterListScreen', {
+          bookCode,
+          bookName,
+        });
+        navigation.dispatch(pushChapterList);
+
+        const pushVerseList = StackActions.push('VerseListScreen', {
+          bookCode,
+          bookName,
+          chapterCode,
+        });
+        navigation.dispatch(pushVerseList);
+    };
+
+    return (
+      <View style={styles.continueView}>
+        <View style={styles.continueViewInfo}>
+          <Text style={styles.continueViewInfoLabel}>최근 읽은 성서</Text>
+          <Text style={styles.continueViewInfoText}>구약 - 누가복음 6장</Text>
+        </View>
+        <TouchableOpacity onPress={changeScreenNavigation('누가복음', 42, 6, 4)}>
+          <Text style={styles.continueViewButton}>이어보기</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
   SearchResultView = () => {
     const {isOpenSearchResultView} = this.state;
 
@@ -313,8 +353,8 @@ export default class BibleMainScreen extends Component {
     else {
       return null;
     }
-
   };
+
 
   render() {
     return (
@@ -326,6 +366,7 @@ export default class BibleMainScreen extends Component {
         {this.SearchWordListView()}
         {this.CurrentWordView()}
         {this.SearchResultView()}
+        {this.ContinueBibleView()}
 
 
         <Toast ref="toast"
@@ -344,7 +385,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     height: '100%',
-    flexDirection: 'column',
+
   },
   searchViewInput: {
     width: '70%',
@@ -362,7 +403,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    height: 50,
+    height: 50
   },
 
   searchIcon: {
@@ -392,15 +433,15 @@ const styles = StyleSheet.create({
 
   searchViewBottom: {
     width: '80%',
-    height: 1
+    height: 10
   },
 
   mainView: {
-    height: '90%',
+    height: '82%',
   },
 
   todayImage: {
-    marginTop: '5%',
+    marginTop: '3%',
     marginLeft: 36,
     aspectRatio: 2,
     height:'10%',
@@ -525,5 +566,41 @@ const styles = StyleSheet.create({
     width: 10,
     height: 30,
     marginRight: 12,
+  },
+
+  continueView: {
+    position:'absolute',
+    width: '100%',
+    height: '10%',
+    bottom: 0,
+    borderWidth: 1,
+    backgroundColor: '#000000',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingLeft: '5%',
+    paddingRight: '3%',
+  },
+
+  continueViewInfo: {
+    flexDirection: 'column',
+    justifyContent: 'space-evenly'
+  },
+  continueViewInfoLabel: {
+    color: 'white',
+    fontSize: 12,
+  },
+
+  continueViewInfoText: {
+    color: 'white'
+  },
+
+  continueViewButton: {
+    color: '#F9DA4F',
+    paddingLeft: 10,
+    paddingBottom: 10,
+    paddingTop: 10,
+    paddingRight: 10,
+    borderWidth: 1,
   }
 });
