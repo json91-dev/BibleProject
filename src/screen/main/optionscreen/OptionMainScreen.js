@@ -56,7 +56,7 @@ export default class ContentScreen extends Component {
         </TouchableOpacity>
         <View style={styles.divider}></View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={this.moveToScreen('CopyrightScreen')}>
           <View style={styles.optionItem}>
             <Text>저작권</Text>
             <Image style={styles.menuRightImage} source={require('/assets/ic_arrow.png')}/>

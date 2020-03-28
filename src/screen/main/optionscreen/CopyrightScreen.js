@@ -3,13 +3,15 @@ import {
   StyleSheet,
   Image,
   View,
+  Text,
 } from 'react-native';
 
 export default class CopyrightScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Image style={styles.appVersionImage} source={require('/assets/ic_bible_version.png')} />
+        <Image style={styles.Image} source={require('/assets/ic_bible_copyright.png')} />
+        <Text style={styles.Text}>더바이블의 성경에 대한 저작권은{'\n'}'대한성서협회'에 있으며,{'\n'}무단 복제시 처벌될수 있습니다.</Text>
       </View>
     )
   }
@@ -22,12 +24,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'column',
     height: '100%',
+
+    paddingBottom: '20%',
   },
 
-  appVersionImage: {
+  Image: {
     resizeMode: 'contain',
-    width: '60%',
-    marginBottom: '15%',
+    width: '50%',
+    height: '50%',
+  },
+
+  Text: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 30,
   }
 });
