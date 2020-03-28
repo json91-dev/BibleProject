@@ -59,9 +59,8 @@ export default class VerseListScreen extends Component {
       optionComponentState: '',
       changeVerse: false,
       bibleType: 0,
+      modalBibleItem: {},
     };
-
-    this.modalBibleItem = {};
   }
 
   componentDidMount() {
@@ -144,24 +143,42 @@ export default class VerseListScreen extends Component {
    * 메모 : 메모 모달 화면 열기
    */
   setModalVisible(visible, modalAction) {
-    this.setState({modalVisible: visible});
-    const {bookName, bookCode, chapterCode, verseCode, content} = this.modalBibleItem;
+    this.setState({
+      modalVisible: visible
+    });
+
+    const {bookName, bookCode, chapterCode, verseCode, content, isHighlight} = this.state.modalBibleItem;
     switch (modalAction) {
       case 'copy':
         Clipboard.setString(content);
         this.refs.toast.show('클립보드에 복사되었습니다.');
         break;
       case 'highlight':
-        getArrayItemsFromAsyncStorage('highlightList').then((items) => {
-          if (items === null) items = [];
-          items.push({bookCode, chapterCode, verseCode});
-          setArrayItemsToAsyncStorage('highlightList', items).then((result) => {
-            console.log(result);
-          })
-        });
 
+        if(isHighlight) {
+          // 형광펜 제거 로직 구현
+          getArrayItemsFromAsyncStorage('highlightList').then((items) => {
+            const itemIndex = items.findIndex((item, index) => {
+              return (item.bookCode === bookCode && item.chapterCode === chapterCode && item.verseCode === verseCode);
+            });
+
+            items.splice(itemIndex, itemIndex)
+            setArrayItemsToAsyncStorage('highlightList', items).then((result) => {
+              console.log(result);
+              this.refs.toast.show('형광펜 밑줄 제거 ^^');
+            })
+          });
+        } else {
+          getArrayItemsFromAsyncStorage('highlightList').then((items) => {
+            if (items === null) items = [];
+            items.push({bookCode, chapterCode, verseCode});
+            setArrayItemsToAsyncStorage('highlightList', items).then((result) => {
+              console.log(result);
+              this.refs.toast.show('형광펜으로 밑줄 ^^');
+            })
+          });
+        }
         this.componentDidMount();
-        this.refs.toast.show('형광펜으로 밑줄 ^^');
         break;
       case 'memo':
         // 메모 모달 동작
@@ -181,7 +198,9 @@ export default class VerseListScreen extends Component {
   // 성경의 아이템을 길게 눌렀을때 모달 화면을 보여주는 메서드.
   // 복사, 형광펜, 메모 기능을 위해 해당 값을 전달받는다.
   onLongPressButton = (item) => () => {
-    this.modalBibleItem = item;
+    this.setState({
+      modalBibleItem: item,
+    });
     this.setModalVisible(true);
   };
 
@@ -269,6 +288,47 @@ export default class VerseListScreen extends Component {
 
   // 성경의 verse를 Long Click시에 modal을 띄워준다.
   LongClickModal = () => {
+    const HighLightButton = () => {
+      const { isHighlight } = this.state.modalBibleItem;
+
+      if(isHighlight) {
+        return (
+          <TouchableOpacity
+            style={styles.highlightButtonChecked}
+            onPress={() => {
+              this.setModalVisible(false, 'highlight');
+            }}>
+            <Image style={styles.modalItemImage} source={require('/assets/ic_color_pen.png')}/>
+            <Text style={styles.modalItemText}>형광펜</Text>
+          </TouchableOpacity>
+        )
+
+      } else {
+        return (
+          <TouchableOpacity
+            style={styles.highlightButton}
+            onPress={() => {
+              this.setModalVisible(false, 'highlight');
+            }}>
+            <Image style={styles.modalItemImage} source={require('/assets/ic_color_pen.png')}/>
+            <Text style={styles.modalItemText}>형광펜</Text>
+          </TouchableOpacity>
+        )
+      }
+    };
+
+    const MemoButton = () => {
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            this.setModalVisible(false, 'memo');
+          }}>
+          <Image style={[styles.modalItemImage, {marginLeft: 3}]} source={require('/assets/ic_memo.png')}/>
+          <Text style={styles.modalItemText}>메모</Text>
+        </TouchableOpacity>
+      )
+    };
+
     return (
       <Modal
         style={styles.modal}
@@ -279,7 +339,7 @@ export default class VerseListScreen extends Component {
         }}>
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
-            <Text style={styles.modalHeader}>{this.modalBibleItem.bookName} {this.modalBibleItem.chapterCode}장 {this.modalBibleItem.verseCode}절</Text>
+            <Text style={styles.modalHeader}>{this.state.modalBibleItem.bookName} {this.state.modalBibleItem.chapterCode}장 {this.state.modalBibleItem.verseCode}절</Text>
             <View style={styles.modalViewItems}>
               <TouchableOpacity
                 onPress={() => {
@@ -288,20 +348,8 @@ export default class VerseListScreen extends Component {
                 <Image style={[styles.modalItemImage, {marginRight: 2}]} source={require('/assets/ic_copy.png')}/>
                 <Text style={styles.modalItemText}>복사</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  this.setModalVisible(false, 'highlight');
-                }}>
-                <Image style={styles.modalItemImage} source={require('/assets/ic_color_pen.png')}/>
-                <Text style={styles.modalItemText}>형광펜</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  this.setModalVisible(false, 'memo');
-                }}>
-                <Image style={[styles.modalItemImage, {marginLeft: 3}]} source={require('/assets/ic_memo.png')}/>
-                <Text style={styles.modalItemText}>메모</Text>
-              </TouchableOpacity>
+              {HighLightButton()}
+              {MemoButton()}
             </View>
             <TouchableOpacity
               style={styles.modalCancel}
@@ -317,7 +365,7 @@ export default class VerseListScreen extends Component {
   };
 
   MemoModal = () => {
-    const {bookName, bookCode, chapterCode, verseCode, content} = this.modalBibleItem;
+    const {bookName, bookCode, chapterCode, verseCode, content} = this.state.modalBibleItem;
     // 메모 입력시 왼쪽 상단위의 저장버튼에 대한 활성화를 지정한다.
     // inputText의 값 0 => inactive / 1 => active
     let memo;
@@ -411,18 +459,35 @@ export default class VerseListScreen extends Component {
       }
     };
 
+    const VerseItem = (item, index) => {
+      const highlightText = (item) => {
+        if(item.isHighlight) {
+          return (
+            <Text style={styles.flatListItemTextHighlight}>{item.content}</Text>
+          )
+        } else {
+          return (
+            <Text style={styles.flatListItemText}>{item.content}</Text>
+          )
+        }
+      };
+
+      let verseCode = index + 1;
+      return (
+        <TouchableOpacity style={styles.flatList}  onLongPress={this.onLongPressButton(item)}>
+          <View style={styles.flatListVerseItem}>
+            <Text style={styles.flatListItemTextLabel}> {verseCode}.</Text>
+            {highlightText(item)}
+          </View>
+        </TouchableOpacity>
+      )
+    };
 
 
     const verseItem = ({item, index}) => {
-      let verseCode = index + 1;
       return (
         <View>
-            <TouchableOpacity style={styles.flatList}  onLongPress={this.onLongPressButton(item)}>
-              <View style={styles.flatListVerseItem}>
-                <Text style={styles.flatListItemTextLabel}> {verseCode}.</Text>
-                {item.isHighlight ? <Text style={styles.flatListItemTextHighlight}>{item.content}</Text> : <Text style={styles.flatListItemText}>{item.content}</Text>}
-              </View>
-            </TouchableOpacity>
+          {VerseItem(item, index)}
           {MoveChatper(item, index)}
         </View>
       )
@@ -537,7 +602,7 @@ const styles = StyleSheet.create({
 
   modalView: {
     width: 250,
-    height: 180,
+    height: 200,
     borderWidth: 1,
     borderRadius: 10,
     backgroundColor: 'white',
@@ -574,10 +639,12 @@ const styles = StyleSheet.create({
   modalCancel: {
     width: '100%',
     height: 50,
-    marginTop: 20,
+    marginTop: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F4F4F4'
+    backgroundColor: '#F4F4F4',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
 
   /* 메모 모달 뷰 */
@@ -721,5 +788,22 @@ const styles = StyleSheet.create({
 
   moveChapterText: {
     fontWeight: 'bold',
-  }
+  },
+
+  highlightButton: {
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  highlightButtonChecked: {
+    backgroundColor: '#F9DA4F',
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
 });
