@@ -7,7 +7,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "AppDelegate.h"
+#import "AppDelegate.h"/Users/ijeong-u/Downloads/GoogleService-Info.plist
 
 int main(int argc, char * argv[]) {
   @autoreleasepool {
