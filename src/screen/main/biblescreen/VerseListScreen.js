@@ -104,7 +104,6 @@ export default class VerseListScreen extends Component {
       return new Promise((resolve, reject) => {
         getArrayItemsFromAsyncStorage('highlightList').then((items) => {
           verseItems.map((verse) => {
-            // || items === undefined
             if (items === null)
               items = [];
             const index = items.findIndex((highlight) => {
@@ -118,8 +117,26 @@ export default class VerseListScreen extends Component {
       })
     };
 
+    const getMemo = (verseItems) => {
+      return new Promise((resolve, reject) => {
+        getArrayItemsFromAsyncStorage('memoList').then((items) => {
+          verseItems.map((verse) => {
+            if (items === null)
+              items = [];
+            const index = items.findIndex((memoItem) => {
+              return ((memoItem.bookCode === verse.bookCode) && (memoItem.chapterCode === verse.chapterCode) && (memoItem.verseCode === verse.verseCode))
+            });
+            (index > -1) ? verse.isMemo = true : verse.isMemo = false;
+            return verse;
+          });
+          resolve(verseItems);
+        });
+      })
+    };
+
     new getBibleVerseItems()
       .then(getHighlight)
+      .then(getMemo)
       .then((verseItems) => {
         const bibleType = (verseItems[0].bookCode < 40 ? 0 : 1);
         this.setState({
@@ -154,15 +171,14 @@ export default class VerseListScreen extends Component {
         this.refs.toast.show('클립보드에 복사되었습니다.');
         break;
       case 'highlight':
-
-        if(isHighlight) {
+        if (isHighlight) {
           // 형광펜 제거 로직 구현
           getArrayItemsFromAsyncStorage('highlightList').then((items) => {
             const itemIndex = items.findIndex((item, index) => {
               return (item.bookCode === bookCode && item.chapterCode === chapterCode && item.verseCode === verseCode);
             });
 
-            items.splice(itemIndex, itemIndex)
+            items.splice(itemIndex, 1);
             setArrayItemsToAsyncStorage('highlightList', items).then((result) => {
               console.log(result);
               this.refs.toast.show('형광펜 밑줄 제거 ^^');
@@ -244,6 +260,7 @@ export default class VerseListScreen extends Component {
   closeFooterOption = () => {
     let closeFunction = this.switchFooterOptionButtonIconAndState("default");
     closeFunction();
+    this.componentDidMount();
   };
 
   changeScreenNavigation = (bookName, bookCode, chapterCode, verseCode) => () => {
@@ -275,7 +292,7 @@ export default class VerseListScreen extends Component {
         visibleOptionComponent = <BibleListOption changeScreenHandler={this.changeScreenNavigation}  bibleType={this.state.bibleType} closeHandler={this.closeFooterOption}/>;
         break;
       case 'bibleNote':
-        visibleOptionComponent = <BibleNoteOption closeHandler={this.closeFooterOption}/>;
+        visibleOptionComponent = <BibleNoteOption toastRef={this.refs.toast} closeHandler={this.closeFooterOption}/>;
         break;
       case 'fontChange':
         visibleOptionComponent = <FontChangeOption/>;
@@ -291,7 +308,7 @@ export default class VerseListScreen extends Component {
     const HighLightButton = () => {
       const { isHighlight } = this.state.modalBibleItem;
 
-      if(isHighlight) {
+      if (isHighlight) {
         return (
           <TouchableOpacity
             style={styles.highlightButtonChecked}
@@ -386,15 +403,15 @@ export default class VerseListScreen extends Component {
 
     const onPressSaveButton = () => {
       getArrayItemsFromAsyncStorage('memoList').then((items) => {
+        console.log(items);
         const objectId = uuidv4();
         const date = new Date();
-        items.push({objectId, bookName, chapterCode, verseCode, memo, date, content});
+        items.push({objectId ,bookName, bookCode, chapterCode, verseCode, memo, date, content});
         setArrayItemsToAsyncStorage('memoList', items).then((result) => {
-          console.log(result);
+          this.componentDidMount();
+          this.setMemoModalVisible(false);
         })
       });
-
-      this.setMemoModalVisible(false);
     };
 
     return (
@@ -461,7 +478,7 @@ export default class VerseListScreen extends Component {
 
     const VerseItem = (item, index) => {
       const highlightText = (item) => {
-        if(item.isHighlight) {
+        if (item.isHighlight) {
           return (
             <Text style={styles.flatListItemTextHighlight}>{item.content}</Text>
           )
@@ -472,11 +489,25 @@ export default class VerseListScreen extends Component {
         }
       };
 
+      const memoIndicator = (item) => {
+        if (item.isMemo) {
+          return (
+            <Image style={styles.memoIndicator} source={require('/assets/ic_memo_indicator.png')}/>
+          )
+        }
+        else{
+          return (
+            <View style={{width: '4%'}}></View>
+          )
+        }
+      };
+
       let verseCode = index + 1;
       return (
         <TouchableOpacity style={styles.flatList}  onLongPress={this.onLongPressButton(item)}>
           <View style={styles.flatListVerseItem}>
-            <Text style={styles.flatListItemTextLabel}> {verseCode}.</Text>
+            {memoIndicator(item)}
+            <Text style={styles.flatListItemTextLabel}>{verseCode}. </Text>
             {highlightText(item)}
           </View>
         </TouchableOpacity>
@@ -564,26 +595,32 @@ const styles = StyleSheet.create({
   flatListVerseItem: {
     paddingTop: 15,
     paddingBottom: 15,
-    paddingLeft: 2,
-    paddingRight: 2,
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
 
   flatListItemTextLabel: {
-    marginLeft: '2%',
-    width:'6%'
+    width:'6%',
   },
 
   flatListItemText: {
-    width: '88%',
+    width: '87%',
     color: 'black',
+    marginRight: '3%',
   },
 
   flatListItemTextHighlight: {
-    width: '88%',
+    width: '87%',
     color: 'black',
+    marginRight: '3%',
     textShadowColor: 'yellow',
     textShadowRadius: 15
+  },
+
+  memoIndicator: {
+    width: '4%',
+    height: 19,
+    resizeMode: 'contain',
+    borderColor: 'red',
   },
   /* 모달 뷰 */
   modal: {

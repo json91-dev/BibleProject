@@ -171,8 +171,6 @@ export default class BibleNoteOption extends Component {
       let noteItems = [];
       // 바꿀 아이템 id 검색 후 수정
       const editItemIndex = items.findIndex((item) => {
-        console.log(item.objectId);
-        console.log(this.state.memoEditObjectId);
         return item.objectId === this.state.memoEditObjectId;
       });
 
@@ -205,12 +203,21 @@ export default class BibleNoteOption extends Component {
   closeMemoComponent = () => {
     if(this.state.isOpenMemoEdit) {
       getArrayItemsFromAsyncStorage('memoList').then((items) => {
+        const inputText = this.state.memoEditTextInput;
         const editItemIndex = items.findIndex((item) => {
-          console.log(item.objectId);
-          console.log(this.state.memoEditObjectId);
           return item.objectId === this.state.memoEditObjectId;
         });
-        items[editItemIndex].memo = this.state.memoEditTextInput;
+
+        // 아무런 입력이 없다면 해당 노트 삭제
+        // 입력이 있다면 해당 노트 수정.
+        if(inputText.length < 1) {
+          items.splice(editItemIndex, 1);
+          this.props.toastRef.show('노트가 삭제되었습니다 :)');
+
+        } else {
+          items[editItemIndex].memo = inputText;
+          this.props.toastRef.show('노트가 수정되었습니다 :)');
+        }
 
         setArrayItemsToAsyncStorage('memoList', items).then(() => {
           this.props.closeHandler();
@@ -244,7 +251,7 @@ export default class BibleNoteOption extends Component {
         {this.MemoEdit()}
 
         <Toast ref="toast"
-               positionValue={250}
+               positionValue={160}
                fadeInDuration={200}
                fadeOutDuration={1000}
         />
