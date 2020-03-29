@@ -10,39 +10,14 @@ import {
   Image,
   Clipboard,
 } from 'react-native';
-import SQLite from 'react-native-sqlite-storage';
-import Toast, {DURATION} from 'react-native-easy-toast';
+
+import Toast, { DURATION } from 'react-native-easy-toast';
 import BibleListOption from '/components/option/biblelist/BibleListOption';
 import BibleNoteOption from '/components/option/BibleNoteOption';
 import FontChangeOption from '/components/option/FontChangeOption';
-import {uuidv4, getArrayItemsFromAsyncStorage, setArrayItemsToAsyncStorage} from '/utils';
-import { CommonActions, StackActions } from '@react-navigation/native';
-import {getSqliteDatabase} from '/utils'
-
-// SQLITE 성공/실패 예외처리
-const errorCallback = (e) => {
-  console.log('DB connection fail');
-  // console.log(e.message);
-};
-const okCallback = (result) => {
-  console.log('DB connection success');
-  // console.log(result);
-};
-/**
- * 축약 문자열 표현을 위한 함수.
- */
-function textLengthOverCut(txt, len, lastTxt) {
-  if (len == "" || len == null) { // 기본값
-    len = 30;
-  }
-  if (lastTxt == "" || lastTxt == null) { // 기본값
-    lastTxt = "...";
-  }
-  if (txt.length > len) {
-    txt = txt.substr(0, len) + lastTxt;
-  }
-  return txt;
-}
+import {uuidv4, getItemFromAsync, setItemToAsync} from '/utils';
+import { StackActions } from '@react-navigation/native';
+import { getSqliteDatabase, printIsNewOrOldBibleByBookCode } from '/utils'
 
 
 export default class VerseListScreen extends Component {
@@ -67,6 +42,27 @@ export default class VerseListScreen extends Component {
     const { route } = this.props;
     const {bookName, bookCode, chapterCode}  = route.params;
 
+    // 최근 읽은 성경 주소 저장
+    const saveLatelyReadBible = () => {
+      const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
+      const readItem = {
+        bibleName,
+        bookName,
+        bookCode,
+        chapterCode,
+      };
+
+      setItemToAsync('latelyReadList', readItem).then((result) => {
+        console.log(result);
+      })
+    };
+    saveLatelyReadBible();
+
+    /**
+     * VerseItem을 입력받아 isHighlight 값을 설정하는 메서드.
+     * 1. Json 파싱을 통해 highlightList에서부터 하이라이트 목록을 받아온다.
+     * 2. 현재 verseItems중 hightlightList에 bookCode, chapterCode, VerseCode가 일치하는 목록이 있다면 isHighlight = true인 verseItems을 return한다.
+     */
     const getBibleVerseItems = () => {
       return new Promise((resolve, reject) => {
         getSqliteDatabase().transaction((tx) => {
@@ -95,14 +91,9 @@ export default class VerseListScreen extends Component {
       })
     };
 
-    /**
-     * VerseItem을 입력받아 isHighlight 값을 설정하는 메서드.
-     * 1. Json 파싱을 통해 highlightList에서부터 하이라이트 목록을 받아온다.
-     * 2. 현재 verseItems중 hightlightList에 bookCode, chapterCode, VerseCode가 일치하는 목록이 있다면 isHighlight = true인 verseItems을 return한다.
-     */
     const getHighlight = (verseItems) => {
       return new Promise((resolve, reject) => {
-        getArrayItemsFromAsyncStorage('highlightList').then((items) => {
+        getItemFromAsync('highlightList').then((items) => {
           verseItems.map((verse) => {
             if (items === null)
               items = [];
@@ -119,7 +110,7 @@ export default class VerseListScreen extends Component {
 
     const getMemo = (verseItems) => {
       return new Promise((resolve, reject) => {
-        getArrayItemsFromAsyncStorage('memoList').then((items) => {
+        getItemFromAsync('memoList').then((items) => {
           verseItems.map((verse) => {
             if (items === null)
               items = [];
@@ -173,22 +164,22 @@ export default class VerseListScreen extends Component {
       case 'highlight':
         if (isHighlight) {
           // 형광펜 제거 로직 구현
-          getArrayItemsFromAsyncStorage('highlightList').then((items) => {
+          getItemFromAsync('highlightList').then((items) => {
             const itemIndex = items.findIndex((item, index) => {
               return (item.bookCode === bookCode && item.chapterCode === chapterCode && item.verseCode === verseCode);
             });
 
             items.splice(itemIndex, 1);
-            setArrayItemsToAsyncStorage('highlightList', items).then((result) => {
+            setItemToAsync('highlightList', items).then((result) => {
               console.log(result);
               this.refs.toast.show('형광펜 밑줄 제거 ^^');
             })
           });
         } else {
-          getArrayItemsFromAsyncStorage('highlightList').then((items) => {
+          getItemFromAsync('highlightList').then((items) => {
             if (items === null) items = [];
             items.push({bookCode, chapterCode, verseCode});
-            setArrayItemsToAsyncStorage('highlightList', items).then((result) => {
+            setItemToAsync('highlightList', items).then((result) => {
               console.log(result);
               this.refs.toast.show('형광펜으로 밑줄 ^^');
             })
@@ -402,12 +393,12 @@ export default class VerseListScreen extends Component {
     };
 
     const onPressSaveButton = () => {
-      getArrayItemsFromAsyncStorage('memoList').then((items) => {
+      getItemFromAsync('memoList').then((items) => {
         console.log(items);
         const objectId = uuidv4();
         const date = new Date();
         items.push({objectId ,bookName, bookCode, chapterCode, verseCode, memo, date, content});
-        setArrayItemsToAsyncStorage('memoList', items).then((result) => {
+        setItemToAsync('memoList', items).then((result) => {
           this.componentDidMount();
           this.setMemoModalVisible(false);
         })
@@ -606,6 +597,7 @@ const styles = StyleSheet.create({
     width: '87%',
     color: 'black',
     marginRight: '3%',
+
   },
 
   flatListItemTextHighlight: {

@@ -47,7 +47,7 @@ export const uuidv4 = () => {
   });
 };
 
-export const getArrayItemsFromAsyncStorage = (arrayName) => {
+export const getItemFromAsync = (arrayName) => {
   if(arrayName === null || arrayName === undefined)
     return null;
   return new Promise((resolve, reject) => {
@@ -60,7 +60,7 @@ export const getArrayItemsFromAsyncStorage = (arrayName) => {
   })
 };
 
-export const setArrayItemsToAsyncStorage = (arrayName, arrayItems) => {
+export const setItemToAsync = (arrayName, arrayItems) => {
   if(arrayName === null || arrayName === undefined)
     return null;
   return new Promise((resolve, reject) => {

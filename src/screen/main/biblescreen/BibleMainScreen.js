@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {getArrayItemsFromAsyncStorage, setArrayItemsToAsyncStorage} from '/utils'
+import {getItemFromAsync, setItemToAsync} from '/utils'
 import {
 
   StyleSheet,
@@ -30,16 +30,30 @@ export default class BibleMainScreen extends Component {
     currentWordText: "",
     isOpenSearchResultView: false,
     searchResultItems: [],
+    isOpenLatelyReadBibleView: true,
+    latelyReadItem: {},
   };
-
 
   componentDidMount() {
     // AsyncStorage에서 최근 검색어를 가져오는 기능 구현
-    getArrayItemsFromAsyncStorage('searchWordList').then((items) => {
+    getItemFromAsync('searchWordList').then((items) => {
       this.setState({
         searchWordItems: items,
       })
     });
+
+    getItemFromAsync('latelyReadList').then((item) => {
+      const {bibleName, bookName, bookCode, chapterCode} = item;
+      this.setState({
+        latelyReadItem: {
+          ...this.state.latelyReadBibleView,
+          bibleName,
+          bookName,
+          bookCode,
+          chapterCode,
+        }
+      })
+    })
   }
 
   /**
@@ -95,7 +109,7 @@ export default class BibleMainScreen extends Component {
     const pushSearchTextToSearchWordList = (text) => {
       // 최근검색어에 대한 검색단어를 새로 입력하고 5개로 갯수를 맞춰준다.
       // 이후 textInput을 clear한뒤 현재입력단어(currentWordView)를 보여준다.
-      getArrayItemsFromAsyncStorage('searchWordList').then((items) => {
+      getItemFromAsync('searchWordList').then((items) => {
         let searchWordItems = items;
         searchWordItems.push(text);
         const currentWordText = text;
@@ -103,7 +117,7 @@ export default class BibleMainScreen extends Component {
         if (searchWordItems.length > 5) {
           searchWordItems.shift();
         }
-        setArrayItemsToAsyncStorage('searchWordList', searchWordItems).then(() => {
+        setItemToAsync('searchWordList', searchWordItems).then(() => {
           this.setState({
             searchWordItems,
             searchText: '',
@@ -288,8 +302,8 @@ export default class BibleMainScreen extends Component {
   };
 
   // 읽던 성경 바로가기
-  ContinueBibleView = () => {
-      const changeScreenNavigation = (bookName, bookCode, chapterCode, verseCode) => () => {
+  LatelyReadBibleView = () => {
+      const changeScreenNavigation = (bookName, bookCode, chapterCode) => () => {
         const navigation = this.props.navigation;
 
         const bibleType = getBibleType(bookCode);
@@ -313,17 +327,21 @@ export default class BibleMainScreen extends Component {
         navigation.dispatch(pushVerseList);
     };
 
-    return (
-      <View style={styles.continueView}>
-        <View style={styles.continueViewInfo}>
-          <Text style={styles.continueViewInfoLabel}>최근 읽은 성서</Text>
-          <Text style={styles.continueViewInfoText}>구약 - 누가복음 6장</Text>
+    if (this.state.isOpenLatelyReadBibleView) {
+      const {bibleName, bookName, bookCode, chapterCode} = this.state.latelyReadItem;
+
+      return (
+        <View style={styles.latelyReadBibleView}>
+          <View style={styles.latelyReadBibleViewInfo}>
+            <Text style={styles.latelyReadBibleViewInfoLabel}>최근 읽은 성서</Text>
+            <Text style={styles.latelyReadBibleViewInfoText}>{bibleName} - {bookName} {chapterCode}장</Text>
+          </View>
+          <TouchableOpacity onPress={changeScreenNavigation(bookName, bookCode, chapterCode)}>
+            <Text style={styles.latelyReadBibleViewButton}>이어보기</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={changeScreenNavigation('누가복음', 42, 6, 4)}>
-          <Text style={styles.continueViewButton}>이어보기</Text>
-        </TouchableOpacity>
-      </View>
-    )
+      )
+    }
   }
 
   SearchResultView = () => {
@@ -369,8 +387,7 @@ export default class BibleMainScreen extends Component {
         {this.SearchWordListView()}
         {this.CurrentWordView()}
         {this.SearchResultView()}
-        {this.ContinueBibleView()}
-
+        {this.LatelyReadBibleView()}
 
         <Toast ref="toast"
                positionValue={130}
@@ -571,7 +588,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
 
-  continueView: {
+  latelyReadBibleView: {
     position:'absolute',
     width: '100%',
     height: '10%',
@@ -585,20 +602,20 @@ const styles = StyleSheet.create({
     paddingRight: '3%',
   },
 
-  continueViewInfo: {
+  latelyReadBibleViewInfo: {
     flexDirection: 'column',
     justifyContent: 'space-evenly'
   },
-  continueViewInfoLabel: {
+  latelyReadBibleViewInfoLabel: {
     color: 'white',
     fontSize: 12,
   },
 
-  continueViewInfoText: {
+  latelyReadBibleViewInfoText: {
     color: 'white'
   },
 
-  continueViewButton: {
+  latelyReadBibleViewButton: {
     color: '#F9DA4F',
     paddingLeft: 10,
     paddingBottom: 10,

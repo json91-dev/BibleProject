@@ -13,18 +13,20 @@ const Stack = createStackNavigator();
 let stackIndex = 0;
 let tabNavigation = null;
 
-const BookListScreenOption = {
-  headerTitle: '구약성경',
-  headerTitleAlign: 'center',
-  headerRight: () => (
-    <TouchableOpacity activeOpacity={0.5}>
-      <Image
-        source={require('../../../assets/ic_recentlist.png')}
-        style={{width:20, height: 20, marginRight: 10}}
-      />
-    </TouchableOpacity>
-  ),
-};
+const BookListScreenOption = ({navigation, route}) => (
+  {
+    headerTitle: route.params.bibleType === 0 ? "구약성경" : '신약성경',
+    headerTitleAlign: 'center',
+    headerRight: () => (
+      <TouchableOpacity activeOpacity={0.5}>
+        <Image
+          source={require('../../../assets/ic_recentlist.png')}
+          style={{width: 20, height: 20, marginRight: 10}}
+        />
+      </TouchableOpacity>
+    ),
+  }
+);
 
 // route에 BookListScreen, ChapterListScreen에 대한 정보를 담고 있음.
 // 애니메이션이 끝난 후 tarBar을 보여주기 위한 기본 Screen 옵션 설정.

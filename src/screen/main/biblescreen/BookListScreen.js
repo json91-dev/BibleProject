@@ -11,6 +11,12 @@ import { FlatGrid } from 'react-native-super-grid';
 
 export default class BookListScreen extends Component {
 
+  componentDidMount() {
+    this.props.navigation.setParams({
+      title: "zzz",
+    });
+  }
+
   render() {
     const { route } = this.props;
     const navigation = this.props.navigation;

@@ -68,6 +68,7 @@ export default class ContentScreen extends Component {
         renderHeader={this._renderHeader}
         renderContent={this._renderContent}
         onChange={this._updateSections}
+        underlayColor='yellow'
       />
     );
   }

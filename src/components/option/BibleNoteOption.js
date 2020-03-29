@@ -9,7 +9,7 @@ import {
   TextInput,
 } from 'react-native';
 
-import {getArrayItemsFromAsyncStorage, setArrayItemsToAsyncStorage} from '/utils'
+import {getItemFromAsync, setItemToAsync} from '/utils'
 import Toast from 'react-native-easy-toast';
 /**
  * 60분 내외 : n분전
@@ -67,7 +67,7 @@ export default class BibleNoteOption extends Component {
    * id, bookName, chapterCode, verseCode, content, date 를 가져옴.
    */
   componentDidMount() {
-    getArrayItemsFromAsyncStorage('memoList').then((items) => {
+    getItemFromAsync('memoList').then((items) => {
       let noteItems = [];
       items.forEach((memoItem) => {
         let passTimeText = getPassTimeText(memoItem.date);
@@ -165,7 +165,7 @@ export default class BibleNoteOption extends Component {
    * 이후 메모 목록에서 수정페이지에서 바뀐 텍스트가 있으면 해당 메모를 objectId로 조회후 수정후 반영.
    */
   backToMemoList = () => {
-    getArrayItemsFromAsyncStorage('memoList').then((items) => {
+    getItemFromAsync('memoList').then((items) => {
       const inputText = this.state.memoEditTextInput;
 
       let noteItems = [];
@@ -191,7 +191,7 @@ export default class BibleNoteOption extends Component {
       });
 
       // 아이템 갱신, 페이지 이동
-      setArrayItemsToAsyncStorage('memoList', items).then(() => {
+      setItemToAsync('memoList', items).then(() => {
         this.setState({
           isOpenMemoEdit: false,
           noteItems: noteItems,
@@ -202,7 +202,7 @@ export default class BibleNoteOption extends Component {
 
   closeMemoComponent = () => {
     if(this.state.isOpenMemoEdit) {
-      getArrayItemsFromAsyncStorage('memoList').then((items) => {
+      getItemFromAsync('memoList').then((items) => {
         const inputText = this.state.memoEditTextInput;
         const editItemIndex = items.findIndex((item) => {
           return item.objectId === this.state.memoEditObjectId;
@@ -219,7 +219,7 @@ export default class BibleNoteOption extends Component {
           this.props.toastRef.show('노트가 수정되었습니다 :)');
         }
 
-        setArrayItemsToAsyncStorage('memoList', items).then(() => {
+        setItemToAsync('memoList', items).then(() => {
           this.props.closeHandler();
         });
       })
