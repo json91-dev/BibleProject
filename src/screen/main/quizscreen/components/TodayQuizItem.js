@@ -1,15 +1,10 @@
 import React, {Component} from 'react';
-import LinearGradient from 'react-native-linear-gradient';
 import {
 
   StyleSheet,
   View,
   Text,
-  Image,
-  Alert,
-  Button,
   TouchableOpacity,
-  TouchableHighlight
 
 } from 'react-native';
 
@@ -17,7 +12,7 @@ function replaceAll(str, searchStr, replaceStr) {
   return str.split(searchStr).join(replaceStr);
 }
 
-export default class QuizItem extends Component {
+export default class TodayQuizItem extends Component {
   state = {
     isOpenAnswer: false,
   };
@@ -74,29 +69,26 @@ export default class QuizItem extends Component {
 
   render() {
     // const {index, quizVerse, quizWord, quizSentence} = this.props;
-    const {index,quizVerse, quizWord, quizSentence} = this.props;
+    const {index, quizVerse, quizWord, quizSentence} = this.props;
     return (
       <View style={styles.container}>
         <View style={styles.quizHeaderContainer}>
-          <Text style={styles.quizIndexText}>세례문답 복습 {index}/5</Text>
-           <Text style={styles.quizVerseText}>{quizVerse}</Text>
+          <Text style={styles.quizIndexText}>빈칸에 들어갈 단어는?</Text>
+          <Text style={styles.quizVerseText}>{quizVerse}</Text>
         </View>
         <View style={styles.quizMainContainer}>
           {
             this.state.isOpenAnswer
-            ? this.highlightText(quizSentence, quizWord)
-            : <Text style={styles.quizSentenceText}>
+              ? this.highlightText(quizSentence, quizWord)
+              : <Text style={styles.quizSentenceText}>
                 {this.makeBlankQuizSentence(quizSentence, quizWord)}
               </Text>
           }
           {
             this.state.isOpenAnswer
               ? <Text style={styles.answerText}>정답은 "{quizWord}" 입니다.</Text>
-              : <TouchableOpacity
-                  style={styles.answerButton}
-                  onPress={this.showBlankQuiz.bind(this)}>
-                  <Text>정답보기</Text>
-                </TouchableOpacity>
+              : <View></View>
+
           }
         </View>
       </View>
@@ -105,11 +97,19 @@ export default class QuizItem extends Component {
   }
 }
 
+{/*<TouchableOpacity*/}
+  {/*style={styles.answerButton}*/}
+  {/*onPress={this.showBlankQuiz.bind(this)}>*/}
+  {/*<Text>정답보기</Text>*/}
+{/*</TouchableOpacity>*/}
+
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 10,
+    marginTop: 40,
     marginBottom: 10,
+    width: '90%',
+    marginLeft: '5%'
   },
 
   quizHeaderContainer: {

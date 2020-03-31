@@ -17,6 +17,7 @@ const BookListScreenOption = ({navigation, route}) => (
   {
     headerTitle: route.params.bibleType === 0 ? "구약성경" : '신약성경',
     headerTitleAlign: 'center',
+    animationEnabled: false,
     headerRight: () => (
       <TouchableOpacity activeOpacity={0.5}>
         <Image
@@ -63,7 +64,7 @@ function BibleScreenNavigator ({navigation, route}) {
   if (route.state && route.state.index > 0) {
     navigation.setOptions({tabBarVisible: false})
   } else {
-
+    navigation.setOptions({tabBarVisible: true})
   }
   return (
     <Stack.Navigator screenOptions={DefaultScreenOption} initialRouteName = "BibleMainScreen">

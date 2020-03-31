@@ -3,13 +3,22 @@
 import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 
-import MainScreen from './QuizMainScreen'
+import QuizMainScreen from './QuizMainScreen'
+import TodayQuizScreen from './TodayQuizScreen'
+
 const Stack = createStackNavigator();
 
-function MainScreenNavigator () {
+function MainScreenNavigator ({navigation, route}) {
+  if (route.state && route.state.index > 0) {
+    navigation.setOptions({tabBarVisible: false})
+  } else {
+    navigation.setOptions({tabBarVisible: true})
+  }
+
   return (
     <Stack.Navigator initialRouteName = "QuizMainScreen">
-      <Stack.Screen name="QuizMainScreen" options={{ headerShown: false}} component={MainScreen}/>
+      <Stack.Screen name="QuizMainScreen" options={{ headerShown: false }} component={QuizMainScreen}/>
+      <Stack.Screen name="TodayQuizScreen" options={{ headerShown: false, animationEnabled: false, }} component={TodayQuizScreen} />
     </Stack.Navigator>
   )
 }
