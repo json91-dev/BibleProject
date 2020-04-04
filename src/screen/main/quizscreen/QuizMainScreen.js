@@ -6,7 +6,7 @@ import {
   Image,
   TouchableOpacity
 } from 'react-native';
-import ReviewQuizItem from '/components/ReviewQuizItem'
+import ReviewQuizItem from './components/ReviewQuizItem'
 
 export default class QuizScreen extends Component {
   moveToScreen = (screenName) => () => {

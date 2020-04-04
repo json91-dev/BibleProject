@@ -11,7 +11,7 @@ import {
 
 } from 'react-native';
 
-import GoogleSigninButton from '/components/GoogleSigninButton'
+import GoogleSigninButton from './GoogleSigninButton'
 import { useNavigation}  from '@react-navigation/native';
 
 export default function LoginScreen() {

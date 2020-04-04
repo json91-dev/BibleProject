@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 
 import Toast, { DURATION } from 'react-native-easy-toast';
-import BibleListOption from '/components/option/biblelist/BibleListOption';
-import BibleNoteOption from '/components/option/BibleNoteOption';
-import FontChangeOption from '/components/option/FontChangeOption';
+import BibleListOption from './components/biblelistOption/BibleListOption';
+import BibleNoteOption from './components/BibleNoteOption';
+import FontChangeOption from './components/FontChangeOption';
 import {uuidv4, getItemFromAsync, setItemToAsync} from '/utils';
 import { StackActions } from '@react-navigation/native';
 import { getSqliteDatabase, printIsNewOrOldBibleByBookCode } from '/utils'
@@ -83,8 +83,21 @@ export default class VerseListScreen extends Component {
                     chapterCode,
                     content,
                     verseCode
-                  })
+                  });
+
+                if (i === (verseItemsLength -1)) {
+                  verseItems.push({
+                    isButton: true,
+                    bookName,
+                    bookCode,
+                    chapterCode,
+                    content,
+                    verseCode
+                  });
+                }
               }
+
+
               resolve(verseItems);
             })
         })
@@ -437,8 +450,8 @@ export default class VerseListScreen extends Component {
   };
 
   VerseFlatList = () => {
-    // 가장 마지막에 있는 아이템일때 이전/다음 성경 이동 버튼을 만들어 줍니다.
-    const MoveChatper = (item, index) => {
+    const VerseItem = (item, index) => {
+      // 하단(이전,다음) 버튼에 대한 이벤트 처리 메서드
       const moveChapter = (item, index) => () => {
         const navigation = this.props.navigation;
         const popAction = StackActions.pop(1);
@@ -450,24 +463,6 @@ export default class VerseListScreen extends Component {
         });
         navigation.dispatch(pushChapterList);
       };
-
-      if (index + 1 === this.state.verseItems.length) {
-        return (
-          <View style={styles.moveChapter}>
-            <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode - 1)}>
-              <Text style={styles.moveChapterText}>이전장 보기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode + 1)}>
-              <Text style={styles.moveChapterText}>다음장 보기</Text>
-            </TouchableOpacity>
-          </View>
-        )
-      } else {
-        return null;
-      }
-    };
-
-    const VerseItem = (item, index) => {
       const highlightText = (item) => {
         if (item.isHighlight) {
           return (
@@ -479,7 +474,6 @@ export default class VerseListScreen extends Component {
           )
         }
       };
-
       const memoIndicator = (item) => {
         if (item.isMemo) {
           return (
@@ -493,28 +487,41 @@ export default class VerseListScreen extends Component {
         }
       };
 
-      let verseCode = index + 1;
-      return (
-        <TouchableOpacity style={styles.flatList}  onLongPress={this.onLongPressButton(item)}>
-          <View style={styles.flatListVerseItem}>
-            {memoIndicator(item)}
-            <Text style={styles.flatListItemTextLabel}>{verseCode}. </Text>
-            {highlightText(item)}
+      let verseCodeLabel = index + 1;
+      const { verseItems } = this.state;
+
+      if(index < verseItems.length -1) {
+        return (
+          <TouchableOpacity style={styles.flatList}  onLongPress={this.onLongPressButton(item)}>
+            <View style={styles.flatListVerseItem}>
+              {memoIndicator(item)}
+              <Text style={styles.flatListItemTextLabel}>{verseCodeLabel}. </Text>
+              {highlightText(item)}
+            </View>
+          </TouchableOpacity>
+        )
+      } else {
+        // 마지막 아이템일 경우 버튼 출력
+        return (
+          <View style={styles.moveChapter}>
+            <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode - 1)}>
+              <Text style={styles.moveChapterText}>이전장 보기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode + 1)}>
+              <Text style={styles.moveChapterText}>다음장 보기</Text>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      )
+        )
+      }
     };
-
-
-    const verseItem = ({item, index}) => {
+    const VerseItemContainer = ({item, index}) => {
       return (
         <View>
           {VerseItem(item, index)}
-          {MoveChatper(item, index)}
         </View>
       )
     };
-
+    console.log('verseList호출');
     return (
       <FlatList
         style={styles.flatList}
@@ -522,7 +529,7 @@ export default class VerseListScreen extends Component {
         data={this.state.verseItems}
         keyExtractor={item => item.id}
         ref={(ref) => {this.flatListRef = ref;}}
-        renderItem={verseItem}
+        renderItem={VerseItemContainer}
       />
     )
   };
@@ -534,9 +541,7 @@ export default class VerseListScreen extends Component {
         {this.MemoModal()}
         {this.VerseFlatList()}
 
-
         {/* 하단 목차, 성경노트, 보기설정에 대한 footer option */}
-
         <View keyboardVerticalOffset={10} contentContainerStyle={{borderColor: 'red'}} style={styles.footerOptionContainer}>
           <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.switchFooterOptionButtonIconAndState('bibleList')}>
             <Image style={styles.footerOptionIcon} source={this.state.bibleListOptionIconUri} />
