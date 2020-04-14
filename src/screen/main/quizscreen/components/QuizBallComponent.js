@@ -19,17 +19,19 @@ export default class QuizBallComponent extends Component {
   };
 
   QuizBall = () => {
-    console.log(this.state.quizBallState);
-    const quizBall = this.state.quizBallState.map((num) => {
+    const { quizBallState } = this.props;
+
+    // -1일 => 풀기 전  // 0 => 틀림 // 1 => 정답
+    const quizBall = this.props.quizBallState.map((num) => {
       switch(num) {
         case -1 :
           return <Image style={styles.ballImage} source={require('/assets/ic_quizball_none.png')}/>;
           break;
         case 0 :
-          return <Image style={styles.ballImage} source={require('/assets/ic_quizball_o.png')}/>;
+          return <Image style={styles.ballImage} source={require('/assets/ic_quizball_x.png')}/>;
           break;
         case 1 :
-          return <Image style={styles.ballImage} source={require('/assets/ic_quizball_x.png')}/>;
+          return <Image style={styles.ballImage} source={require('/assets/ic_quizball_o.png')}/>;
           break;
         default:
           return <View></View>;

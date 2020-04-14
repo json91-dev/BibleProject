@@ -342,10 +342,24 @@ export default class BibleMainScreen extends Component {
         </View>
       )
     }
-  }
+  };
 
   SearchResultView = () => {
     const {isOpenSearchResultView} = this.state;
+
+    // 검색결과 화면을 클릭시 링크를 통해 해당 성경의 '장'으로 이동
+    const moveToBibleChapter = (item) => () => {
+      const navigation = this.props.navigation;
+      console.log(item);
+      const {bookCode, bookName, chapterCode, VerseCode} = item;
+
+      const pushVerseList = StackActions.push('VerseListScreen', {
+        bookCode,
+        bookName,
+        chapterCode,
+      });
+      navigation.dispatch(pushVerseList);
+    };
 
     if(isOpenSearchResultView)
     {
@@ -357,7 +371,7 @@ export default class BibleMainScreen extends Component {
             keyExtractor={(item,index) => item + index}
             renderItem={({item, index}) => {
               return (
-                <TouchableOpacity style={styles.searchResultFlatItem}>
+                <TouchableOpacity style={styles.searchResultFlatItem} onPress={moveToBibleChapter(item)}>
                   <View style={{width: '90%'}}>
                     <Text style={styles.searchResultFlatItemTitle}>{item.bibleName}-{item.bookName} {item.chapterCode}장 {item.verseCode}절</Text>
                     <Text style={styles.searchResultFlatItemContent}>{item.content}</Text>

@@ -69,7 +69,7 @@ export default class TodayQuizItem extends Component {
 
   render() {
     // const {index, quizVerse, quizWord, quizSentence} = this.props;
-    const {index, quizVerse, quizWord, quizSentence} = this.props;
+    const {quizVerse, quizWord, quizSentence} = this.props.quizData;
     return (
       <View style={styles.container}>
         <View style={styles.quizHeaderContainer}>
