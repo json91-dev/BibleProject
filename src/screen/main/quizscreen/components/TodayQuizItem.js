@@ -17,6 +17,26 @@ export default class TodayQuizItem extends Component {
     isOpenAnswer: false,
   };
 
+  shouldComponentUpdate(nextProps) {
+    if (this.props.isOpened !== nextProps.isOpened) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  /**
+   * 퀴즈의 정답제출이 끝나거나, 퀴즈화면이 이동할 떄 호출됩니다.
+   * isOpened로 넘겨받은 props가 변할 때, 성경퀴즈 컴포넌트를 다시 그려줍니다.
+   */
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (prevState.isOpenAnswer !== nextProps.isOpened) {
+      return {
+        isOpenAnswer: nextProps.isOpened
+      }
+    }
+  }
+
   // 성경 텍스트 문장에 공백을 만들어 반환하는 메서드
   makeBlankQuizSentence = (quizSentence, quizWord) => {
     let dummy = '____________________________________________________';
@@ -66,6 +86,8 @@ export default class TodayQuizItem extends Component {
       isOpenAnswer: true
     });
   }
+
+
 
   render() {
     // const {index, quizVerse, quizWord, quizSentence} = this.props;
@@ -150,7 +172,7 @@ const styles = StyleSheet.create({
   answerText: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: 20,
+    marginBottom: 8,
     marginTop: 26,
     color: '#F9DA4F',
     fontSize: 20
