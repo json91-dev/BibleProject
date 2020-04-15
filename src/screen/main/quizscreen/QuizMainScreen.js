@@ -85,9 +85,9 @@ export default class QuizScreen extends Component {
   render() {
     return (
       <ScrollView style={styles.container} contentContainerStyle ={{justifyContent: 'center'}}>
-        <View style={{ borderBottomWidth: 1, paddingBottom: 10, alignItems: 'flex-end', paddingRight: 16, borderBottomColor: '#CCCCCC'}}>
+        <View style={{ borderBottomWidth: 1, paddingBottom: 20, alignItems: 'flex-end', paddingRight: 16, borderBottomColor: '#CCCCCC'}}>
           <TouchableOpacity onPress={this.moveToScreen('TodayQuizScreen')}>
-            <Text style={{fontSize: 16}}>건너뛰기</Text>
+            <Text style={{fontSize: 18}}>건너뛰기</Text>
           </TouchableOpacity>
         </View>
 
@@ -108,7 +108,7 @@ export default class QuizScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 15,
+    paddingTop: 20,
     backgroundColor: 'white',
   },
   titleImage: {
@@ -120,8 +120,8 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   todayQuizReviewImage: {
-    width: 140,
-    height: 84,
+    width: 180,
+    height: 100,
     resizeMode: 'contain',
     marginTop: 38,
     marginLeft: 30,

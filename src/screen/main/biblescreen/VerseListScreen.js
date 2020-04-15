@@ -66,8 +66,9 @@ export default class VerseListScreen extends Component {
     const getBibleVerseItems = () => {
       return new Promise((resolve, reject) => {
         getSqliteDatabase().transaction((tx) => {
-          //성경의 절과 내용을 모두 가져오는 쿼리를 선언
-          const query = `SELECT verse, content FROM bible_korHRV where book = ${bookCode} and chapter = ${chapterCode}`;
+          // 성경의 절과 내용을 모두 가져오는 쿼리를 선언
+          // subQuery를 통해 현재 아이템의 최대 chapterCode를 가져온다.
+          const query = `SELECT verse, content, (SELECT max(chapter) From bible_korHRV where book = ${bookCode}) as maxChapter FROM bible_korHRV where book = ${bookCode} and chapter = ${chapterCode}`;
           tx.executeSql(query, [],
             (tx, results) => {
               let verseItemsLength = results.rows.length;
@@ -76,28 +77,30 @@ export default class VerseListScreen extends Component {
               for (let i = 0; i < verseItemsLength; i++) {
                 const content = results.rows.item(i).content;
                 const verseCode = results.rows.item(i).verse;
+                const maxChapterCode = results.rows.item(i).maxChapter;
                 verseItems.push(
                   {
                     bookName,
                     bookCode,
                     chapterCode,
                     content,
-                    verseCode
+                    verseCode,
+                    maxChapterCode
                   });
 
+                // 마지막 성경 이동 버튼을 위해 현재 verseItems의 마지막행에 하나의 목록을 더 추가한다.
                 if (i === (verseItemsLength -1)) {
                   verseItems.push({
                     isButton: true,
                     bookName,
                     bookCode,
                     chapterCode,
+                    maxChapterCode,
                     content,
                     verseCode
                   });
                 }
               }
-
-
               resolve(verseItems);
             })
         })
@@ -502,14 +505,38 @@ export default class VerseListScreen extends Component {
         )
       } else {
         // 마지막 아이템일 경우 버튼 출력
+        const { chapterCode, maxChapterCode } = verseItems[0];
+
+        // 첫번째 장일경우에는 다음장 보기 버튼만 출력
+        const prevButton = () => {
+          if (chapterCode > 1) {
+            return (
+              <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode - 1)}>
+                <Text style={styles.moveChapterText}>이전장 보기</Text>
+              </TouchableOpacity>
+            )
+          } else {
+            return null
+          }
+        };
+
+        // 마지막 장일경우에는 이전장 보기 버튼만 출력
+        const nextButton = () => {
+          if (chapterCode < maxChapterCode) {
+            return (
+              <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode + 1)}>
+                <Text style={styles.moveChapterText}>다음장 보기</Text>
+              </TouchableOpacity>
+            )
+          } else {
+            return null
+          }
+        };
+
         return (
           <View style={styles.moveChapter}>
-            <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode - 1)}>
-              <Text style={styles.moveChapterText}>이전장 보기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode + 1)}>
-              <Text style={styles.moveChapterText}>다음장 보기</Text>
-            </TouchableOpacity>
+            {prevButton()}
+            {nextButton()}
           </View>
         )
       }
