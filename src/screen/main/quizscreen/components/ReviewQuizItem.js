@@ -105,6 +105,8 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 10,
     marginBottom: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
 
   quizHeaderContainer: {
@@ -126,6 +128,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333',
     borderRadius: 10,
     padding: 10,
+    paddingTop: 12,
+    paddingBottom: 10,
   },
 
   quizSentenceText: {
@@ -145,7 +149,7 @@ const styles = StyleSheet.create({
   answerText: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: 20,
+    marginBottom: 10,
     marginTop: 26,
     color: '#F9DA4F',
     fontSize: 20

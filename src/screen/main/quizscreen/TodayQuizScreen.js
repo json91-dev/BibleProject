@@ -10,6 +10,7 @@ import {
 
 import QuizBallComponent from './components/QuizBallComponent';
 import TodayQuizItem from './components/TodayQuizItem';
+import {getItemFromAsync, setItemToAsync} from '../../../utils';
 
 
 
@@ -22,6 +23,7 @@ export default class TodayQuizScreen extends Component {
     textInputText: "",
     isOpenAnswer: false,
     quizData: null,
+    curPageQuizData: null,
   };
 
   componentDidMount() {
@@ -98,8 +100,9 @@ export default class TodayQuizScreen extends Component {
 
     /**
      * 퀴즈의 정답 여부를 체크한다.
-     * 현재 입력된 Text가 현재 퀴즈의 정답과 일치하는지 여부를 판단한다.
-     * 일치한다면 다음 단계로 이동한다.
+     * 현재 입력된 Text가 현재 퀴즈의 정답과 일치하는지 여부를 판단하여 quizBallState값을 바꿔준다.
+     * 현재 입력한 textInput을 quizAnswerTextArray 배열에 저장합니다.
+     * 다음 단계로 이동한다.
      */
     const onAnswerSubmit = () => {
       const { curPageQuizData, pageState, textInputText, currentQuizBallState } = this.state;
@@ -119,13 +122,16 @@ export default class TodayQuizScreen extends Component {
 
       // pageState를 1개 올려준다.
       // 정답 제출 버튼을 바꿔준다.
-      this.setState({
-        currentQuizBallState: updateQuizBallState,
-        isOpenAnswer: true,
-        isFocusTextInput: false,
+      // TODO: 현재 입력한 퀴즈 아이템 배열에 저장.
+      this.setState((prevState) => {
+        return {
+          currentQuizBallState: updateQuizBallState,
+          isOpenAnswer: true,
+          isFocusTextInput: false,
+          quizAnswerTextArray: [...prevState.quizAnswerTextArray, textInputText]
+        }
       });
 
-      //TODO: 현재 입력한 퀴즈 아이템 배열에 저장.
       // 에외처리 해주지 않으면 오류 발생
       if(this.refs.textInputRef) {
         this.refs.textInputRef.blur();
@@ -145,8 +151,23 @@ export default class TodayQuizScreen extends Component {
       })
     };
 
+    // TODO: quizAnswerTextArray를 AsynStorage에 저장.
+    // reviewQuizDataList => 다음날이 되어 퀴즈를 시작할때 풀어야 하는 복습 문제들에 대한 정보를 저장함.
+    // isCompleteTodayQuiz => 오늘의 퀴즈를 모두 풀었는지에 대한 정보를 확인함.
+    // 모두 풀었을때 => 결과창 + 타이머 + 푼 문제 복습 링크
+    // 안풀었을때 => 퀴즈 시작 링크 + 이전문제 복습
     const onCompleteTodayQuiz = () => {
+      const { quizData } = this.state;
+      const setReviewItem =  setItemToAsync('reviewQuizDataList', quizData);
+      const setTodayQuizComplete =  setItemToAsync('isCompleteTodayQuiz', true);
 
+      Promise.all([setReviewItem, setTodayQuizComplete]).then(function(result)  {
+        console.log(result);
+      })
+
+      // 초기화
+      // setItemToAsync('reviewQuizDataList', null)
+      // setItemToAsync('isCompleteTodayQuiz', null);
     };
 
     // 현재 퀴즈를 패스하는 함수.

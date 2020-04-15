@@ -47,6 +47,7 @@ export const uuidv4 = () => {
   });
 };
 
+// 아무값도 들어있지 않으면 빈 배열을 반환합니다.
 export const getItemFromAsync = (arrayName) => {
   if(arrayName === null || arrayName === undefined)
     return null;

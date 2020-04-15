@@ -1,11 +1,8 @@
 import React, {Component} from 'react';
 import {
-
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
-
 } from 'react-native';
 
 function replaceAll(str, searchStr, replaceStr) {
@@ -86,8 +83,6 @@ export default class TodayQuizItem extends Component {
       isOpenAnswer: true
     });
   }
-
-
 
   render() {
     // const {index, quizVerse, quizWord, quizSentence} = this.props;
