@@ -130,6 +130,8 @@ export default class VerseListScreen extends Component {
           verseItems.map((verse) => {
             if (items === null)
               items = [];
+
+            //memoList중 현재 성경의 verseList목록과 책,구,절 이 일치하는 성경은 isMemo값을 true로 바꿔준다.
             const index = items.findIndex((memoItem) => {
               return ((memoItem.bookCode === verse.bookCode) && (memoItem.chapterCode === verse.chapterCode) && (memoItem.verseCode === verse.verseCode))
             });
@@ -342,15 +344,37 @@ export default class VerseListScreen extends Component {
     };
 
     const MemoButton = () => {
-      return (
-        <TouchableOpacity
-          onPress={() => {
-            this.setModalVisible(false, 'memo');
-          }}>
-          <Image style={[styles.modalItemImage, {marginLeft: 3}]} source={require('/assets/ic_memo.png')}/>
-          <Text style={styles.modalItemText}>메모</Text>
-        </TouchableOpacity>
-      )
+      const { isMemo } = this.state.modalBibleItem;
+
+      // TODO : 현재 modal을 닫고 현재 memo의 수정화면으로 이동
+      // 1. modal닫기
+      // 2. BibleNoteOption열기
+      // 3. 현재 메모의 수정페이지로 이동하기.
+      const openCurrentBibleNote = () => {
+
+      };
+
+      if (isMemo) {
+        return (
+          <TouchableOpacity
+            style={styles.memoButtonChecked}
+            onPress={openCurrentBibleNote}>
+            <Image style={[styles.modalItemImage, {marginLeft: 3}]} source={require('/assets/ic_memo.png')}/>
+            <Text style={styles.modalItemText}>메모</Text>
+          </TouchableOpacity>
+        )
+      } else {
+        return (
+          <TouchableOpacity
+            style={styles.memoButton}
+            onPress={() => {
+              this.setModalVisible(false, 'memo');
+            }}>
+            <Image style={[styles.modalItemImage, {marginLeft: 3}]} source={require('/assets/ic_memo.png')}/>
+            <Text style={styles.modalItemText}>메모</Text>
+          </TouchableOpacity>
+        )
+      }
     };
 
     return (
@@ -366,6 +390,7 @@ export default class VerseListScreen extends Component {
             <Text style={styles.modalHeader}>{this.state.modalBibleItem.bookName} {this.state.modalBibleItem.chapterCode}장 {this.state.modalBibleItem.verseCode}절</Text>
             <View style={styles.modalViewItems}>
               <TouchableOpacity
+                style={styles.copyButton}
                 onPress={() => {
                   this.setModalVisible(false, 'copy');
                 }}>
@@ -708,6 +733,48 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
   },
 
+  copyButton: {
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  highlightButton: {
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  highlightButtonChecked: {
+    backgroundColor: '#F9DA4F',
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  memoButton: {
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  memoButtonChecked: {
+    backgroundColor: '#F9DA4F',
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
   /* 메모 모달 뷰 */
 
   memoModalContainer: {
@@ -849,22 +916,5 @@ const styles = StyleSheet.create({
 
   moveChapterText: {
     fontWeight: 'bold',
-  },
-
-  highlightButton: {
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
-  },
-
-  highlightButtonChecked: {
-    backgroundColor: '#F9DA4F',
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
   },
 });

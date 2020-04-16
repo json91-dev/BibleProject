@@ -174,7 +174,7 @@ export default class BibleNoteOption extends Component {
         return item.objectId === this.state.memoEditObjectId;
       });
 
-      // 아무런 입력이 없다면 해당 노트 삭제
+      // 아무런 입력이 없다면 해당 노트 삭제 => memoList 배열에서 삭제시킴
       // 입력이 있다면 해당 노트 수정.
       if(inputText.length < 1) {
         items.splice(editItemIndex, 1);
@@ -184,7 +184,8 @@ export default class BibleNoteOption extends Component {
         this.refs.toast.show('노트가 수정되었습니다. :)');
       }
 
-      // 시간 적용
+      // 현재 아이템들에 대해서, 경과한 시간들을 계산한 뒤, noteItems로 push한다.
+      // noteItems는 바뀐 memoList의 값을 state로 전달하는 기능 수행
       items.forEach((memoItem) => {
         let passTimeText = getPassTimeText(memoItem.date);
         noteItems.push({objectId: memoItem.objectId, bookName: memoItem.bookName, chapterCode: memoItem.chapterCode, verseCode: memoItem.verseCode,memo: memoItem.memo ,content: memoItem.content, passTimeText: passTimeText});
