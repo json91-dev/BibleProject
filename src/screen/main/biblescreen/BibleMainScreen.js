@@ -30,7 +30,7 @@ export default class BibleMainScreen extends Component {
     currentWordText: "",
     isOpenSearchResultView: false,
     searchResultItems: [],
-    isOpenLatelyReadBibleView: true,
+    isOpenLatelyReadBibleView: false,
     latelyReadItem: {},
   };
 
@@ -44,15 +44,26 @@ export default class BibleMainScreen extends Component {
 
     getItemFromAsync('latelyReadList').then((item) => {
       const {bibleName, bookName, bookCode, chapterCode} = item;
-      this.setState({
-        latelyReadItem: {
-          ...this.state.latelyReadBibleView,
-          bibleName,
-          bookName,
-          bookCode,
-          chapterCode,
-        }
-      })
+      // 맨 처음 로딩시 예외처리 => 빈배열일때는 최근 읽은 성경에 값이 존재하지 않음.
+      if (item.length && item.length === 0) {
+        this.setState({
+          isOpenLatelyReadBibleView: false,
+        });
+      } else {
+        console.log(item);
+        this.setState((prevState) => {
+          return {
+            latelyReadItem: {
+              ...prevState.latelyReadBibleView,
+              bibleName,
+              bookName,
+              bookCode,
+              chapterCode,
+            },
+            isOpenLatelyReadBibleView: true,
+          }
+        })
+      }
     })
   }
 
@@ -61,6 +72,13 @@ export default class BibleMainScreen extends Component {
    */
   MainView = () => {
     const isOpenSearchMode = this.state.isOpenSearchMode;
+
+    const goToBookListScreen = (type) => () => {
+      this.props.navigation.navigate('BookListScreen', {bibleType: type});
+      this.setState({
+        isOpenLatelyReadBibleView: false,
+      })
+    };
 
     if (isOpenSearchMode) {
       return null
@@ -73,13 +91,14 @@ export default class BibleMainScreen extends Component {
           <Text style={styles.linkLabel}>성경책 읽기</Text>
           <TouchableOpacity
             style={styles.bibleLink}
-            onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 0})}>
+            onPress={goToBookListScreen(0)}
+            >
             <Image style={styles.bibleLinkImage} source={require('assets/btn_old_bible.png')}/>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.bibleLink}
-            onPress={() => this.props.navigation.navigate('BookListScreen', {bibleType: 1})}>
+            onPress={goToBookListScreen(1)}>
             <Image style={styles.bibleLinkImage} source={require('assets/btn_new_bible.png')}/>
           </TouchableOpacity>
         </View>
@@ -181,6 +200,7 @@ export default class BibleMainScreen extends Component {
       this.setState({
         isOpenSearchMode: true,
         isOpenSearchWordListView: true,
+        isOpenLatelyReadBibleView: false,
       })
     };
 
@@ -325,6 +345,11 @@ export default class BibleMainScreen extends Component {
           chapterCode,
         });
         navigation.dispatch(pushVerseList);
+
+        this.setState({
+          isOpenLatelyReadBibleView: false,
+        })
+
     };
 
     if (this.state.isOpenLatelyReadBibleView) {
