@@ -7,12 +7,32 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import {getItemFromAsync, setItemToAsync} from '../../../../utils';
+
 export default class FontChangeOption extends Component {
   state = {
     isOpenAnswer: false,
     fontSize: '14px',
-    fontSizeOption: 1,
+    fontSizeOption: null,
   };
+
+  componentDidMount() {
+    getItemFromAsync('fontSizeOption').then((item) => {
+      if(item && item.length === 0) {
+        this.setState({
+          fontSizeOption: 1
+        });
+      } else {
+        this.setState({
+          fontSizeOption: item
+        })
+      }
+    })
+  }
+
+  /**
+   * 함수
+   */
 
   // 0: 12pt
   // 1: 14pt
@@ -38,7 +58,9 @@ export default class FontChangeOption extends Component {
     }
     this.setState({
       fontSizeOption: option
-    })
+    });
+
+    setItemToAsync('fontSizeOption', option);
   };
 
   /**
@@ -49,7 +71,6 @@ export default class FontChangeOption extends Component {
 
     const FontSizeButton12 = () => {
       const { fontSizeOption } = this.state;
-
 
       if (fontSizeOption === 0) {
         return (
@@ -68,7 +89,6 @@ export default class FontChangeOption extends Component {
 
     const FontSizeButton14 = () => {
       const { fontSizeOption } = this.state;
-
 
       if (fontSizeOption === 1) {
         return (
@@ -102,7 +122,6 @@ export default class FontChangeOption extends Component {
           </TouchableOpacity>
         )
       }
-
     };
 
     const FontSizeButton18 = () => {

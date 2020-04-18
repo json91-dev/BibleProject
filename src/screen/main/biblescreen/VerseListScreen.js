@@ -42,7 +42,9 @@ export default class VerseListScreen extends Component {
     const { route } = this.props;
     const {bookName, bookCode, chapterCode}  = route.params;
 
-    // 최근 읽은 성경 주소 저장
+    /**
+     * 최근 읽은 성경 주소 저장
+     */
     const saveLatelyReadBible = () => {
       const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
       const readItem = {
@@ -57,6 +59,45 @@ export default class VerseListScreen extends Component {
       })
     };
     saveLatelyReadBible();
+
+    /**
+     * 폰트 사이즈 설정
+     */
+
+    const setFontSize = () => {
+      getItemFromAsync('fontSizeOption').then((item) => {
+        if(item && item.length === 0) {
+          this.setState({
+            verseItemFontSize: 14
+          });
+        } else {
+          switch(item) {
+            case 0:
+              this.setState({
+                verseItemFontSize: 12
+              });
+              break;
+            case 1:
+              this.setState({
+                verseItemFontSize: 14
+              });
+              break;
+            case 2:
+              this.setState({
+                verseItemFontSize: 16
+              });
+              break;
+            case 3:
+              this.setState({
+                verseItemFontSize: 18
+              });
+              break;
+          }
+        }
+      })
+    };
+    setFontSize();
+
 
     /**
      * VerseItem을 입력받아 isHighlight 값을 설정하는 메서드.
