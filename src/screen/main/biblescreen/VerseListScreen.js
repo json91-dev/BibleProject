@@ -19,7 +19,6 @@ import {uuidv4, getItemFromAsync, setItemToAsync} from '/utils';
 import { StackActions } from '@react-navigation/native';
 import { getSqliteDatabase, printIsNewOrOldBibleByBookCode } from '/utils'
 
-
 export default class VerseListScreen extends Component {
   constructor(props) {
     super(props);
@@ -35,6 +34,7 @@ export default class VerseListScreen extends Component {
       changeVerse: false,
       bibleType: 0,
       modalBibleItem: {},
+      verseItemFontSize: 14,
     };
   }
 
@@ -292,6 +292,12 @@ export default class VerseListScreen extends Component {
     navigation.dispatch(pushVerseList);
   };
 
+  changeFontSize = (size)  => {
+    this.setState({
+      verseItemFontSize: size,
+    })
+  };
+
   // 각 옵션에 대한 컴포넌트를 화면에 그려주는 메서드.
   showOptionComponent() {
     let visibleOptionComponent;
@@ -304,7 +310,7 @@ export default class VerseListScreen extends Component {
         visibleOptionComponent = <BibleNoteOption toastRef={this.refs.toast} closeHandler={this.closeFooterOption}/>;
         break;
       case 'fontChange':
-        visibleOptionComponent = <FontChangeOption/>;
+        visibleOptionComponent = <FontChangeOption closeHandler={this.closeFooterOption} changeFontHandler={this.changeFontSize}/>;
         break;
       case 'default':
         visibleOptionComponent = null;
@@ -492,20 +498,27 @@ export default class VerseListScreen extends Component {
         navigation.dispatch(pushChapterList);
       };
       const highlightText = (item) => {
+        const { verseItemFontSize } = this.state;
+
         if (item.isHighlight) {
           return (
-            <Text style={styles.flatListItemTextHighlight}>{item.content}</Text>
+            <Text style={[styles.flatListItemTextHighlight, {fontSize: verseItemFontSize}]}>{item.content}</Text>
           )
         } else {
           return (
-            <Text style={styles.flatListItemText}>{item.content}</Text>
+            <Text style={[styles.flatListItemText, {fontSize: verseItemFontSize}]}>{item.content}</Text>
           )
         }
       };
+
       const memoIndicator = (item) => {
+        const { verseItemFontSize } = this.state;
+        // indicator 이미지의 위치를 폰트 사이즈에 따라 상대적으로 마진값 조절.
+        const indicatorMarginTop = (verseItemFontSize - 14) / 2;
+
         if (item.isMemo) {
           return (
-            <Image style={styles.memoIndicator} source={require('/assets/ic_memo_indicator.png')}/>
+            <Image style={[styles.memoIndicator, {marginTop: indicatorMarginTop}]} source={require('/assets/ic_memo_indicator.png')}/>
           )
         }
         else{
@@ -516,14 +529,14 @@ export default class VerseListScreen extends Component {
       };
 
       let verseCodeLabel = index + 1;
-      const { verseItems } = this.state;
+      const { verseItems, verseItemFontSize } = this.state;
 
       if(index < verseItems.length -1) {
         return (
           <TouchableOpacity style={styles.flatList}  onLongPress={this.onLongPressButton(item)}>
             <View style={styles.flatListVerseItem}>
               {memoIndicator(item)}
-              <Text style={styles.flatListItemTextLabel}>{verseCodeLabel}. </Text>
+              <Text style={[styles.flatListItemTextLabel, {fontSize: verseItemFontSize}]}>{verseCodeLabel}. </Text>
               {highlightText(item)}
             </View>
           </TouchableOpacity>
@@ -647,22 +660,27 @@ const styles = StyleSheet.create({
   },
 
   flatListItemTextLabel: {
-    width:'6%',
+    width:'7%',
+    textAlign:'center'
   },
 
   flatListItemText: {
-    width: '87%',
+    width: '86%',
     color: 'black',
     marginRight: '3%',
+    paddingRight: 5,
+    marginLeft: 5,
 
   },
 
   flatListItemTextHighlight: {
-    width: '87%',
+    width: '86%',
     color: 'black',
     marginRight: '3%',
+    paddingRight: 5,
+    marginLeft: 5,
     textShadowColor: 'yellow',
-    textShadowRadius: 15
+    textShadowRadius: 15,
   },
 
   memoIndicator: {
