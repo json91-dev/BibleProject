@@ -9,10 +9,12 @@ import {
 } from 'react-native';
 import ReviewQuizItem from './components/ReviewQuizItem'
 import {getItemFromAsync, setItemToAsync} from '../../../utils';
+import QuizBallComponent from './components/QuizBallComponent';
 
 export default class QuizScreen extends Component {
   state = {
     isCompleteTodayQuiz: false,
+    isGiveUpTodayQuiz: false,
     reviewQuizData: [],
   };
 
@@ -52,6 +54,8 @@ export default class QuizScreen extends Component {
     })
   }
 
+
+
   moveToScreen = (screenName) => () => {
     console.log(screenName);
     this.props.navigation.navigate(screenName);
@@ -61,14 +65,39 @@ export default class QuizScreen extends Component {
    * 컴포넌트 구현
    */
 
-  ShowReviewQuizItems = () => {
+
+  // 퀴즈에 대한 복습내용과, 퀴즈를 풀수 있는 링크를 제공하는 컴포넌트
+  // 오늘의 퀴즈를 풀지 않았을 때 퀴즈 복습데이터의 존재 여부에 따라 퀴즈를 풀수 있는 링크를 제공함.
+
+  ReviewQuizAndTodayQuizLink = () => {
     const { isCompleteTodayQuiz, reviewQuizData } = this.state;
 
-    if (isCompleteTodayQuiz) {
+    // 오늘의 퀴즈를 풀지 않았을 때, 복습 문제를 보여준다.
+    // 유저가 맨 처음 들어왔을때에 대한 예외처리를 length를 통해 구현함.
+    // 복습퀴즈 데이터가 없으면 링크만 보여준다.
+    if (!isCompleteTodayQuiz && reviewQuizData.length === 0) {
+      return (
+        <View style={{marginTop: 100}}>
+          <Image style={styles.titleImage} source={require('assets/ic_jesus.png')}/>
+          <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 시작할 준비가{"\n"}되셨나요?</Text>
+          <TouchableOpacity style={styles.quizButton} onPress={this.moveToScreen('TodayQuizScreen')}>
+            <Text style={styles.quizButtonText}>오늘의 세례문답 시작!</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+
+    // 복습퀴즈 데이터가 있으면 복습퀴즈와 링크, 바로가기를 보여준다.
+    else if (!isCompleteTodayQuiz && reviewQuizData.length > 0) {
       return (
         <View>
-          {/*<ReviewQuizItem index='1' quizVerse='요한복음 1장 27절' quizWord='나사렛' quizSentence='요셉도 다윗의 집 족속이므로 갈리리 나사렛 동네에서 유대를 향하여'/>*/}
-          {/*<ReviewQuizItem index='2' quizVerse='요한복음 1장 27절' quizWord='유대' quizSentence='요셉도 다윗의 집 유대이므로 갈리리 나사렛 동네에서 유대를 향하여'/>*/}
+          <View style={{ borderBottomWidth: 1, paddingBottom: 20, alignItems: 'flex-end', paddingRight: 16, borderBottomColor: '#CCCCCC'}}>
+            <TouchableOpacity onPress={this.moveToScreen('TodayQuizScreen')}>
+              <Text style={{fontSize: 18}}>건너뛰기</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Image style={styles.todayQuizReviewImage} source={require('assets/ic_today_quiz_review.png')}/>
           {
             reviewQuizData.map((item, index) => {
               return (
@@ -77,6 +106,46 @@ export default class QuizScreen extends Component {
             })
           }
 
+          <Image style={styles.titleImage} source={require('assets/ic_jesus.png')}/>
+          <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 시작할 준비가{"\n"}되셨나요?</Text>
+          <TouchableOpacity style={styles.quizButton} onPress={this.moveToScreen('TodayQuizScreen')}>
+            <Text style={styles.quizButtonText}>오늘의 세례문답 시작!</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+
+    // 오늘의 퀴즈를 풀었을때는 아무것도 보여주지 않는다.
+    else if (isCompleteTodayQuiz) {
+      return null;
+    }
+  };
+
+  TodayQuizResult = () => {
+    const { isCompleteTodayQuiz, isGiveUpTodayQuiz } = this.state;
+
+    if (isCompleteTodayQuiz && isGiveUpTodayQuiz) {
+      return (
+        <View>
+          <TouchableOpacity>
+            <Image style={styles.quizResultQuestionImage} source={require('assets/ic_question_quiz_result.png')}/>
+          </TouchableOpacity>
+          <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_sad.png')}/>
+          <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 포기하셨네요.{"\n"}내일의 세례문답까지.</Text>
+        </View>
+      )
+    }
+
+    else if (isCompleteTodayQuiz && !isGiveUpTodayQuiz) {
+      return (
+        <View>
+          <TouchableOpacity>
+            <Image style={styles.quizResultQuestionImage} source={require('assets/ic_question_quiz_result.png')}/>
+          </TouchableOpacity>
+          <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_weird.png')}/>
+          <Text style={styles.titleText}>오늘의 세례문답 성적은</Text>
+          <QuizBallComponent quizBallState={[0,0,1,1,0]}/>
+          <Text style={[styles.titleText, {marginTop: 80}]}>내일의 세례문답까지.</Text>
         </View>
       )
     }
@@ -85,21 +154,8 @@ export default class QuizScreen extends Component {
   render() {
     return (
       <ScrollView style={styles.container} contentContainerStyle ={{justifyContent: 'center'}}>
-        <View style={{ borderBottomWidth: 1, paddingBottom: 20, alignItems: 'flex-end', paddingRight: 16, borderBottomColor: '#CCCCCC'}}>
-          <TouchableOpacity onPress={this.moveToScreen('TodayQuizScreen')}>
-            <Text style={{fontSize: 18}}>건너뛰기</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Image style={styles.todayQuizReviewImage} source={require('assets/ic_today_quiz_review.png')}/>
-
-        {this.ShowReviewQuizItems()}
-
-        <Image style={styles.titleImage} source={require('assets/ic_jesus.png')}/>
-        <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 시작할 준비가{"\n"}되셨나요?</Text>
-        <TouchableOpacity style={styles.quizButton} onPress={this.moveToScreen('TodayQuizScreen')}>
-            <Text style={styles.quizButtonText}>오늘의 세례문답 시작!</Text>
-        </TouchableOpacity>
+        {this.ReviewQuizAndTodayQuizLink()}
+        {this.TodayQuizResult()}
       </ScrollView>
     )
   }
@@ -111,6 +167,26 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     backgroundColor: 'white',
   },
+
+  quizResultQuestionImage: {
+    width: 180,
+    height: 120,
+    resizeMode: 'contain',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 30,
+    marginBottom: -20
+  },
+
+  quizResultJesusImage: {
+    width: 90,
+    height: 90,
+    resizeMode: 'contain',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+
+
   titleImage: {
     width: 90,
     height: 90,
@@ -119,6 +195,7 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     marginTop: 40,
   },
+
   todayQuizReviewImage: {
     width: 180,
     height: 100,
@@ -134,6 +211,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 24,
   },
+
   quizButton: {
     width: 300,
     height: 60,
@@ -146,6 +224,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginBottom: 50,
   },
+
   quizButtonText: {
     fontWeight: 'bold',
     fontSize: 15
