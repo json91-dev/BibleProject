@@ -16,6 +16,7 @@ export default class QuizScreen extends Component {
     isCompleteTodayQuiz: false,
     isGiveUpTodayQuiz: false,
     reviewQuizData: [],
+    timerText: '00:00:00'
   };
 
   componentDidMount() {
@@ -51,7 +52,12 @@ export default class QuizScreen extends Component {
           reviewQuizData: reviewQuizDataList,
         })
       }
-    })
+    });
+
+    // 내부 타이머 실행
+    let end = new Date(new Date().setHours(24, 0, 0));
+    this.CountDownQuizTimer(end);
+
   }
 
 
@@ -59,6 +65,47 @@ export default class QuizScreen extends Component {
   moveToScreen = (screenName) => () => {
     console.log(screenName);
     this.props.navigation.navigate(screenName);
+  };
+
+  CountDownQuizTimer = (dt) => {
+    const end = new Date(dt);
+
+    const second = 1000;
+    const minute = second * 60;
+    const hour = minute * 60;
+    const day = hour * 24;
+    let timer;
+
+    let zeroSet = function (i) {
+      return (i < 10 ? '0' : '') + i
+    };
+
+    const showRemaining = () => {
+      const now = new Date();
+      const distance = end - now;
+
+      // 시간 종료시
+      if (distance < 0) {
+        clearInterval(timer);
+        // 종류 문구 선언
+        return;
+      }
+
+      const days = Math.floor(distance / day);
+      const hours = Math.floor((distance % day) / hour);
+      const minutes = Math.floor((distance % hour) / minute);
+      const seconds = Math.floor((distance % minute) / second);
+
+      // console.log(`${days} ${hours} ${minutes} ${seconds}`)
+      const _timerText = `${zeroSet(hours)}:${zeroSet(minutes)}:${zeroSet(seconds)}`;
+
+      this.setState({
+        timerText: _timerText
+      })
+
+    };
+
+    timer = setInterval(showRemaining, 1000);
   };
 
   /**
@@ -151,11 +198,25 @@ export default class QuizScreen extends Component {
     }
   };
 
+  QuizTimer = () => {
+    /*
+     * 타이머
+     */
+    const { timerText } = this.state;
+    // console.log('하하');
+
+    return (
+      <Text style={{textAlign: 'center', fontSize: 44, marginTop: 20, fontWeight: 'light'}}>{timerText}</Text>
+    )
+  };
+
   render() {
     return (
       <ScrollView style={styles.container} contentContainerStyle ={{justifyContent: 'center'}}>
         {this.ReviewQuizAndTodayQuizLink()}
         {this.TodayQuizResult()}
+        {this.QuizTimer()}
+
       </ScrollView>
     )
   }
