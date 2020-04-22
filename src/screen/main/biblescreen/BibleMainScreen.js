@@ -45,12 +45,12 @@ export default class BibleMainScreen extends Component {
     getItemFromAsync('latelyReadList').then((item) => {
       const {bibleName, bookName, bookCode, chapterCode} = item;
       // 맨 처음 로딩시 예외처리 => 빈배열일때는 최근 읽은 성경에 값이 존재하지 않음.
-      if (item.length && item.length === 0) {
+
+      if (item && item.length === 0) {
         this.setState({
           isOpenLatelyReadBibleView: false,
         });
       } else {
-        console.log(item);
         this.setState((prevState) => {
           return {
             latelyReadItem: {

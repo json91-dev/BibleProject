@@ -11,6 +11,7 @@ import {
 import QuizBallComponent from './components/QuizBallComponent';
 import TodayQuizItem from './components/TodayQuizItem';
 import {getItemFromAsync, setItemToAsync} from '../../../utils';
+import { StackActions } from '@react-navigation/native';
 
 
 
@@ -154,15 +155,22 @@ export default class TodayQuizScreen extends Component {
     // TODO: quizAnswerTextArray를 AsynStorage에 저장.
     // reviewQuizDataList => 다음날이 되어 퀴즈를 시작할때 풀어야 하는 복습 문제들에 대한 정보를 저장함.
     // isCompleteTodayQuiz => 오늘의 퀴즈를 모두 풀었는지에 대한 정보를 확인함.
+    // quizAnswerList => 오늘의 퀴즈에 대해 유저가 입력한 정답의 정보를 저장함.
     // 모두 풀었을때 => 결과창 + 타이머 + 푼 문제 복습 링크
     // 안풀었을때 => 퀴즈 시작 링크 + 이전문제 복습
     const onCompleteTodayQuiz = () => {
-      const { quizData } = this.state;
-      const setReviewItem =  setItemToAsync('reviewQuizDataList', quizData);
+      const { quizData, quizAnswerTextArray } = this.state;
+      const setReviewItems =  setItemToAsync('reviewQuizDataList', quizData);
       const setTodayQuizComplete =  setItemToAsync('isCompleteTodayQuiz', true);
+      const setQuizAnswerTextItems = setItemToAsync('quizAnswerList', quizAnswerTextArray);
 
-      Promise.all([setReviewItem, setTodayQuizComplete]).then(function(result)  {
+      Promise.all([setReviewItems, setTodayQuizComplete, setQuizAnswerTextItems]).then((result) =>  {
         console.log(result);
+
+        const navigation = this.props.navigation;
+        const popAction = StackActions.pop(1);
+        navigation.dispatch(popAction);
+
       })
 
       // 초기화
@@ -176,7 +184,7 @@ export default class TodayQuizScreen extends Component {
     };
 
     // 오늘의 퀴즈를 포기하는 함수
-    const giveUpTodayQuiz = () => {
+    const onGiveUpTodayQuiz = () => {
 
     };
 
@@ -305,7 +313,7 @@ export default class TodayQuizScreen extends Component {
     return (
       <View style={styles.container} contentContainerStyle ={{justifyContent: 'center'}}>
         <View style={styles.giveUpView}>
-          <TouchableOpacity style={styles.giveUpButton}>
+          <TouchableOpacity style={styles.giveUpButton} onPress={onGiveUpTodayQuiz}>
             <Text style={styles.giveUpButtonText}>포기하기</Text>
           </TouchableOpacity>
         </View>

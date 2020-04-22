@@ -10,31 +10,72 @@ import {
 import ReviewQuizItem from './components/ReviewQuizItem'
 import {getItemFromAsync, setItemToAsync} from '../../../utils';
 import QuizBallComponent from './components/QuizBallComponent';
+let timer = null;
 
 export default class QuizScreen extends Component {
   state = {
     isCompleteTodayQuiz: false,
     isGiveUpTodayQuiz: false,
     reviewQuizData: [],
-    timerText: '00:00:00'
+    timerText: 'waiting...',
   };
 
   componentDidMount() {
+    // stackNavigation에서 pop이나 back버튼을 눌렀을때 componentDidMount가 다시 수행되지 않으므로,
+    // focus이벤트를 등록시킨뒤 componentDidMount의 로직들을 onLoad 함수를 이용하여 처리한다.
+    // 내부 타이머 실행
+    if (timer) {
+      clearInterval(timer);
+    }
+
+    let end = new Date(new Date().setHours(24, 0, 0));
+    this.CountDownQuizTimer(end);
+    this.onLoad();
+  }
+
+
+  // 언마운트 될떄 timer와 focus이벤트를 해지시켜준다.
+  componentWillUnmount() {
+    clearInterval(timer);
+    // navigation의 focus를 해지한다.
+    // 그냥 함수를 한번 호출하면 unsubscribe 되어진다.
+    this.didFoucsSubscription();
+  }
+
+
+  // 세례문답 Screen이 처음 시작될 떄 한번만 호출된다.
+  // focus 이벤트를 등록하고 focus 이벤트에서는 초기 퀴즈에 대한 state 초기화를 진행한다.
+  onLoad = () => {
+    this.didFoucsSubscription =  this.props.navigation.addListener('focus', () => {
+      this.initialQuizState();
+    })
+  };
+
+
+  // 초기 퀴즈 메인 컴포넌트들에 대한 State를 설정하는 함수.
+  // isCompleteTodayQuiz : 오늘의 퀴즈를 풀었는지?
+  // reviewQuizDataList : 복습 문제가 있는지?
+  // quizAnswerList : 유저가 입력한 퀴즈의 정답 목록.
+  initialQuizState = () => {
     const getIsCompleteTodayQuiz = getItemFromAsync('isCompleteTodayQuiz');
     const getReviewQuizDataList = getItemFromAsync('reviewQuizDataList');
+    const getQuizAnswerTextItems = getItemFromAsync('quizAnswerList');
 
-    Promise.all([getIsCompleteTodayQuiz, getReviewQuizDataList]).then((result) => {
+    Promise.all([getIsCompleteTodayQuiz, getReviewQuizDataList, getQuizAnswerTextItems]).then((result) => {
       let isCompleteTodayQuiz = result[0];
       const reviewQuizDataList = result[1];
+      const quizAnswerList = result[2];
+      console.log(quizAnswerList);
 
-      // 데이터가 없을경우 []를 반환하므로 이를 예외처리하여야 함.
+      // 데이터가 없을경우 []를 반환하므로 이를 예외처리하여야 함. => item.length 는 false임 .. 실수.. 0이기때문
       // 문제를 한번도 풀지 않아본 유저의 경우
-      if(isCompleteTodayQuiz.length && isCompleteTodayQuiz.length === 0) {
+      if(isCompleteTodayQuiz && isCompleteTodayQuiz.length === 0) {
         this.setState({
           isCompleteTodayQuiz: false,
           reviewQuizData: reviewQuizDataList,
         })
       }
+
       // 오늘의 퀴즈를 모두 푼 유저의 경우
       // 퀴즈를 푼 이후 => 결과창, 타이머, 내가 푼 성경 복습
       else if(isCompleteTodayQuiz === true) {
@@ -53,14 +94,7 @@ export default class QuizScreen extends Component {
         })
       }
     });
-
-    // 내부 타이머 실행
-    let end = new Date(new Date().setHours(24, 0, 0));
-    this.CountDownQuizTimer(end);
-
-  }
-
-
+  };
 
   moveToScreen = (screenName) => () => {
     console.log(screenName);
@@ -68,13 +102,12 @@ export default class QuizScreen extends Component {
   };
 
   CountDownQuizTimer = (dt) => {
-    const end = new Date(dt);
 
+    const end = new Date(dt);
     const second = 1000;
     const minute = second * 60;
     const hour = minute * 60;
     const day = hour * 24;
-    let timer;
 
     let zeroSet = function (i) {
       return (i < 10 ? '0' : '') + i
@@ -98,13 +131,14 @@ export default class QuizScreen extends Component {
 
       // console.log(`${days} ${hours} ${minutes} ${seconds}`)
       const _timerText = `${zeroSet(hours)}:${zeroSet(minutes)}:${zeroSet(seconds)}`;
+      // console.log('timer' + new Date());
 
       this.setState({
         timerText: _timerText
       })
-
     };
 
+    clearInterval(timer);
     timer = setInterval(showRemaining, 1000);
   };
 
@@ -113,9 +147,11 @@ export default class QuizScreen extends Component {
    */
 
 
-  // 퀴즈에 대한 복습내용과, 퀴즈를 풀수 있는 링크를 제공하는 컴포넌트
-  // 오늘의 퀴즈를 풀지 않았을 때 퀴즈 복습데이터의 존재 여부에 따라 퀴즈를 풀수 있는 링크를 제공함.
-
+  /**
+   * 퀴즈에 대한 복습내용과, 퀴즈를 풀수 있는 링크를 제공하는 컴포넌트
+   * 오늘의 퀴즈를 풀지 않았을 때 (isCompleteTodayQuiz === false)
+   *  => 퀴즈 복습데이터의 존재 여부 (reviewQuizData)에 따라 퀴즈를 풀수 있는 링크를 제공함.
+   */
   ReviewQuizAndTodayQuizLink = () => {
     const { isCompleteTodayQuiz, reviewQuizData } = this.state;
 
