@@ -111,25 +111,29 @@ export default class TodayQuizScreen extends Component {
       const curPageQuizWord = curPageQuizData.quizWord;
       let updateQuizBallState;
 
-      // 정답일 경우
+      // quizBallState를 바꿔줌.
       if (curPageQuizWord === textInputText) {
-        // quizBallState를 바꿔준다,
+        // 정답일 경우 quizBallState를 1로 바꿔준다.
         updateQuizBallState = [...currentQuizBallState];
         updateQuizBallState[pageState] = 1;
       } else {
+        // 정답이 아닐경우 quizBallState를 0으로 바꿔준다.
         updateQuizBallState = [...currentQuizBallState];
         updateQuizBallState[pageState] = 0;
       }
 
-      // pageState를 1개 올려준다.
-      // 정답 제출 버튼을 바꿔준다.
-      // TODO: 현재 입력한 퀴즈 아이템 배열에 저장.
+
+      // 유저의 정답에 대한 입력값을 저장하기 위한 변수를 선언한다.
+      // 값을 입력하지 않으면 '없음' 문자열을 써서 처리한다.
+      const quizInputText = (textInputText === "") ? '없음' : textInputText ;
+
       this.setState((prevState) => {
         return {
           currentQuizBallState: updateQuizBallState,
           isOpenAnswer: true,
           isFocusTextInput: false,
-          quizAnswerTextArray: [...prevState.quizAnswerTextArray, textInputText]
+          quizAnswerTextArray: [...prevState.quizAnswerTextArray, textInputText],
+          textInputText: "",
         }
       });
 
@@ -155,27 +159,23 @@ export default class TodayQuizScreen extends Component {
     // TODO: quizAnswerTextArray를 AsynStorage에 저장.
     // reviewQuizDataList => 다음날이 되어 퀴즈를 시작할때 풀어야 하는 복습 문제들에 대한 정보를 저장함.
     // isCompleteTodayQuiz => 오늘의 퀴즈를 모두 풀었는지에 대한 정보를 확인함.
-    // quizAnswerList => 오늘의 퀴즈에 대해 유저가 입력한 정답의 정보를 저장함.
+    // todayQuizAnswerList => 오늘의 퀴즈에 대해 유저가 입력한 정답의 정보를 저장함.
+    // todayQuizBallState => 오늘의 퀴즈에 대한 정답 볼 상태 저장
     // 모두 풀었을때 => 결과창 + 타이머 + 푼 문제 복습 링크
     // 안풀었을때 => 퀴즈 시작 링크 + 이전문제 복습
     const onCompleteTodayQuiz = () => {
       const { quizData, quizAnswerTextArray } = this.state;
-      const setReviewItems =  setItemToAsync('reviewQuizDataList', quizData);
-      const setTodayQuizComplete =  setItemToAsync('isCompleteTodayQuiz', true);
-      const setQuizAnswerTextItems = setItemToAsync('quizAnswerList', quizAnswerTextArray);
+      const setReviewQuizDataList =  setItemToAsync('reviewQuizDataList', quizData);
+      const setIsCompleteTodayQuiz =  setItemToAsync('isCompleteTodayQuiz', true);
+      const setQuizAnswerList = setItemToAsync('todayQuizAnswerList', quizAnswerTextArray);
+      const setQuizBallState = setItemToAsync('todayQuizBallState', currentQuizBallState);
 
-      Promise.all([setReviewItems, setTodayQuizComplete, setQuizAnswerTextItems]).then((result) =>  {
+      Promise.all([setReviewQuizDataList, setIsCompleteTodayQuiz, setQuizAnswerList, setQuizBallState]).then((result) =>  {
         console.log(result);
-
         const navigation = this.props.navigation;
         const popAction = StackActions.pop(1);
         navigation.dispatch(popAction);
-
       })
-
-      // 초기화
-      // setItemToAsync('reviewQuizDataList', null)
-      // setItemToAsync('isCompleteTodayQuiz', null);
     };
 
     // 현재 퀴즈를 패스하는 함수.
@@ -185,7 +185,7 @@ export default class TodayQuizScreen extends Component {
 
     // 오늘의 퀴즈를 포기하는 함수
     const onGiveUpTodayQuiz = () => {
-
+      // TODO : 유저가 빈문자를 입력했을때는 '없음' // 남은문제는 빈공백으로 처리 // 입력했을때는 입력한 값을 처리함
     };
 
     /**

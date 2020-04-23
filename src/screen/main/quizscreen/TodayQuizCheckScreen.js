@@ -14,7 +14,7 @@ import {getItemFromAsync, setItemToAsync} from '../../../utils';
 
 
 
-export default class TodayQuizScreen extends Component {
+export default class TodayQuizCheckScreen extends Component {
   state = {
     currentQuizBallState: [-1, -1, -1, -1, -1],
     quizAnswerTextArray: [],
@@ -27,6 +27,8 @@ export default class TodayQuizScreen extends Component {
   };
 
   componentDidMount() {
+    // 해당 부분을 서버에서 전달받도록 수정..
+    // 여기서는 reviewQuizData로 전달받음.
     const data = [
       {
         quizVerse: '역대하 5장 3절',
@@ -55,13 +57,15 @@ export default class TodayQuizScreen extends Component {
       }
     ];
 
-
     this.setState({
       quizData: data,
       curPageQuizData: data[0],
     });
 
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+
+
+    // 추가적으로 quizBallState,
   }
 
   componentWillUnmount() {
@@ -303,10 +307,10 @@ export default class TodayQuizScreen extends Component {
     };
 
     return (
-      <View style={styles.container} contentContainerStyle ={{justifyContent: 'center'}}>
-        <View style={styles.giveUpView}>
-          <TouchableOpacity style={styles.giveUpButton}>
-            <Text style={styles.giveUpButtonText}>포기하기</Text>
+      <View style={styles.container} contentContainerStyle = {{justifyContent: 'center'}}>
+        <View style={styles.closeView}>
+          <TouchableOpacity style={styles.closeButton} onPress={this.props.navigation.goBack} >
+            <Text style={styles.closeButtonText}>닫기</Text>
           </TouchableOpacity>
         </View>
         {TodayQuizTitleView()}
@@ -326,21 +330,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 
-  giveUpView: {
+  closeView: {
     flexDirection: 'row-reverse',
     width: '100%',
     borderBottomWidth: 1,
     borderColor: '#EDEDED'
   },
 
-  giveUpButton: {
+  closeButton: {
     paddingBottom: 20,
     paddingRight: 20,
     paddingTop: 20,
     paddingLeft: 10,
   },
 
-  giveUpButtonText: {
+  closeButtonText: {
     fontSize: 15,
   },
 

@@ -5,6 +5,7 @@ import React from 'react';
 
 import QuizMainScreen from './QuizMainScreen'
 import TodayQuizScreen from './TodayQuizScreen'
+import TodayQuizCheckScreen from './TodayQuizCheckScreen'
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ function MainScreenNavigator ({navigation, route}) {
     <Stack.Navigator initialRouteName = "QuizMainScreen">
       <Stack.Screen name="QuizMainScreen" options={{ headerShown: false }} component={QuizMainScreen}/>
       <Stack.Screen name="TodayQuizScreen" options={{ headerShown: false, animationEnabled: false, }} component={TodayQuizScreen} />
+      <Stack.Screen name="TodayQuizCheckScreen" options={{ headerShown: false, animationEnabled: false, }} component={TodayQuizCheckScreen} />
     </Stack.Navigator>
   )
 }

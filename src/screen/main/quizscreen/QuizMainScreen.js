@@ -18,6 +18,7 @@ export default class QuizScreen extends Component {
     isGiveUpTodayQuiz: false,
     reviewQuizData: [],
     timerText: 'waiting...',
+    currentQuizBallState: [-1, -1, -1, -1, -1],
   };
 
   componentDidMount() {
@@ -55,17 +56,21 @@ export default class QuizScreen extends Component {
   // 초기 퀴즈 메인 컴포넌트들에 대한 State를 설정하는 함수.
   // isCompleteTodayQuiz : 오늘의 퀴즈를 풀었는지?
   // reviewQuizDataList : 복습 문제가 있는지?
-  // quizAnswerList : 유저가 입력한 퀴즈의 정답 목록.
+  // todayQuizAnswerList : 유저가 입력한 퀴즈의 정답 목록.
   initialQuizState = () => {
     const getIsCompleteTodayQuiz = getItemFromAsync('isCompleteTodayQuiz');
     const getReviewQuizDataList = getItemFromAsync('reviewQuizDataList');
-    const getQuizAnswerTextItems = getItemFromAsync('quizAnswerList');
+    const getTodayQuizAnswerList = getItemFromAsync('todayQuizAnswerList');
+    const getTodayQuizBallState = getItemFromAsync('todayQuizBallState');
 
-    Promise.all([getIsCompleteTodayQuiz, getReviewQuizDataList, getQuizAnswerTextItems]).then((result) => {
+    Promise.all([getIsCompleteTodayQuiz, getReviewQuizDataList, getTodayQuizAnswerList, getTodayQuizBallState]).then((result) => {
       let isCompleteTodayQuiz = result[0];
       const reviewQuizDataList = result[1];
-      const quizAnswerList = result[2];
-      console.log(quizAnswerList);
+      const todayQuizAnswerList = result[2];
+      const todayQuizBallState = result[3];
+
+      console.log(todayQuizAnswerList);
+      console.log(todayQuizBallState);
 
       // 데이터가 없을경우 []를 반환하므로 이를 예외처리하여야 함. => item.length 는 false임 .. 실수.. 0이기때문
       // 문제를 한번도 풀지 않아본 유저의 경우
@@ -82,6 +87,7 @@ export default class QuizScreen extends Component {
         this.setState({
           isCompleteTodayQuiz: true,
           reviewQuizData: reviewQuizDataList,
+          currentQuizBallState: todayQuizBallState,
         })
       }
 
@@ -204,13 +210,14 @@ export default class QuizScreen extends Component {
     }
   };
 
+  // 오늘의 퀴즈를 푼 뒤에 내일 퀴즈까지의 대기화면 보여주는 컴포넌트
   TodayQuizResult = () => {
     const { isCompleteTodayQuiz, isGiveUpTodayQuiz } = this.state;
 
     if (isCompleteTodayQuiz && isGiveUpTodayQuiz) {
       return (
         <View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={this.moveToScreen('TodayQuizCheckScreen')}>
             <Image style={styles.quizResultQuestionImage} source={require('assets/ic_question_quiz_result.png')}/>
           </TouchableOpacity>
           <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_sad.png')}/>
@@ -222,12 +229,12 @@ export default class QuizScreen extends Component {
     else if (isCompleteTodayQuiz && !isGiveUpTodayQuiz) {
       return (
         <View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={this.moveToScreen('TodayQuizCheckScreen')}>
             <Image style={styles.quizResultQuestionImage} source={require('assets/ic_question_quiz_result.png')}/>
           </TouchableOpacity>
           <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_weird.png')}/>
           <Text style={styles.titleText}>오늘의 세례문답 성적은</Text>
-          <QuizBallComponent quizBallState={[0,0,1,1,0]}/>
+          <QuizBallComponent quizBallState={this.state.currentQuizBallState}/>
           <Text style={[styles.titleText, {marginTop: 80}]}>내일의 세례문답까지.</Text>
         </View>
       )
