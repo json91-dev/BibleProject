@@ -444,7 +444,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     height: '100%',
-
+    justifyContent: 'flex-end',
+    borderColor: 'red',
   },
   searchViewInput: {
     width: '70%',
@@ -462,7 +463,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    height: 50
+    height: 60,
+    position: 'absolute',
+    top: 10,
   },
 
   searchIcon: {
@@ -492,11 +495,14 @@ const styles = StyleSheet.create({
 
   searchViewBottom: {
     width: '80%',
-    height: 10
+    height: 10,
+    position:'absolute',
+    top: 65,
   },
 
   mainView: {
     height: '82%',
+    marginBottom: '6%',
   },
 
   todayImage: {
@@ -531,6 +537,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     height: '20%',
     width: '100%',
+
   },
 
   bibleLinkImage: {
