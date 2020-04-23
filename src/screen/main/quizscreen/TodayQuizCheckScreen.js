@@ -21,7 +21,7 @@ export default class TodayQuizCheckScreen extends Component {
     pageState: 0,
     isFocusTextInput: false,
     textInputText: "",
-    isOpenAnswer: false,
+    isOpenAnswer: true,
     quizData: null,
     curPageQuizData: null,
   };
@@ -62,45 +62,12 @@ export default class TodayQuizCheckScreen extends Component {
       curPageQuizData: data[0],
     });
 
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-
-
-    // 추가적으로 quizBallState,
+    // 추가적으로 quizBallState 등의 값들을 가져와서 설정
   }
-
-  componentWillUnmount() {
-    this.keyboardDidHideListener.remove()
-  }
-
-  // 키보드가 사라질때 발생하는 이벤트 선언.
-  // Keyboard가 dismiss되면 자동으로 blur 호출
-  _keyboardDidHide = () => {
-    // this.refs.textInputRef.blur();
-    Keyboard.dismiss()
-  };
-
 
   render() {
-    const { pageState, currentQuizBallState } = this.state;
+    const { pageState,  } = this.state;
     // 버튼이 포커스되면 searchView를 보여줌
-    const onFocus = () => {
-      console.log('포커스');
-      this.setState((prevState) => {
-        return {
-          isFocusTextInput: true
-        }
-      })
-    };
-
-    // 버튼의 Focus가 풀렸을 시 동작함.
-    const onBlur = () => {
-      console.log('Blur');
-      this.setState((prevState) => {
-        return {
-          isFocusTextInput: false,
-        }
-      })
-    };
 
     /**
      * 퀴즈의 정답 여부를 체크한다.
@@ -112,24 +79,14 @@ export default class TodayQuizCheckScreen extends Component {
       const { curPageQuizData, pageState, textInputText, currentQuizBallState } = this.state;
       // 정답의 진위여부를 판단한다.
       const curPageQuizWord = curPageQuizData.quizWord;
-      let updateQuizBallState;
 
-      // 정답일 경우
-      if (curPageQuizWord === textInputText) {
-        // quizBallState를 바꿔준다,
-        updateQuizBallState = [...currentQuizBallState];
-        updateQuizBallState[pageState] = 1;
-      } else {
-        updateQuizBallState = [...currentQuizBallState];
-        updateQuizBallState[pageState] = 0;
-      }
 
       // pageState를 1개 올려준다.
       // 정답 제출 버튼을 바꿔준다.
       // TODO: 현재 입력한 퀴즈 아이템 배열에 저장.
       this.setState((prevState) => {
         return {
-          currentQuizBallState: updateQuizBallState,
+          // currentQuizBallState: updateQuizBallState,
           isOpenAnswer: true,
           isFocusTextInput: false,
           quizAnswerTextArray: [...prevState.quizAnswerTextArray, textInputText]
@@ -148,9 +105,21 @@ export default class TodayQuizCheckScreen extends Component {
 
       this.setState(prevState => {
         return {
-          isOpenAnswer: false,
+          isOpenAnswer: true,
           curPageQuizData: quizData[pageState + 1],
           pageState: prevState.pageState + 1,
+        }
+      })
+    };
+
+    const onMovePrevQuiz = () => {
+      const { pageState, quizData, curPageQuizData } = this.state;
+
+      this.setState(prevState => {
+        return {
+          isOpenAnswer: true,
+          curPageQuizData: quizData[pageState - 1],
+          pageState: prevState.pageState - 1,
         }
       })
     };
@@ -168,20 +137,6 @@ export default class TodayQuizCheckScreen extends Component {
       Promise.all([setReviewItem, setTodayQuizComplete]).then(function(result)  {
         console.log(result);
       })
-
-      // 초기화
-      // setItemToAsync('reviewQuizDataList', null)
-      // setItemToAsync('isCompleteTodayQuiz', null);
-    };
-
-    // 현재 퀴즈를 패스하는 함수.
-    const passCurrentQuiz = () => {
-      onAnswerSubmit();
-    };
-
-    // 오늘의 퀴즈를 포기하는 함수
-    const giveUpTodayQuiz = () => {
-
     };
 
     /**
@@ -208,49 +163,7 @@ export default class TodayQuizCheckScreen extends Component {
       const { curPageQuizData } = this.state;
       if(curPageQuizData) {
         return  (
-          <TodayQuizItem quizData={this.state.curPageQuizData} isOpened={this.state.isOpenAnswer} />
-        )
-      } else {
-        return null;
-      }
-    };
-
-    // quiz 입력에 사용되는 textInput 컴포넌트
-    const QuizTextInput = () => {
-      const { isOpenAnswer } = this.state;
-      if ( !isOpenAnswer ) {
-        return (
-          <TextInput
-            onFocus={onFocus}
-            onBlur={onBlur}
-            ref="textInputRef"
-            style={styles.answerInputText}
-            placeholder="정답을 입력하세요"
-            onEndEditing={onBlur}
-            blurOnSubmit={true}
-            onChangeText={(text) => {
-              this.setState({
-                textInputText: text
-              });
-            }}
-          />
-        )
-      } else {
-        return null
-      }
-    };
-
-    // 현재 퀴즈에 대한 Pass Button을 가진 컴포넌트
-    const PassCurrentQuiz = () => {
-      const { isOpenAnswer } = this.state;
-      if( !isOpenAnswer ) {
-        return (
-          <View>
-            <TouchableOpacity onPress={passCurrentQuiz} style={styles.passButton}>
-              <Text style={styles.passButtonText}>이 문제 패스</Text>
-            </TouchableOpacity>
-            <Text style={styles.passButtonLabel}>패스를 하게 되면 틀림으로 간주 합니다.</Text>
-          </View>
+          <TodayQuizItem quizData={this.state.curPageQuizData} isOpened={true} isOpenedCheck={true} />
         )
       } else {
         return null;
@@ -259,7 +172,7 @@ export default class TodayQuizCheckScreen extends Component {
 
     // 정답에 대해 유저의 입력을 확인시켜주는 컴포넌트.
     const ConfirmCurrentQuizAnswer = () => {
-      const { isOpenAnswer} = this.state;
+      const { isOpenAnswer } = this.state;
       let { textInputText } = this.state;
 
       if (textInputText === '' || textInputText === ' ') {
@@ -279,29 +192,46 @@ export default class TodayQuizCheckScreen extends Component {
     };
 
     // 정답제출 버튼 및 다음 화면으로 이동 버튼에 대한 컴포넌트
+    // => 수정 : 다음 , 이전 + 다음, 이전 으로 수정해야한다. (완료)
     const AnswerButton = () => {
-      const { isOpenAnswer, pageState } = this.state;
+      const { pageState } = this.state;
 
-      // 정답 확인 전, 정답확인 버튼, 이후 다음문제 버튼 출력
-      // pageState가 4이상일경우 모든 문제를 푼 상태이므로 확인버튼을 눌렀을때 오늘의 퀴즈 컴포넌트에서 빠져나가야 한다.
+      if (pageState === 0) {
+        return (
+          <View style={{position:'absolute', bottom: 0, width: '100%'}}>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity style={[styles.answerSubmitButton, {width: '100%'}]} onPress={onMoveNextQuiz}>
+                <Text style={styles.answerSubmitButtonText}>다음문제</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )
+      }
 
-      if ( !isOpenAnswer ) {
+      else if (pageState > 0 && pageState < 4) {
         return (
-          <TouchableOpacity style={styles.answerSubmitButton} onPress={onAnswerSubmit}>
-            <Text style={styles.answerSubmitButtonText}>정답 제출</Text>
-          </TouchableOpacity>
+          <View style={{position:'absolute', bottom: 0, width: '100%'}}>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity style={[styles.answerSubmitButton, {width: '50%'}]} onPress={onMovePrevQuiz}>
+                <Text style={styles.answerSubmitButtonText}>이전문제</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.answerSubmitButton, {width: '50%'}]} onPress={onMoveNextQuiz}>
+                <Text style={styles.answerSubmitButtonText}>다음문제</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )
-      } else if (isOpenAnswer && pageState < 4) {
+      }
+
+      else if (pageState === 4) {
         return (
-          <TouchableOpacity style={styles.answerSubmitButton} onPress={onMoveNextQuiz}>
-            <Text style={styles.answerSubmitButtonText}>다음 문제</Text>
-          </TouchableOpacity>
-        )
-      } else {
-        return (
-          <TouchableOpacity style={styles.answerSubmitButton} onPress={onCompleteTodayQuiz}>
-            <Text style={styles.answerSubmitButtonText}>완료</Text>
-          </TouchableOpacity>
+          <View style={{position:'absolute', bottom: 0, width: '100%'}}>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity style={[styles.answerSubmitButton, {width: '100%'}]} onPress={onMovePrevQuiz}>
+                <Text style={styles.answerSubmitButtonText}>이전문제</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )
       }
     };
@@ -315,8 +245,6 @@ export default class TodayQuizCheckScreen extends Component {
         </View>
         {TodayQuizTitleView()}
         {ShowTodayQuizItemComponent()}
-        {QuizTextInput()}
-        {PassCurrentQuiz()}
         {ConfirmCurrentQuizAnswer()}
         {AnswerButton()}
       </View>
@@ -394,13 +322,13 @@ const styles = StyleSheet.create({
   },
 
   answerSubmitButton: {
-    position:'absolute',
     bottom: 0,
     width: '100%',
     height: 60,
     justifyContent:'center',
     alignItems: 'center',
     backgroundColor: '#F9DA4F',
+    flexDirection: 'row',
   },
 
   answerSubmitButtonText: {

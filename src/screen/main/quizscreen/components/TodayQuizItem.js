@@ -14,20 +14,39 @@ export default class TodayQuizItem extends Component {
     isOpenAnswer: false,
   };
 
+
+  /**
+   * props의 상태나 현재 State의 상태를 판단하여, 렌더링을 할지 말지를 결정시켜주는 메서드입니다.
+   *
+   */
+
   shouldComponentUpdate(nextProps) {
+    // isOpened가 달라졌을때에만 렌더링.
     if (this.props.isOpened !== nextProps.isOpened) {
+      console.log('shouldComponent 업데이트');
       return true
-    } else {
+    }
+
+    // TodayQuizCheckScreen을 위한 예외처리를 구현
+    // isOpendCheck로 props가 true로 넘어왔을때에도 렌더링 적용
+    else if (nextProps.isOpenedCheck) {
+      return true;
+    }
+
+    else {
       return false
     }
   }
 
   /**
+   * props로 받아온 값을 State로 동기화를 해줘야 할 떄 보통 사용됩니다.
+   * shouldComponentUpdate보다 이전에 실행됩니다.
    * 퀴즈의 정답제출이 끝나거나, 퀴즈화면이 이동할 떄 호출됩니다.
    * isOpened로 넘겨받은 props가 변할 때, 성경퀴즈 컴포넌트를 다시 그려줍니다.
    */
   static getDerivedStateFromProps(nextProps, prevState) {
     if (prevState.isOpenAnswer !== nextProps.isOpened) {
+      console.log('getDerivedStateFromProps 업데이트');
       return {
         isOpenAnswer: nextProps.isOpened
       }
