@@ -51,6 +51,8 @@ export default class TodayQuizItem extends Component {
         isOpenAnswer: nextProps.isOpened
       }
     }
+    // return null을 하여야 exception이 발생하지 않음
+    return null;
   }
 
   // 성경 텍스트 문장에 공백을 만들어 반환하는 메서드

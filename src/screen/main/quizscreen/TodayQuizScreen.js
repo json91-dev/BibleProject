@@ -132,7 +132,7 @@ export default class TodayQuizScreen extends Component {
           currentQuizBallState: updateQuizBallState,
           isOpenAnswer: true,
           isFocusTextInput: false,
-          quizAnswerTextArray: [...prevState.quizAnswerTextArray, textInputText],
+          quizAnswerTextArray: [...prevState.quizAnswerTextArray, quizInputText],
           textInputText: "",
         }
       });

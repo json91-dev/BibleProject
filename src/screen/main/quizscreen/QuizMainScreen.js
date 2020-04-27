@@ -127,6 +127,8 @@ export default class QuizScreen extends Component {
       if (distance < 0) {
         clearInterval(timer);
         // 종류 문구 선언
+        // 이곳에 다음 퀴즈를 푸는 버튼을 만들어준다. 해당버튼을 눌렀을시 오늘의 퀴즈(다음날)로 이동한다.
+
         return;
       }
 
@@ -249,7 +251,7 @@ export default class QuizScreen extends Component {
     // console.log('하하');
 
     return (
-      <Text style={{textAlign: 'center', fontSize: 44, marginTop: 20, fontWeight: 'light'}}>{timerText}</Text>
+      <Text style={{textAlign: 'center', fontSize: 44, marginTop: 20, fontWeight: 'normal'}}>{timerText}</Text>
     )
   };
 

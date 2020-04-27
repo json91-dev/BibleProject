@@ -22,19 +22,19 @@ export default class QuizBallComponent extends Component {
     const { quizBallState } = this.props;
 
     // -1일 => 풀기 전  // 0 => 틀림 // 1 => 정답
-    const quizBall = this.props.quizBallState.map((num) => {
+    const quizBall = this.props.quizBallState.map((num, index) => {
       switch(num) {
         case -1 :
-          return <Image style={styles.ballImage} source={require('/assets/ic_quizball_none.png')}/>;
+          return <Image key={index} style={styles.ballImage} source={require('/assets/ic_quizball_none.png')}/>;
           break;
         case 0 :
-          return <Image style={styles.ballImage} source={require('/assets/ic_quizball_x.png')}/>;
+          return <Image key={index * 10} style={styles.ballImage} source={require('/assets/ic_quizball_x.png')}/>;
           break;
         case 1 :
-          return <Image style={styles.ballImage} source={require('/assets/ic_quizball_o.png')}/>;
+          return <Image key={index * 20} style={styles.ballImage} source={require('/assets/ic_quizball_o.png')}/>;
           break;
         default:
-          return <View></View>;
+          return <View> key={index * 30}</View>;
           break;
       }
     });
