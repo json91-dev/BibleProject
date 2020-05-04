@@ -6,9 +6,7 @@ import {
   View,
   Text,
   Image,
-  Alert,
   TouchableOpacity,
-  ScrollView,
   TextInput, FlatList,
 } from 'react-native';
 
@@ -428,6 +426,7 @@ export default class BibleMainScreen extends Component {
         {this.SearchResultView()}
         {this.LatelyReadBibleView()}
 
+
         <Toast ref="toast"
                positionValue={130}
                fadeInDuration={200}
@@ -464,7 +463,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: 60,
-    position: 'absolute',
     top: 10,
   },
 

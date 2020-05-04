@@ -61,16 +61,16 @@ export default class ChapterListScreen extends Component {
           renderItem={({item, index}) => {
             let chapterCode = index + 1;
             return (
-                <TouchableOpacity
-                  style={styles.flatListItem}
-                  onPress={this.goToChapterListScreen.bind(this,
+              <TouchableOpacity
+                style={styles.flatListItem}
+                onPress={this.goToChapterListScreen.bind(this,
                   {
                     bookName: item.bookName,
                     bookCode: item.bookCode,
                     chapterCode: chapterCode,
                   })}>
                   <Text style={styles.flatListItemText}>{chapterCode}.    {item.bookName}{chapterCode}장</Text>
-                </TouchableOpacity>
+              </TouchableOpacity>
               )
           }}
         />

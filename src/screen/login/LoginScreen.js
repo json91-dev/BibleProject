@@ -11,7 +11,7 @@ import {
 
 } from 'react-native';
 
-import GoogleSigninButton from './GoogleSigninButton'
+// import GoogleSigninButton from './GoogleSigninButton'
 import { useNavigation}  from '@react-navigation/native';
 
 export default function LoginScreen() {
@@ -30,7 +30,8 @@ export default function LoginScreen() {
         />
         <Text style={styles.titleText}>THE BIBLE</Text>
         <Text style={styles.titleInfo}>로그인해서 성경공부를 해보세요.</Text>
-        <GoogleSigninButton navigation= {navigation} test='zz' />
+        {/*<GoogleSigninButton navigation= {navigation} test='zz' />*/}
+        <Button title={"해해"} onPress={aa}/>
       </View>
     </LinearGradient>
   )
