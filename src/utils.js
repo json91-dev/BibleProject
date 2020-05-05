@@ -1,5 +1,6 @@
 import AsyncStorage  from '@react-native-community/async-storage';
 import SQLite from 'react-native-sqlite-storage';
+import firestore from '@react-native-firebase/firestore';
 
 /**
  * 문자열이 특정길이 이상일때 ...으로 출력해주는 메서드
@@ -127,8 +128,36 @@ const okCallback = (result) => {
   // console.log('DB connection success');
   // console.log(result);
 };
+
 let bibleDB = SQLite.openDatabase({name : "BibleDB.db", createFromLocation : 1}, okCallback, errorCallback);
 export const getSqliteDatabase = () => {
   console.log(bibleDB);
   return bibleDB
+};
+
+// Firebase를 얻기 위해 SingleTon 사용.
+const FireStoreSingleton = (
+  function() {
+    let firestoreInstance;
+
+    function init() {
+      return firestore();
+    }
+
+    return {
+      getInstance: function() {
+        if(!firestoreInstance) {
+          firestoreInstance = init()
+        }
+        console.log(firestoreInstance);
+
+        return firestoreInstance
+      }
+    }
+  }
+);
+
+export const getFireStore = () => {
+  return FireStoreSingleton().getInstance();
 }
+
