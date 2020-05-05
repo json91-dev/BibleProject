@@ -21,6 +21,12 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  
+  // Firebase를 이용하기 위한 초기화 구문 수행.
+  if ([FIRApp defaultApp] == nil) {
+    [FIRApp configure];
+  }
+    
   return YES;
 }
 

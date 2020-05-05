@@ -1,43 +1,78 @@
 {
   "project_info": {
-    "project_number": "271807854923",
-    "firebase_url": "https://the-bible-621f5.firebaseio.com",
-    "project_id": "the-bible-621f5",
-    "storage_bucket": "the-bible-621f5.appspot.com"
+    "project_number": "166795326573",
+    "firebase_url": "https://the-bible-de51f.firebaseio.com",
+    "project_id": "the-bible-de51f",
+    "storage_bucket": "the-bible-de51f.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:271807854923:android:b90107075a372aabc0d0ce",
+        "mobilesdk_app_id": "1:166795326573:android:391ca3b77248f960f77b64",
         "android_client_info": {
-          "package_name": "com.bibleproject"
+          "package_name": "cccc.cc"
         }
       },
       "oauth_client": [
         {
-          "client_id": "271807854923-apsa1qgjahs1bum1989hrmoecmi358sc.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.bibleproject",
-            "certificate_hash": "c4f5f6527858211dc5637038237bdd531468fa0f"
-          }
-        },
-        {
-          "client_id": "271807854923-f0si6s5dj9urd45nvdpqpeihnc3q8i57.apps.googleusercontent.com",
+          "client_id": "166795326573-v21ptindflmhf8a98gn0pmqq9dv886jd.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDiezMqtWMJH4HobbALwCZRakbb9-ARPfw"
+          "current_key": "AIzaSyDLsiWohiyYDwql1t8JJqQh2Aeb4UyCIeQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "271807854923-f0si6s5dj9urd45nvdpqpeihnc3q8i57.apps.googleusercontent.com",
+              "client_id": "166795326573-v21ptindflmhf8a98gn0pmqq9dv886jd.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "166795326573-1hccunfkgmhbegcqrnh4t5299eohdqhl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.BibleProject2"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166795326573:android:86ca598f1ea7438af77b64",
+        "android_client_info": {
+          "package_name": "com.bibleproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166795326573-v21ptindflmhf8a98gn0pmqq9dv886jd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLsiWohiyYDwql1t8JJqQh2Aeb4UyCIeQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166795326573-v21ptindflmhf8a98gn0pmqq9dv886jd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "166795326573-1hccunfkgmhbegcqrnh4t5299eohdqhl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.BibleProject2"
+              }
             }
           ]
         }
