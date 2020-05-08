@@ -35,12 +35,13 @@ export default class VerseListScreen extends Component {
       bibleType: 0,
       modalBibleItem: {},
       verseItemFontSize: 14,
+      verseItemFontFamily: 'system font',
     };
   }
 
   componentDidMount() {
     const { route } = this.props;
-    const {bookName, bookCode, chapterCode}  = route.params;
+    const { bookName, bookCode, chapterCode }  = route.params;
 
     /**
      * 최근 읽은 성경 주소 저장
@@ -60,11 +61,9 @@ export default class VerseListScreen extends Component {
     };
     saveLatelyReadBible();
 
-    /**
-     * 폰트 사이즈 설정
-     */
 
-    const setFontSize = () => {
+    // 초기에 로컬 스토리지에서 저장된 폰트 사이즈와 폰트 패밀리를 설정합니다.
+    const setFontSizeAndFamily = () => {
       getItemFromAsync('fontSizeOption').then((item) => {
         if(item && item.length === 0) {
           this.setState({
@@ -94,10 +93,40 @@ export default class VerseListScreen extends Component {
               break;
           }
         }
+      });
+
+      getItemFromAsync('fontFamilyOption').then((item) => {
+        if(item && item.length === 0) {
+          this.setState({
+            verseItemFontFamily: 'system font'
+          })
+        } else {
+          switch(item) {
+            case 0:
+              this.setState({
+                verseItemFontFamily: 'system font'
+              });
+              break;
+            case 1:
+              this.setState({
+                verseItemFontFamily: 'NanumBrushScript-Regular'
+              });
+              break;
+            case 2:
+              this.setState({
+                verseItemFontFamily: 'TmonMonsori.ttf'
+              });
+              break;
+            case 3:
+              this.setState({
+                verseItemFontFamily: 'applemyungjo-regular'
+              });
+              break;
+          }
+        }
       })
     };
-    setFontSize();
-
+    setFontSizeAndFamily();
 
     /**
      * VerseItem을 입력받아 isHighlight 값을 설정하는 메서드.
@@ -339,6 +368,12 @@ export default class VerseListScreen extends Component {
     })
   };
 
+  changeFontFamily = (family) => {
+    this.setState({
+      verseItemFontFamily: family,
+    })
+  }
+
   // 각 옵션에 대한 컴포넌트를 화면에 그려주는 메서드.
   showOptionComponent() {
     let visibleOptionComponent;
@@ -351,7 +386,7 @@ export default class VerseListScreen extends Component {
         visibleOptionComponent = <BibleNoteOption toastRef={this.refs.toast} closeHandler={this.closeFooterOption}/>;
         break;
       case 'fontChange':
-        visibleOptionComponent = <FontChangeOption closeHandler={this.closeFooterOption} changeFontHandler={this.changeFontSize}/>;
+        visibleOptionComponent = <FontChangeOption closeHandler={this.closeFooterOption} changeFontSizeHandler={this.changeFontSize} changeFontFamilyHandler={this.changeFontFamily}/>;
         break;
       case 'default':
         visibleOptionComponent = null;
@@ -539,15 +574,15 @@ export default class VerseListScreen extends Component {
         navigation.dispatch(pushChapterList);
       };
       const highlightText = (item) => {
-        const { verseItemFontSize } = this.state;
+        const { verseItemFontSize, verseItemFontFamily } = this.state;
 
         if (item.isHighlight) {
           return (
-            <Text style={[styles.flatListItemTextHighlight, {fontSize: verseItemFontSize}]}>{item.content}</Text>
+            <Text style={[styles.flatListItemTextHighlight, {fontSize: verseItemFontSize, fontFamily: verseItemFontFamily}]}>{item.content}</Text>
           )
         } else {
           return (
-            <Text style={[styles.flatListItemText, {fontSize: verseItemFontSize}]}>{item.content}</Text>
+            <Text style={[styles.flatListItemText, {fontSize: verseItemFontSize, fontFamily: verseItemFontFamily},]}>{item.content}</Text>
           )
         }
       };
