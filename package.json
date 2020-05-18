@@ -23,6 +23,7 @@
     "react-native-collapsible": "^1.5.1",
     "react-native-easy-toast": "^1.2.0",
     "react-native-gesture-handler": "^1.5.3",
+    "react-native-iap": "^4.4.8",
     "react-native-image-picker": "^2.3.1",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-long-press-popup": "git+https://git@github.com/react-sextant/react-native-long-press-popup.git",

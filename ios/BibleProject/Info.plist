@@ -38,9 +38,12 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string></string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Fonts/TmonMonsori.ttf.ttf</string>
+		<string>Fonts/NanumBrushScript-Regular.ttf</string>
+		<string>Fonts/applemyungjo-regular.ttf</string>
 		<string>AntDesign.ttf</string>
 		<string>Entypo.ttf</string>
 		<string>EvilIcons.ttf</string>

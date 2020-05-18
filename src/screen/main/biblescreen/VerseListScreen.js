@@ -109,17 +109,17 @@ export default class VerseListScreen extends Component {
               break;
             case 1:
               this.setState({
-                verseItemFontFamily: 'NanumBrushScript-Regular'
+                verseItemFontFamily: 'nanumbrush'
               });
               break;
             case 2:
               this.setState({
-                verseItemFontFamily: 'TmonMonsori.ttf'
+                verseItemFontFamily: 'tmonmonsori'
               });
               break;
             case 3:
               this.setState({
-                verseItemFontFamily: 'applemyungjo-regular'
+                verseItemFontFamily: 'applemyungjo'
               });
               break;
           }
@@ -128,11 +128,7 @@ export default class VerseListScreen extends Component {
     };
     setFontSizeAndFamily();
 
-    /**
-     * VerseItem을 입력받아 isHighlight 값을 설정하는 메서드.
-     * 1. Json 파싱을 통해 highlightList에서부터 하이라이트 목록을 받아온다.
-     * 2. 현재 verseItems중 hightlightList에 bookCode, chapterCode, VerseCode가 일치하는 목록이 있다면 isHighlight = true인 verseItems을 return한다.
-     */
+    // sqlite 데이터베이스에서 성경의 정보를 가져와서 verseItems을 만들어서 다음 Promise chain으로 전달하는 메서드
     const getBibleVerseItems = () => {
       return new Promise((resolve, reject) => {
         getSqliteDatabase().transaction((tx) => {
@@ -177,6 +173,11 @@ export default class VerseListScreen extends Component {
       })
     };
 
+    /**
+     * VerseItem을 입력받아 isHighlight 값을 설정하는 메서드.
+     * 1. Json 파싱을 통해 highlightList에서부터 하이라이트 목록을 받아온다.
+     * 2. 현재 verseItems중 hightlightList에 bookCode, chapterCode, VerseCode가 일치하는 목록이 있다면 isHighlight = true인 verseItems을 return한다.
+     */
     const getHighlight = (verseItems) => {
       return new Promise((resolve, reject) => {
         getItemFromAsync('highlightList').then((items) => {
@@ -194,6 +195,8 @@ export default class VerseListScreen extends Component {
       })
     };
 
+    // localStorage에서 각 성경 구절이 메모가 등록되었는지 아닌지 판단한뒤 isMemo라는 값을 주입시켜 줌.
+    // isMemo가 참이면 메모가 등록, 거짓이면 메모가 등록되지 않았다는 의미이다.
     const getMemo = (verseItems) => {
       return new Promise((resolve, reject) => {
         getItemFromAsync('memoList').then((items) => {
@@ -234,8 +237,8 @@ export default class VerseListScreen extends Component {
 
   /**
    * LongClick시 나오는 클립보드, 형광펜, 메모에대한 동작을 수행한다.
-   * 클립보드 : 클립보드 복사.
-   * 하이라이트 : 해당 성경의 verse를 Asynctask를 통해 highlightList에 입력.
+   * 클립보드 : 클립보드 복사 후 토스트 메세지 출력
+   * 하이라이트 : 하이라이트가 표시되었다면 하이라이트 제거, 하이라이트가 없으면 하이라이트 표
    * 메모 : 메모 모달 화면 열기
    */
   setModalVisible(visible, modalAction) {
@@ -301,6 +304,7 @@ export default class VerseListScreen extends Component {
 
   // 하단 3개의 옵션 버튼 클릭시 아이콘을 바꿔주고 해당 옵션에 대한 컴포넌트를 렌더링 하기 위한 state를 바꿔줌.
   switchFooterOptionButtonIconAndState = (optionType) => () => {
+    console.log(optionType);
     switch (optionType) {
       case 'bibleList':
         this.setState({
@@ -427,13 +431,14 @@ export default class VerseListScreen extends Component {
 
     const MemoButton = () => {
       const { isMemo } = this.state.modalBibleItem;
-
-      // TODO : 현재 modal을 닫고 현재 memo의 수정화면으로 이동
+      // TODO : 현재 모달화면에서 이미 메모가 존재한다면 modal을 닫고 현재 memo의 수정화면으로 이동
       // 1. modal닫기
       // 2. BibleNoteOption열기
-      // 3. 현재 메모의 수정페이지로 이동하기.
       const openCurrentBibleNote = () => {
 
+        this.setModalVisible(false);
+        const switchBibleNote = this.switchFooterOptionButtonIconAndState('bibleNote');
+        switchBibleNote()
       };
 
       if (isMemo) {
@@ -662,7 +667,7 @@ export default class VerseListScreen extends Component {
         </View>
       )
     };
-    console.log('verseList호출');
+
     return (
       <FlatList
         style={styles.flatList}
