@@ -181,8 +181,19 @@ export default class BibleNoteOption extends Component {
         this.refs.toast.show('노트가 삭제되었습니다 :)');
       } else {
         items[editItemIndex].memo = inputText;
+        items[editItemIndex].date = new Date();
         this.refs.toast.show('노트가 수정되었습니다. :)');
       }
+
+      // 시간순서로 items 정렬
+      // (시간에대한 내림차순으로 정렬됨) =>
+      // 즉 나중에 수정된 아이가 유닉스 타임스탬프 시간이 크므로, 배열의 앞으로 들어가게 됨.
+      // 따라서 방금 수정된 item => 나중에 수정된 item순으로 정렬된다.
+      items.sort((a, b) => {
+        const timestamp_a = new Date(a.date).getTime();
+        const timestamp_b = new Date(b.date).getTime();
+        return timestamp_a < timestamp_b ? -1 : timestamp_a > timestamp_b ? 1: 0 ;
+      });
 
       // 현재 아이템들에 대해서, 경과한 시간들을 계산한 뒤, noteItems로 push한다.
       // noteItems는 바뀐 memoList의 값을 state로 전달하는 기능 수행
@@ -201,6 +212,8 @@ export default class BibleNoteOption extends Component {
     })
   };
 
+  // 메모가 닫힐때 동작되는 handler
+  // 메모가 닫힐때 해당 바뀐 노트에 대한 정보를 localStorage에 저장함.
   closeMemoComponent = () => {
     if(this.state.isOpenMemoEdit) {
       getItemFromAsync('memoList').then((items) => {
@@ -217,9 +230,22 @@ export default class BibleNoteOption extends Component {
 
         } else {
           items[editItemIndex].memo = inputText;
+          items[editItemIndex].date = new Date();
+
+          // 시간순서로 items 정렬
+          // (시간에대한 내림차순으로 정렬됨) =>
+          // 즉 나중에 수정된 아이가 유닉스 타임스탬프 시간이 크므로, 배열의 앞으로 들어가게 됨.
+          // 따라서 방금 수정된 item => 나중에 수정된 item순으로 정렬된다.
+          items.sort((a, b) => {
+            const timestamp_a = new Date(a.date).getTime();
+            const timestamp_b = new Date(b.date).getTime();
+            return timestamp_a < timestamp_b ? -1 : timestamp_a > timestamp_b ? 1: 0 ;
+          });
+
           this.props.toastRef.show('노트가 수정되었습니다 :)');
         }
 
+        // 바뀐 정보를 저장한뒤 부모의 closeHandler호출
         setItemToAsync('memoList', items).then(() => {
           this.props.closeHandler();
         });
