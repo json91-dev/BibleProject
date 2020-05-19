@@ -88,7 +88,7 @@ export default class TodayQuizCheckScreen extends Component {
   }
 
   render() {
-    const { pageState,  } = this.state;
+    const { pageState,} = this.state;
     // 버튼이 포커스되면 searchView를 보여줌
 
     const onMoveNextQuiz = () => {

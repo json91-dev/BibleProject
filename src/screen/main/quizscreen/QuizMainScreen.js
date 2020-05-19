@@ -107,8 +107,11 @@ export default class QuizScreen extends Component {
     this.props.navigation.navigate(screenName);
   };
 
-  CountDownQuizTimer = (dt) => {
+  /**
+   * 현재 시간으로부터 다음날 정각 0시 0분까지의 초를 반환하여 해당 초에 대한 Text를 state에 저장하는 함수. (컴포넌트 아님)
+   */
 
+  CountDownQuizTimer = (dt) => {
     const end = new Date(dt);
     const second = 1000;
     const minute = second * 60;
@@ -166,9 +169,9 @@ export default class QuizScreen extends Component {
     // 오늘의 퀴즈를 풀지 않았을 때, 복습 문제를 보여준다.
     // 유저가 맨 처음 들어왔을때에 대한 예외처리를 length를 통해 구현함.
     // 복습퀴즈 데이터가 없으면 링크만 보여준다.
-    if (!isCompleteTodayQuiz && reviewQuizData.length === 0) {
+    if ( reviewQuizData.length === 0 ) {
       return (
-        <View style={{marginTop: 100}}>
+        <View>
           <Image style={styles.titleImage} source={require('assets/ic_jesus.png')}/>
           <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 시작할 준비가{"\n"}되셨나요?</Text>
           <TouchableOpacity style={styles.quizButton} onPress={this.moveToScreen('TodayQuizScreen')}>
@@ -179,7 +182,7 @@ export default class QuizScreen extends Component {
     }
 
     // 복습퀴즈 데이터가 있으면 복습퀴즈와 링크, 바로가기를 보여준다.
-    else if (!isCompleteTodayQuiz && reviewQuizData.length > 0) {
+    else if ( reviewQuizData.length > 0 ) {
       return (
         <View>
           <View style={{ borderBottomWidth: 1, paddingBottom: 20, alignItems: 'flex-end', paddingRight: 16, borderBottomColor: '#CCCCCC'}}>
@@ -205,18 +208,22 @@ export default class QuizScreen extends Component {
         </View>
       )
     }
+  };
 
-    // 오늘의 퀴즈를 풀었을때는 아무것도 보여주지 않는다.
-    else if (isCompleteTodayQuiz) {
-      return null;
-    }
+  // timerText(남은시간)을 표시하는 타이머.
+  QuizTimer = () => {
+    const { timerText } = this.state;
+
+    return (
+      <Text style={{textAlign: 'center', fontSize: 44, marginTop: 20, fontWeight: 'normal'}}>{timerText}</Text>
+    )
   };
 
   // 오늘의 퀴즈를 푼 뒤에 내일 퀴즈까지의 대기화면 보여주는 컴포넌트
   TodayQuizResult = () => {
-    const { isCompleteTodayQuiz, isGiveUpTodayQuiz } = this.state;
+    const { isGiveUpTodayQuiz } = this.state;
 
-    if (isCompleteTodayQuiz && isGiveUpTodayQuiz) {
+    if ( isGiveUpTodayQuiz ) {
       return (
         <View>
           <TouchableOpacity onPress={this.moveToScreen('TodayQuizCheckScreen')}>
@@ -224,11 +231,12 @@ export default class QuizScreen extends Component {
           </TouchableOpacity>
           <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_sad.png')}/>
           <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 포기하셨네요.{"\n"}내일의 세례문답까지.</Text>
+          {this.QuizTimer()}
         </View>
       )
     }
 
-    else if (isCompleteTodayQuiz && !isGiveUpTodayQuiz) {
+    else {
       return (
         <View>
           <TouchableOpacity onPress={this.moveToScreen('TodayQuizCheckScreen')}>
@@ -238,39 +246,45 @@ export default class QuizScreen extends Component {
           <Text style={styles.titleText}>오늘의 세례문답 성적은</Text>
           <QuizBallComponent quizBallState={this.state.currentQuizBallState}/>
           <Text style={[styles.titleText, {marginTop: 80}]}>내일의 세례문답까지.</Text>
+          {this.QuizTimer()}
         </View>
       )
     }
   };
 
-  QuizTimer = () => {
-    /*
-     * 타이머
-     */
-    const { timerText } = this.state;
-    // console.log('하하');
-
-    return (
-      <Text style={{textAlign: 'center', fontSize: 44, marginTop: 20, fontWeight: 'normal'}}>{timerText}</Text>
-    )
-  };
 
   render() {
-    return (
-      <ScrollView style={styles.container} contentContainerStyle ={{justifyContent: 'center'}}>
-        {this.ReviewQuizAndTodayQuizLink()}
-        {this.TodayQuizResult()}
-        {this.QuizTimer()}
+    const { isCompleteTodayQuiz } = this.state;
 
-      </ScrollView>
-    )
+    if (isCompleteTodayQuiz) {
+      return (
+        <ScrollView style={styles.scrollViewContainer} contentContainerStyle ={{justifyContent: 'center'}}>
+          {this.TodayQuizResult()}
+        </ScrollView>
+      )
+    }
+
+    else {
+      return (
+        <View style={styles.container}>
+          {this.ReviewQuizAndTodayQuizLink()}
+        </View>
+      )
+    }
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
+    backgroundColor: 'white',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  scrollViewContainer: {
+    flex: 1,
     backgroundColor: 'white',
   },
 
@@ -291,7 +305,6 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
-
 
   titleImage: {
     width: 90,
