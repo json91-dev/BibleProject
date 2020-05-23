@@ -1,12 +1,15 @@
 const functions = require('firebase-functions');
 const moment = require('moment');
+require('moment-timezone');
+
 const xlsx = require('xlsx');
 const admin = require('firebase-admin');
 const db = admin.initializeApp();
 
+//  TODO: 2020년 3월 전까지 node 버전 10이상으로 업데이트 해야함. => 현재 deprecated 됨.
 
 function getSeoulTimezoneDate() {
-  let nowDateFormat = moment().tz('Asia/Seoul').format(); //format을 통해 특정 String으로 반환할수 있다.
+  let nowDateFormat = moment().tz("Asia/Seoul").format(); //format을 통해 특정 String으로 반환할수 있다.
   console.log(nowDateFormat);
 
   let nowDate = new Date(nowDateFormat);
@@ -58,25 +61,39 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 
 
 exports.scheduledFunctionCrontab
-  = functions.pubsub.schedule('0 0 * * *')
+  // = functions.pubsub.schedule('0 0 * * *')
+  = functions.pubsub.schedule('18 4 * * *') // min, hour, day of month, month, day of week
   .timeZone('Asia/Seoul')
   .onRun((context) => {
     console.log('매일 오전 0시 0분에 시행됨 (한국 기준)');
 
     // 1. xlsx에서 '성경문제' 시트를 얻어옴.
     // 2. '성경문제' 시트를 json으로 치환
-    const bibleQuiz = xlsx.readFile('xlsx/bible.xlsx');
+    const bibleQuiz = xlsx.readFile('xlsx/bible_deploy.xlsx');
     const bibleSheet = bibleQuiz.Sheets.성경문제;
     const bibleRecordsJson = xlsx.utils.sheet_to_json(bibleSheet);
+    // 3. 오늘의 날짜에 해당하는 성경 구절 5개에 대한 정보를 하나의 JSON array로 저장함.
     const todayQuizArray = bibleRecordsJson.filter((item, index) => {
-      const todayDate = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy.MM.dd');
-      return item.date === todayDate;
+      const todayDateString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy.MM.dd');
+      return item.date === todayDateString;
     });
+
+    const todayQuizArrayJson = {...todayQuizArray};
+
+    const todayDateFirebaseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy-MM-dd');
+
+    db.firestore().collection('todayQuiz').doc(todayDateFirebaseString).set(todayQuizArrayJson).then(() => {
+      console.log('testBible Data updated');
+    }).catch(error => {
+      console.log('error occured' + error.message);
+    });
+
 
   });
 
+// JSON Array 저장 테스트
 exports.testFirestore = functions.https.onRequest((request, response) => {
-  const testBibleArray = {
+  const testBibleArrayJson = {
     quizData: [
       {
         date: '2020.05.10',
@@ -113,7 +130,7 @@ exports.testFirestore = functions.https.onRequest((request, response) => {
     ],
   };
 
-  db.firestore().collection('todayQuiz').doc('2020-01-01').set(testBibleArray).then(() => {
+  db.firestore().collection('todayQuiz').doc('2020-05-05').set(testBibleArrayJson).then(() => {
     response.send('testBible Data updated');
   }).catch(error => {
     response.send('error occured' + error.message);

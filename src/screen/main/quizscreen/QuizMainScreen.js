@@ -164,7 +164,7 @@ export default class QuizScreen extends Component {
    *  => 퀴즈 복습데이터의 존재 여부 (reviewQuizData)에 따라 퀴즈를 풀수 있는 링크를 제공함.
    */
   ReviewQuizAndTodayQuizLink = () => {
-    const { isCompleteTodayQuiz, reviewQuizData } = this.state;
+    const { reviewQuizData } = this.state;
 
     // 오늘의 퀴즈를 풀지 않았을 때, 복습 문제를 보여준다.
     // 유저가 맨 처음 들어왔을때에 대한 예외처리를 length를 통해 구현함.
@@ -271,6 +271,7 @@ export default class QuizScreen extends Component {
         </View>
       )
     }
+
   }
 }
 
