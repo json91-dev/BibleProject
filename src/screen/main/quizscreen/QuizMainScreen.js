@@ -10,6 +10,7 @@ import {
 import ReviewQuizItem from './components/ReviewQuizItem'
 import {getItemFromAsync, setItemToAsync} from '../../../utils';
 import QuizBallComponent from './components/QuizBallComponent';
+import LoadingComponent from './components/LoadingComponent';
 let timer = null;
 
 export default class QuizScreen extends Component {
@@ -257,11 +258,11 @@ export default class QuizScreen extends Component {
     const { isCompleteTodayQuiz } = this.state;
 
     if (isCompleteTodayQuiz) {
-      return (
+    return (
         <ScrollView style={styles.scrollViewContainer} contentContainerStyle ={{justifyContent: 'center'}}>
           {this.TodayQuizResult()}
         </ScrollView>
-      )
+    )
     }
 
     else {

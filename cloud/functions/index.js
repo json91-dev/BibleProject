@@ -62,7 +62,7 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 
 exports.scheduledFunctionCrontab
   // = functions.pubsub.schedule('0 0 * * *')
-  = functions.pubsub.schedule('18 4 * * *') // min, hour, day of month, month, day of week
+  = functions.pubsub.schedule('11 17 * * *') // min, hour, day of month, month, day of week
   .timeZone('Asia/Seoul')
   .onRun((context) => {
     console.log('매일 오전 0시 0분에 시행됨 (한국 기준)');
@@ -78,7 +78,7 @@ exports.scheduledFunctionCrontab
       return item.date === todayDateString;
     });
 
-    const todayQuizArrayJson = {...todayQuizArray};
+    const todayQuizArrayJson = {quizData: todayQuizArray};
 
     const todayDateFirebaseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy-MM-dd');
 

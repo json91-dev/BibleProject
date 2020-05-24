@@ -10,7 +10,7 @@ import {
 
 import QuizBallComponent from './components/QuizBallComponent';
 import TodayQuizItem from './components/TodayQuizItem';
-import {getItemFromAsync, setItemToAsync} from '../../../utils';
+import {getFireStore, setItemToAsync, getDateStringByFormat} from '../../../utils';
 import { StackActions } from '@react-navigation/native';
 
 
@@ -28,38 +28,21 @@ export default class TodayQuizScreen extends Component {
   };
 
   componentDidMount() {
-    const data = [
-      {
-        quizVerse: '역대하 5장 3절',
-        quizSentence: '솔로몬이 여호와의 전을 위하여 만드는 모든 것을 마친지라 이에 그 부친 다윗이 드린 은과 금과 모든 기구를 가져다가 하나님의 전 곳간에 두었더라',
-        quizWord: '다윗',
-      },
-      {
-        quizVerse: '아가 8장 11절',
-        quizSentence: '솔로몬이 바알하몬에 포도원이 있어 지키는 자들에게 맡겨두고 그들로 각기 그 실과를 인하여서 은 일천을 바치게 하였구나',
-        quizWord: '포도원',
-      },
-      {
-        quizVerse: '베드로후서 3장 5절',
-        quizSentence: '이는 하늘이 옛적부터 있는 것과 땅이 물에서 나와 물로 성립한 것도 하나님의 말씀으로 된 것을 저희가 부러 잊으려 함이로다',
-        quizWord: '물',
-      },
-      {
-        quizVerse: '요한계시록 6장 8절',
-        quizSentence: '내가 보매 청황색 말이 나오는데 그 탄 자의 이름은 사망이니 음부가 그 뒤를 따르더라 저희가 땅 사분 일의 권세를 얻어 검과 흉년과 사망과 땅의 짐승으로써 죽이더라',
-        quizWord: '사망',
-      },
-      {
-        quizVerse: '갈라디아서 5장 13절',
-        quizSentence: '형제들아 너희가 자유를 위하여 부르심을 입었으나 그러나 그 자유로 육체의 기회를 삼지 말고 오직 사랑으로 서로 종 노릇 하라',
-        quizWord: '사랑',
+    const todayDateString = getDateStringByFormat(new Date(), 'yyyy-MM-dd');
+
+    // 오늘의 날짜를 기준으로 데이터를 서버에서 가져옵니다.
+    getFireStore().collection('todayQuiz').doc(todayDateString).get().then((doc) => {
+      // alert('서버로부터 데이터 받아옴');
+
+      if (doc.data() === undefined) {
+        return;
       }
-    ];
 
-
-    this.setState({
-      quizData: data,
-      curPageQuizData: data[0],
+      const quizData = doc.data().quizData;
+      this.setState({
+        quizData: quizData,
+        curPageQuizData: quizData[0],
+      })
     });
 
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
@@ -145,7 +128,7 @@ export default class TodayQuizScreen extends Component {
     };
 
     const onMoveNextQuiz = () => {
-      const { pageState, quizData, curPageQuizData } = this.state;
+      const { pageState, quizData } = this.state;
 
       this.setState(prevState => {
         return {

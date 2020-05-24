@@ -159,5 +159,41 @@ const FireStoreSingleton = (
 
 export const getFireStore = () => {
   return FireStoreSingleton().getInstance();
-}
+};
+
+
+// 특정 format 형식대로 데이터를 출력시켜주는 모듈
+export const getDateStringByFormat = ((time, format) => {
+  let t = new Date(time);
+
+  // 10보다 작으면 0을 붙여줌 =>
+  // ex: 9 => 09
+  let tf = function (i) {
+    return (i < 10 ? '0' : '') + i
+  };
+  // 정규식을 통해 yyyy, MM, dd 등을 검색하여 해당 날짜로 치환
+  return format.replace(/yyyy|MM|dd|HH|mm|ss/g, function (a) {
+
+    switch (a) {
+      case 'yyyy':
+        return tf(t.getFullYear());
+        break;
+      case 'MM':
+        return tf(t.getMonth() + 1);
+        break;
+      case 'mm':
+        return tf(t.getMinutes());
+        break;
+      case 'dd':
+        return tf(t.getDate());
+        break;
+      case 'HH':
+        return tf(t.getHours());
+        break;
+      case 'ss':
+        return tf(t.getSeconds());
+        break;
+    }
+  })
+});
 
