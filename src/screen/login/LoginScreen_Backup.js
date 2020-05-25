@@ -14,6 +14,9 @@ import {
 // import GoogleSigninButton from './GoogleSigninButton'
 import { useNavigation}  from '@react-navigation/native';
 
+
+
+
 export default class LoginScreen extends Component{
 
   state = {
@@ -31,6 +34,9 @@ export default class LoginScreen extends Component{
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       this.setState({ userInfo: userInfo, loggedIn: true });
+
+
+
     } catch (error) {
       console.log(error.message)
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {

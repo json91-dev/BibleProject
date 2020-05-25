@@ -10,28 +10,30 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-
-import {useNavigation} from '@react-navigation/native';
+import {getItemFromAsync, setItemToAsync} from '../../utils';
 
 export default class LoginScreen extends Component {
-
   state = {
     pushData: [],
-    loggedIn: false,
+    // loggedIn: false,
     userInfo: null,
+    errorMessage: null,
   };
 
-  aa = () => {
-    navigation.navigate('Main');
+  goToMainBible = () => {
+    this.props.navigation.navigate('Main');
   };
 
   _signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      this.setState({userInfo: userInfo, loggedIn: true});
+      // this.setState({userInfo: userInfo, loggedIn: true});
+
+      await setItemToAsync('userInfo', { ...userInfo, loggedIn: true});
+      this.goToMainBible();
+
     } catch (error) {
-      console.log(error.message);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -41,6 +43,11 @@ export default class LoginScreen extends Component {
       } else {
         // some other error happened
       }
+      console.log(error.message);
+
+      this.setState({
+        errorMessage: error.message,
+      })
     }
   };
 
@@ -48,23 +55,48 @@ export default class LoginScreen extends Component {
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
-      this.setState({user: null, loggedIn: false}); // Remember to remove the user from your app's state as well
-    } catch (error) {
+      // this.setState({user: null, loggedIn: false}); // Remember to remove the user from your app's state as well
+      const userInfo = await getItemFromAsync('userInfo')
+
+      await setItemToAsync('userInfo', {
+        ...userInfo,
+        loggedIn: false,
+      })
+    }
+
+    catch (error) {
       console.error(error);
     }
   };
-
 
   componentDidMount() {
     // 구글 로그인에대한 설정을 초기화합니다.
     GoogleSignin.configure({
       webClientId: '271807854923-f0si6s5dj9urd45nvdpqpeihnc3q8i57.apps.googleusercontent.com',
       offlineAccess: false,
-      // forceConsentPrompt: true,
+    });
+
+    // localStorage에서 로그인 정보를 읽은 뒤, 자동 로그인을 수행함.
+    getItemFromAsync('userInfo').then((userInfo) => {
+      // 유저 정보가 없는경우
+      if (!userInfo) {
+        return null;
+      }
+      // 유저 정보가 있고, 유저가 로그인 되어있는 경우
+      else if (userInfo && userInfo.loggedIn) {
+        this.goToMainBible()
+        return null;
+      }
+      // 유저 정보가 있고 유저가 로그인 되어있지 않은 경우
+      else if (userInfo && !userInfo.loggedIn) {
+        return null;
+      }
     });
   }
 
   render() {
+    const { errorMessage } = this.state;
+
     return (
       <LinearGradient colors={['#F9DA4F', '#F7884F']} style={styles.linearGradient}>
         <View>
@@ -80,6 +112,8 @@ export default class LoginScreen extends Component {
         <TouchableOpacity style={styles.googleLoginButtonContainer} onPress={this._signIn}>
           <Image  style={styles.googleLoginButton} source={require('../../assets/btn_google_login.png')}/>
         </TouchableOpacity>
+
+        {errorMessage && <Text>{errorMessage}</Text>}
 
         {/*로그인 로그아웃에 대한 버튼 테스트용*/}
         {/*<View style={styles.buttonContainer}>*/}
@@ -134,5 +168,4 @@ const styles = StyleSheet.create({
     height: 50,
     resizeMode: 'contain',
   },
-
 });
