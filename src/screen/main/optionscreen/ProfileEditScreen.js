@@ -11,11 +11,34 @@ import {
   TextInput,
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
+import {getItemFromAsync, setItemToAsync} from '../../../utils';
 
 export default class ContentScreen extends Component {
   state = {
-    profileImagePath: require('assets/ic_jesus_nickname.png'),
+    profilePic: null,
+    isImageAvailable: false,
   };
+
+  _getImage = async() => {
+    const profilePic = await getItemFromAsync("profilePic");
+
+    if (profilePic && profilePic.length === 0) {
+      // 프로필 사진이 저장되지 않았을 때,
+      this.setState({
+        isImageAvailable: false,
+      })
+    } else {
+      // 프로필 사진이 localStorage에 저장되어 있을 때 해당 값을 읽어옴.
+      this.setState({
+        isImageAvailable: true,
+        profilePic: profilePic,
+      })
+    }
+  };
+
+  componentDidMount() {
+    this._getImage();
+  }
 
   getProfileImage = () => {
     const options = {
@@ -43,18 +66,40 @@ export default class ContentScreen extends Component {
         // You can also display the image using data:
         // const source = { uri: 'data:image/jpeg;base64,' + response.data };
 
-        // TODO: 추후 파이어 베이스에 이미지 업로드해야 함.
         this.setState({
-          profileImagePath: source,
+          profilePic: source,
+          isImageAvailable: true,
         });
+
+        const _saveImage =  async() => {
+          try {
+            await setItemToAsync("profilePic", source);
+            console.log("이미지 저장 완료");
+          } catch(err) {
+            console.log(err);
+          }
+        };
+        _saveImage();
+
+
+        console.log('프로필 이미지 uri localStorage에 저장');
+
       }
     });
+
+
   };
 
   render() {
+    console.log(this.state.isImageAvailable)
     return (
       <ScrollView style={styles.container}>
-        <Image style={styles.nicknameImage} source={this.state.profileImagePath} />
+        {
+
+          this.state.isImageAvailable
+            ? <Image style={styles.nicknameImage} source={this.state.profilePic} />
+            : <Image style={styles.nicknameImage} source={require('assets/ic_jesus_nickname.png')} />
+        }
         <TouchableOpacity onPress={this.getProfileImage} style={styles.profilePhotoButton}>
           <Text style={styles.profilePhotoButtonText}>프로필 사진 변경</Text>
         </TouchableOpacity>
@@ -79,11 +124,12 @@ const styles = StyleSheet.create({
   },
   nicknameImage: {
     marginTop: 35,
-    width: 140,
+    width: 110,
     height: 110,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     marginLeft: 'auto',
     marginRight: 'auto',
+    borderRadius: 200
   },
   profilePhotoButton: {
     borderWidth: 1,
@@ -92,7 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginTop: 15,
+    marginTop: 30,
     paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 8,
