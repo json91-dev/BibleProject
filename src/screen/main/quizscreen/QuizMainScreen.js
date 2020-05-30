@@ -44,10 +44,10 @@ export default class QuizScreen extends Component {
     this.didFoucsSubscription();
   }
 
-
   // 세례문답 Screen이 처음 시작될 떄 한번만 호출된다.
   // focus 이벤트를 등록하고 focus 이벤트에서는 초기 퀴즈에 대한 state 초기화를 진행한다.
   onLoad = () => {
+    // 즉 현재 Screen이 화면에서 보일때 (focus) 실행될수 있도록 이벤트를 등록하는 과정이다.
     this.didFoucsSubscription =  this.props.navigation.addListener('focus', () => {
       this.initialQuizState();
     })
@@ -70,12 +70,11 @@ export default class QuizScreen extends Component {
       const todayQuizAnswerList = result[2];
       const todayQuizBallState = result[3];
 
-      console.log(todayQuizAnswerList);
-      console.log(todayQuizBallState);
-
+      // console.log(todayQuizAnswerList);
+      // console.log(todayQuizBallState);
       // 데이터가 없을경우 []를 반환하므로 이를 예외처리하여야 함. => item.length 는 false임 .. 실수.. 0이기때문
       // 문제를 한번도 풀지 않아본 유저의 경우
-      if(isCompleteTodayQuiz && isCompleteTodayQuiz.length === 0) {
+      if(isCompleteTodayQuiz === null) {
         this.setState({
           isCompleteTodayQuiz: false,
           reviewQuizData: reviewQuizDataList,
@@ -170,7 +169,7 @@ export default class QuizScreen extends Component {
     // 오늘의 퀴즈를 풀지 않았을 때, 복습 문제를 보여준다.
     // 유저가 맨 처음 들어왔을때에 대한 예외처리를 length를 통해 구현함.
     // 복습퀴즈 데이터가 없으면 링크만 보여준다.
-    if ( reviewQuizData.length === 0 ) {
+    if ( reviewQuizData === null ) {
       return (
         <View>
           <Image style={styles.titleImage} source={require('assets/ic_jesus.png')}/>

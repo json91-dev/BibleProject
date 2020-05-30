@@ -12,32 +12,42 @@ import {
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import {getItemFromAsync, setItemToAsync} from '../../../utils';
+import Toast from 'react-native-easy-toast';
+import { StackActions } from '@react-navigation/native';
 
 export default class ContentScreen extends Component {
   state = {
     profilePic: null,
     isImageAvailable: false,
+    textInput: '',
   };
 
-  _getImage = async() => {
+  _getProfile = async() => {
     const profilePic = await getItemFromAsync("profilePic");
+    const profileNick = await getItemFromAsync("profileNick");
 
-    if (profilePic && profilePic.length === 0) {
-      // 프로필 사진이 저장되지 않았을 때,
-      this.setState({
-        isImageAvailable: false,
-      })
-    } else {
+    if (profilePic && profileNick) {
       // 프로필 사진이 localStorage에 저장되어 있을 때 해당 값을 읽어옴.
       this.setState({
         isImageAvailable: true,
         profilePic: profilePic,
+        textInput: profileNick,
+      });
+    } else if(profileNick) {
+      this.setState({
+        isImageAvailable: false,
+        textInput: profileNick,
+      });
+    } else {
+      // 프로필 사진이 localStorage에 저장되지 않았을 때,
+      this.setState({
+        isImageAvailable: false,
       })
     }
   };
 
   componentDidMount() {
-    this._getImage();
+    this._getProfile();
   }
 
   getProfileImage = () => {
@@ -70,32 +80,53 @@ export default class ContentScreen extends Component {
           profilePic: source,
           isImageAvailable: true,
         });
-
-        const _saveImage =  async() => {
-          try {
-            await setItemToAsync("profilePic", source);
-            console.log("이미지 저장 완료");
-          } catch(err) {
-            console.log(err);
-          }
-        };
-        _saveImage();
-
-
         console.log('프로필 이미지 uri localStorage에 저장');
-
       }
     });
+  };
 
+  goToBackScreen = () => {
+    const navigation = this.props.navigation;
+    const popAction = StackActions.pop(1);
+    navigation.dispatch(popAction);
+  };
+
+  // 프로필 수정 수행 완료시 수행됨
+  // 닉네임과 프로필 사진에 대한 url을 저장하고 Toast메세지를 날려준다.
+  // 프로필 사진이 없어도 닉네임은 바꿀수 있지만 닉네임이 없으면 프로필 정보 변경은 할 수 없음.
+  completeProfileEdit = () => {
+    const { profilePic } = this.state;
+    const nickname = this.state.textInput;
+    if (nickname.length === 0) {
+      console.log("닉네임을 입력하지 않음.");
+      this.refs.toast.show("닉네임을 한글자 이상 입력해주세요 ^^");
+      return;
+    }
+
+    const _saveProfileInfo =  async() => {
+      try {
+        if (profilePic !== null) {
+          await setItemToAsync("profilePic", profilePic);
+          await setItemToAsync("profileNick", nickname);
+          console.log("프로필사진, 닉네임 저장 완료");
+          this.goToBackScreen()
+        } else {
+          await setItemToAsync("profileNick", nickname);
+          this.goToBackScreen()
+        }
+
+      } catch(err) {
+        console.log(err);
+      }
+    };
+    _saveProfileInfo();
 
   };
 
   render() {
-    console.log(this.state.isImageAvailable)
     return (
-      <ScrollView style={styles.container}>
+      <View style={styles.container}>
         {
-
           this.state.isImageAvailable
             ? <Image style={styles.nicknameImage} source={this.state.profilePic} />
             : <Image style={styles.nicknameImage} source={require('assets/ic_jesus_nickname.png')} />
@@ -105,12 +136,23 @@ export default class ContentScreen extends Component {
         </TouchableOpacity>
 
         <Text style={styles.nicknameLabel}>닉네임을 입력하세요.</Text>
-        <TextInput placeholder="프로필 입력" style={styles.nickname}></TextInput>
+        <TextInput editable maxLength={10} placeholder="프로필 입력" style={styles.nickname} value={this.state.textInput} onChangeText={text => this.setState({textInput: text})}/>
 
-        <TouchableOpacity style={styles.editButton}>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={this.completeProfileEdit}
+          onFocus = {() => {}}
+          onBlur = {() => {}}
+        >
           <Text style={styles.editButtonText}>프로필 수정 완료</Text>
         </TouchableOpacity>
-      </ScrollView>
+
+        <Toast ref="toast"
+               positionValue={200}
+               fadeInDuration={200}
+               fadeOutDuration={600}
+        />
+      </View>
     )
   }
 }
@@ -121,6 +163,7 @@ const styles = StyleSheet.create({
     paddingLeft: '6%',
     paddingRight: '6%',
     backgroundColor: 'white',
+    height:'100%'
   },
   nicknameImage: {
     marginTop: 35,

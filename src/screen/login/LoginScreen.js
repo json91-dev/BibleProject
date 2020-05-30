@@ -79,12 +79,12 @@ export default class LoginScreen extends Component {
     // localStorage에서 로그인 정보를 읽은 뒤, 자동 로그인을 수행함.
     getItemFromAsync('userInfo').then((userInfo) => {
       // 유저 정보가 없는경우
-      if (!userInfo) {
+      if (userInfo === null) {
         return null;
       }
       // 유저 정보가 있고, 유저가 로그인 되어있는 경우
       else if (userInfo && userInfo.loggedIn) {
-        this.goToMainBible()
+        this.goToMainBible();
         return null;
       }
       // 유저 정보가 있고 유저가 로그인 되어있지 않은 경우

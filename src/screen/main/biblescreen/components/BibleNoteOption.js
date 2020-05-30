@@ -54,7 +54,6 @@ export default class BibleNoteOption extends Component {
     noteItems: [],
     isNoteItemUpdate: false,
     isOpenMemoEdit: false,
-
     memoEditObjectId: null,
     memoEditVerseText: null,
     memoEditContent: null,
@@ -68,6 +67,9 @@ export default class BibleNoteOption extends Component {
    */
   componentDidMount() {
     getItemFromAsync('memoList').then((items) => {
+
+      if (items === null) items = [];
+
       let noteItems = [];
       items.forEach((memoItem) => {
         let passTimeText = getPassTimeText(memoItem.date);
@@ -166,6 +168,9 @@ export default class BibleNoteOption extends Component {
    */
   backToMemoList = () => {
     getItemFromAsync('memoList').then((items) => {
+
+      if (items === null) items = [];
+
       const inputText = this.state.memoEditTextInput;
 
       let noteItems = [];
@@ -217,6 +222,8 @@ export default class BibleNoteOption extends Component {
   closeMemoComponent = () => {
     if(this.state.isOpenMemoEdit) {
       getItemFromAsync('memoList').then((items) => {
+        if (items === null) items = [];
+
         const inputText = this.state.memoEditTextInput;
         const editItemIndex = items.findIndex((item) => {
           return item.objectId === this.state.memoEditObjectId;

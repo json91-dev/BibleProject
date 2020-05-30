@@ -55,7 +55,7 @@ export const getItemFromAsync = (arrayName) => {
   return new Promise((resolve, reject) => {
     AsyncStorage.getItem(arrayName, (err, result) => {
       if(err) { reject(err); }
-      if(result === null) { resolve([]) }
+      if(result === null) { resolve(null) }
 
       resolve(JSON.parse(result));
     })

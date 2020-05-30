@@ -35,6 +35,8 @@ export default class BibleMainScreen extends Component {
   componentDidMount() {
     // AsyncStorage에서 최근 검색어를 가져오는 기능 구현
     getItemFromAsync('searchWordList').then((items) => {
+      if (items === null) items = [];
+
       this.setState({
         searchWordItems: items,
       })
@@ -44,7 +46,7 @@ export default class BibleMainScreen extends Component {
       const {bibleName, bookName, bookCode, chapterCode} = item;
       // 맨 처음 로딩시 예외처리 => 빈배열일때는 최근 읽은 성경에 값이 존재하지 않음.
 
-      if (item && item.length === 0) {
+      if (item === null) {
         this.setState({
           isOpenLatelyReadBibleView: false,
         });
@@ -128,6 +130,9 @@ export default class BibleMainScreen extends Component {
       // 이후 textInput을 clear한뒤 현재입력단어(currentWordView)를 보여준다.
       getItemFromAsync('searchWordList').then((items) => {
         let searchWordItems = items;
+        if (searchWordItems === null)
+          searchWordItems = [];
+
         searchWordItems.push(text);
         const currentWordText = text;
         // 5개가 넘어가면 searchWordItems(검색어 목록)에서 아이템 1개 삭제.

@@ -65,7 +65,7 @@ export default class VerseListScreen extends Component {
     // 초기에 로컬 스토리지에서 저장된 폰트 사이즈와 폰트 패밀리를 설정합니다.
     const setFontSizeAndFamily = () => {
       getItemFromAsync('fontSizeOption').then((item) => {
-        if(item && item.length === 0) {
+        if(item === null) {
           this.setState({
             verseItemFontSize: 14
           });
@@ -96,7 +96,7 @@ export default class VerseListScreen extends Component {
       });
 
       getItemFromAsync('fontFamilyOption').then((item) => {
-        if(item && item.length === 0) {
+        if(item === null) {
           this.setState({
             verseItemFontFamily: 'system font'
           })
@@ -181,9 +181,8 @@ export default class VerseListScreen extends Component {
     const getHighlight = (verseItems) => {
       return new Promise((resolve, reject) => {
         getItemFromAsync('highlightList').then((items) => {
+          if (items === null) items = [];
           verseItems.map((verse) => {
-            if (items === null)
-              items = [];
             const index = items.findIndex((highlight) => {
               return ((highlight.bookCode === verse.bookCode) && (highlight.chapterCode === verse.chapterCode) && (highlight.verseCode === verse.verseCode))
             });
@@ -201,8 +200,7 @@ export default class VerseListScreen extends Component {
       return new Promise((resolve, reject) => {
         getItemFromAsync('memoList').then((items) => {
           verseItems.map((verse) => {
-            if (items === null)
-              items = [];
+            if (items === null) items = [];
 
             //memoList중 현재 성경의 verseList목록과 책,구,절 이 일치하는 성경은 isMemo값을 true로 바꿔준다.
             const index = items.findIndex((memoItem) => {
@@ -256,6 +254,8 @@ export default class VerseListScreen extends Component {
         if (isHighlight) {
           // 형광펜 제거 로직 구현
           getItemFromAsync('highlightList').then((items) => {
+            if (items === null) items = [];
+
             const itemIndex = items.findIndex((item, index) => {
               return (item.bookCode === bookCode && item.chapterCode === chapterCode && item.verseCode === verseCode);
             });
@@ -522,7 +522,7 @@ export default class VerseListScreen extends Component {
 
     const onPressSaveButton = () => {
       getItemFromAsync('memoList').then((items) => {
-        console.log(items);
+        if (items === null) items = [];
         const objectId = uuidv4();
         const date = new Date();
         items.push({objectId ,bookName, bookCode, chapterCode, verseCode, memo, date, content});

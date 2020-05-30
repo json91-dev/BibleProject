@@ -11,18 +11,73 @@ import {
   TouchableOpacity
 
 } from 'react-native';
+import {getItemFromAsync} from '../../../utils';
 
 export default class ContentScreen extends Component {
+  state = {
+    profilePic: null,
+    profileNick: null,
+  };
+
+
+  _getProfile = async() => {
+    const profilePic = await getItemFromAsync("profilePic");
+    const profileNick = await getItemFromAsync("profileNick");
+
+    if (profilePic && profileNick) {
+      // 프로필 사진이 localStorage에 저장되어 있을 때 해당 값을 읽어옴.
+      this.setState({
+        profilePic: profilePic,
+        profileNick: profileNick,
+      });
+    } else if(profileNick) {
+      this.setState({
+        profileNick: profileNick,
+      });
+    } else {
+      // 프로필 사진이 localStorage에 저장되지 않았을 때,
+      this.setState({
+        isImageAvailable: false,
+        profileNick: null,
+      })
+    }
+  };
+
+  componentDidMount() {
+    // 즉 현재 Screen이 화면에서 보일때 (focus) 실행될수 있도록 이벤트를 등록하는 과정
+    // 프로필 사진 변경화면에서 원래화면으로 넘어올때 수행을 위해 focus이벤트를 사용하여 구현
+    this.didFoucsSubscription =  this.props.navigation.addListener('focus', () => {
+      this._getProfile();
+    })
+  }
+
+  componentWillUnmount() {
+    this.didFoucsSubscription()
+  }
+
   moveToScreen = (screenName) => () => {
     console.log(screenName);
     this.props.navigation.navigate(screenName);
   };
 
   render() {
+    const { profilePic, profileNick } = this.state;
+
     return (
       <ScrollView style={styles.container}>
-        <Image style={styles.nicknameImage} source={require('assets/ic_jesus_nickname.png')} />
-        <Text style={styles.nicknameText}>하이</Text>
+        {
+          (profilePic !== null)
+            ? <Image style={styles.nicknameImage} source={this.state.profilePic} />
+            : <Image style={styles.nicknameImage} source={require('assets/ic_jesus_nickname.png')} />
+        }
+
+        {
+          (profileNick !== null)
+            ? <Text style={styles.nicknameText}>{profileNick}</Text>
+            : <Text style={styles.nicknameText}>하이</Text>
+        }
+
+
         <TouchableOpacity style={styles.profileEditButton} onPress={this.moveToScreen('ProfileEditScreen')}>
           <Text style={styles.profileEditButtonText}>프로필 수정</Text>
         </TouchableOpacity>
@@ -141,11 +196,12 @@ const styles = StyleSheet.create({
   },
   nicknameImage: {
     marginTop: 35,
-    width: 140,
+    width: 110,
     height: 110,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     marginLeft: 'auto',
     marginRight: 'auto',
+    borderRadius: 200
   },
   nicknameText: {
     fontSize: 17,
