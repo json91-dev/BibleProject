@@ -7,6 +7,7 @@ import ProfileEditScreen from './ProfileEditScreen'
 import AppVersionScreen from './AppVersionScreen'
 import NoticeScreen from './NoticeScreen'
 import CopyrightScreen from './CopyrightScreen'
+import PrivacyScreenNavigator from './privacyscreen/PrivacyScreenNavigator'
 const Stack = createStackNavigator();
 
 function MainScreenNavigator () {
@@ -17,6 +18,7 @@ function MainScreenNavigator () {
       <Stack.Screen name="AppVersionScreen" options={{title: '앱 버전', headerTitleAlign: 'center'}} component={AppVersionScreen}/>
       <Stack.Screen name="NoticeScreen" options={{title: '공지사항', headerTitleAlign: 'center'}} component={NoticeScreen}/>
       <Stack.Screen name="CopyrightScreen" options={{title: '저작권', headerTitleAlign: 'center'}} component={CopyrightScreen}/>
+      <Stack.Screen name="PrivacyScreen" component={PrivacyScreenNavigator} />
     </Stack.Navigator>
   )
 }

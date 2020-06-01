@@ -1,4 +1,4 @@
-import {NavigationContainer} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import LoginScreen from './login/LoginScreen';
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -6,9 +6,9 @@ const Stack = createStackNavigator();
 
 import  MainBottomTabNavigator  from './main/MainBottomNavigator';
 
-function Root() {
+function App() {
   return (
-    <NavigationContainer >
+    <NavigationContainer>
       <Stack.Navigator initialRouteName = "Login">
         <Stack.Screen name="Login" options={{ headerShown: false }} component={LoginScreen}/>
         <Stack.Screen name="Main" options={{ headerShown: false }} component={MainBottomTabNavigator} />
@@ -17,5 +17,5 @@ function Root() {
   )
 };
 
-export default Root;
+export default App;
 

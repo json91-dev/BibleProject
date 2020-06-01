@@ -103,7 +103,7 @@ export default class ContentScreen extends Component {
         </TouchableOpacity>
         <View style={styles.divider}></View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={this.moveToScreen('PrivacyScreen')}>
           <View style={styles.optionItem}>
             <Text>개인정보 취급방침 및 이용약관</Text>
             <Image style={styles.menuRightImage} source={require('/assets/ic_arrow.png')}/>
