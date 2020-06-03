@@ -4,6 +4,7 @@ import {
 
   StyleSheet,
   View,
+  SafeAreaView,
   Text,
   Image,
   TouchableOpacity,
@@ -263,6 +264,8 @@ export default class BibleMainScreen extends Component {
         <TouchableOpacity style={styles.searchCancel} onPress={onCancelPress}>
           <Image style={styles.searchCancelImage} source={require('assets/ic_close.png')}/>
         </TouchableOpacity>
+
+        <Image style={styles.searchViewBottom} source={require('assets/ic_search_bottom.png')}/>
       </View>
     )
   };
@@ -421,15 +424,18 @@ export default class BibleMainScreen extends Component {
 
   render() {
     return (
-      <View style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}>
+      <SafeAreaView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}>
         {this.SearchHeaderView()}
-        <Image style={styles.searchViewBottom} source={require('assets/ic_search_bottom.png')}/>
         {/* 성경 검색 TextInput에 focus에 따라 View를 다르게 보여줌. */}
-        {this.MainView()}
-        {this.SearchWordListView()}
-        {this.CurrentWordView()}
-        {this.SearchResultView()}
-        {this.LatelyReadBibleView()}
+
+        <View style={styles.contentContainer}>
+          {this.MainView()}
+          {this.SearchWordListView()}
+          {this.CurrentWordView()}
+          {this.SearchResultView()}
+          {this.LatelyReadBibleView()}
+
+        </View>
 
 
         <Toast ref="toast"
@@ -437,7 +443,7 @@ export default class BibleMainScreen extends Component {
                fadeInDuration={200}
                fadeOutDuration={1000}
         />
-      </View>
+      </SafeAreaView>
     )
   }
 }
@@ -448,13 +454,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     height: '100%',
-    justifyContent: 'flex-end',
-    borderColor: 'red',
+    justifyContent: 'flex-start',
   },
+
+  contentContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    height: '100%',
+    justifyContent: 'center',
+  },
+
   searchViewInput: {
     width: '70%',
     flexDirection: 'row',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
 
   searchTextInput: {
@@ -468,7 +481,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: 60,
-    top: 10,
   },
 
   searchIcon: {
@@ -500,7 +512,8 @@ const styles = StyleSheet.create({
     width: '80%',
     height: 10,
     position:'absolute',
-    top: 65,
+    top: 52,
+    left: 0,
   },
 
   mainView: {

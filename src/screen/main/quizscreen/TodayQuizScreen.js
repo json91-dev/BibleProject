@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
+  SafeAreaView,
 } from 'react-native';
 
 import QuizBallComponent from './components/QuizBallComponent';
@@ -31,7 +32,7 @@ export default class TodayQuizScreen extends Component {
     const todayDateString = getDateStringByFormat(new Date(), 'yyyy-MM-dd');
 
     // 오늘의 날짜를 기준으로 데이터를 서버에서 가져옵니다.
-    getFireStore().collection('todayQuiz').doc(todayDateString).get().then((doc) => {
+    getFireStore().collection('todayQuiz').doc("2020-05-05").get().then((doc) => {
       // alert('서버로부터 데이터 받아옴');
 
       if (doc.data() === undefined) {
@@ -294,19 +295,21 @@ export default class TodayQuizScreen extends Component {
     };
 
     return (
-      <View style={styles.container} contentContainerStyle ={{justifyContent: 'center'}}>
-        <View style={styles.giveUpView}>
-          <TouchableOpacity style={styles.giveUpButton} onPress={onGiveUpTodayQuiz}>
-            <Text style={styles.giveUpButtonText}>포기하기</Text>
-          </TouchableOpacity>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.contentContainer}>
+          <View style={styles.giveUpView}>
+            <TouchableOpacity style={styles.giveUpButton} onPress={onGiveUpTodayQuiz}>
+              <Text style={styles.giveUpButtonText}>포기하기</Text>
+            </TouchableOpacity>
+          </View>
+          {TodayQuizTitleView()}
+          {ShowTodayQuizItemComponent()}
+          {QuizTextInput()}
+          {PassCurrentQuiz()}
+          {ConfirmCurrentQuizAnswer()}
+          {AnswerButton()}
         </View>
-        {TodayQuizTitleView()}
-        {ShowTodayQuizItemComponent()}
-        {QuizTextInput()}
-        {PassCurrentQuiz()}
-        {ConfirmCurrentQuizAnswer()}
-        {AnswerButton()}
-      </View>
+      </SafeAreaView>
     )
   }
 }
@@ -314,14 +317,23 @@ export default class TodayQuizScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: '100%',
+  },
+
+  contentContainer: {
+    flex: 1,
     backgroundColor: 'white',
+    justifyContent: "center",
+    paddingBottom: 100,
   },
 
   giveUpView: {
     flexDirection: 'row-reverse',
     width: '100%',
     borderBottomWidth: 1,
-    borderColor: '#EDEDED'
+    borderColor: '#EDEDED',
+    position:'absolute',
+    top: 0,
   },
 
   giveUpButton: {

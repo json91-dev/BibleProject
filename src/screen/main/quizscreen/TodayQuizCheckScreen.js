@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
+  SafeAreaView,
 } from 'react-native';
 
 import QuizBallComponent from './components/QuizBallComponent';
@@ -226,17 +227,21 @@ export default class TodayQuizCheckScreen extends Component {
     };
 
     return (
-      <View style={styles.container} contentContainerStyle = {{justifyContent: 'center'}}>
-        <View style={styles.closeView}>
-          <TouchableOpacity style={styles.closeButton} onPress={this.props.navigation.goBack} >
-            <Text style={styles.closeButtonText}>닫기</Text>
-          </TouchableOpacity>
+      <SafeAreaView style={styles.container} contentContainerStyle = {{justifyContent: 'center'}}>
+        <View style={styles.contentContainer}>
+          <View style={styles.closeView}>
+            <TouchableOpacity style={styles.closeButton} onPress={this.props.navigation.goBack} >
+              <Text style={styles.closeButtonText}>닫기</Text>
+            </TouchableOpacity>
+          </View>
+
+          {TodayQuizTitleView()}
+          {ShowTodayQuizItemComponent()}
+          {ConfirmCurrentQuizAnswer()}
+          {AnswerButton()}
         </View>
-        {TodayQuizTitleView()}
-        {ShowTodayQuizItemComponent()}
-        {ConfirmCurrentQuizAnswer()}
-        {AnswerButton()}
-      </View>
+
+      </SafeAreaView>
     )
   }
 }
@@ -244,14 +249,22 @@ export default class TodayQuizCheckScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+
+  contentContainer: {
+    flex: 1,
     backgroundColor: 'white',
+    justifyContent: "center",
+    paddingBottom: 100,
   },
 
   closeView: {
     flexDirection: 'row-reverse',
     width: '100%',
     borderBottomWidth: 1,
-    borderColor: '#EDEDED'
+    borderColor: '#EDEDED',
+    position:'absolute',
+    top: 0,
   },
 
   closeButton: {
