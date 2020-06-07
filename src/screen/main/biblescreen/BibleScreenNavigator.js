@@ -16,16 +16,17 @@ let tabNavigation = null;
 const BookListScreenOption = ({navigation, route}) => (
   {
     headerTitle: route.params.bibleType === 0 ? "구약성경" : '신약성경',
+    headerBackTitle: '',
     headerTitleAlign: 'center',
     animationEnabled: false,
-    headerRight: () => (
-      <TouchableOpacity activeOpacity={0.5}>
-        <Image
-          source={require('../../../assets/ic_recentlist.png')}
-          style={{width: 20, height: 20, marginRight: 10}}
-        />
-      </TouchableOpacity>
-    ),
+    // headerRight: () => (
+    //   <TouchableOpacity activeOpacity={0.5}>
+    //     <Image
+    //       source={require('../../../assets/ic_recentlist.png')}
+    //       style={{width: 20, height: 20, marginRight: 10}}
+    //     />
+    //   </TouchableOpacity>
+    // ),
   }
 );
 
@@ -43,11 +44,13 @@ const ChapterListScreenOption = ({route}) => (
   {
     title: route.params.bookName,
     headerTitleAlign: 'center',
+    headerBackTitle: '',
   });
 const VerseListScreenOption = ({route}) => (
   {
     title: `${route.params.bookName} ${route.params.chapterCode}장`,
     headerTitleAlign: 'center',
+    headerBackTitle: '',
   });
 const ContentListScreenOption = ({route}) => (
   {

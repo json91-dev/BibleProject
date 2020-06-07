@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {
   StyleSheet,
   ScrollView,
+  SafeAreaView,
   Text,
   Image,
   TouchableOpacity,
@@ -60,42 +61,44 @@ export default class QuizScreen extends Component {
   // todayQuizAnswerList : 유저가 입력한 퀴즈의 정답 목록.
   initialQuizState = () => {
     const getIsCompleteTodayQuiz = getItemFromAsync('isCompleteTodayQuiz');
+    const getIsGiveUpTodayQuiz = getItemFromAsync('isGiveUpTodayQuiz');
     const getReviewQuizDataList = getItemFromAsync('reviewQuizDataList');
     const getTodayQuizAnswerList = getItemFromAsync('todayQuizAnswerList');
     const getTodayQuizBallState = getItemFromAsync('todayQuizBallState');
 
-    Promise.all([getIsCompleteTodayQuiz, getReviewQuizDataList, getTodayQuizAnswerList, getTodayQuizBallState]).then((result) => {
+    Promise.all([getIsCompleteTodayQuiz,getIsGiveUpTodayQuiz, getReviewQuizDataList, getTodayQuizAnswerList, getTodayQuizBallState]).then((result) => {
       let isCompleteTodayQuiz = result[0];
-      const reviewQuizDataList = result[1];
-      const todayQuizAnswerList = result[2];
-      const todayQuizBallState = result[3];
+      let isGiveUpTodayQuiz = result[1];
+      const reviewQuizDataList = result[2];
+      const todayQuizAnswerList = result[3];
+      const todayQuizBallState = result[4];
 
-      // console.log(todayQuizAnswerList);
-      // console.log(todayQuizBallState);
-      // 데이터가 없을경우 []를 반환하므로 이를 예외처리하여야 함. => item.length 는 false임 .. 실수.. 0이기때문
       // 문제를 한번도 풀지 않아본 유저의 경우
-      if(isCompleteTodayQuiz === null) {
+      if(isCompleteTodayQuiz === null && isGiveUpTodayQuiz === null) {
         this.setState({
           isCompleteTodayQuiz: false,
+          isGiveUpTodayQuiz: false,
           reviewQuizData: reviewQuizDataList,
         })
       }
 
-      // 오늘의 퀴즈를 모두 푼 유저의 경우
+      // 오늘의 퀴즈를 모두 풀었거나, 오늘의 퀴즈를 포기한 경우
       // 퀴즈를 푼 이후 => 결과창, 타이머, 내가 푼 성경 복습
-      else if(isCompleteTodayQuiz === true) {
+      else if(isCompleteTodayQuiz === true || isGiveUpTodayQuiz === true) {
         this.setState({
-          isCompleteTodayQuiz: true,
+          isCompleteTodayQuiz: isCompleteTodayQuiz,
+          isGiveUpTodayQuiz: isGiveUpTodayQuiz,
           reviewQuizData: reviewQuizDataList,
           currentQuizBallState: todayQuizBallState,
         })
       }
 
-      // 오늘의 퀴즈를 모두 풀지 않은 유저의 경우.
+      // 오늘의 퀴즈를 오늘 풀지 않은 유저의 경우.
       // 퀴즈를 아직 풀기 전 => 퀴즈 시작 버튼, 이전 문제에 대한 복습.
-      else if(isCompleteTodayQuiz === false) {
+      else if(isCompleteTodayQuiz === false && isGiveUpTodayQuiz === false) {
         this.setState({
           isCompleteTodayQuiz: false,
+          isGiveUpTodayQuiz: false,
           reviewQuizData: reviewQuizDataList,
         })
       }
@@ -103,7 +106,6 @@ export default class QuizScreen extends Component {
   };
 
   moveToScreen = (screenName) => () => {
-    console.log(screenName);
     this.props.navigation.navigate(screenName);
   };
 
@@ -220,50 +222,58 @@ export default class QuizScreen extends Component {
   };
 
   // 오늘의 퀴즈를 푼 뒤에 내일 퀴즈까지의 대기화면 보여주는 컴포넌트
-  TodayQuizResult = () => {
-    const { isGiveUpTodayQuiz } = this.state;
+  TodayQuizResultComplete = () => {
+    return (
+      <View>
+        <TouchableOpacity onPress={this.moveToScreen('TodayQuizCheckScreen')}>
+          <Image style={styles.quizResultQuestionImage} source={require('assets/ic_question_quiz_result.png')}/>
+        </TouchableOpacity>
+        <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_weird.png')}/>
+        <Text style={styles.titleText}>오늘의 세례문답 성적은</Text>
+        <QuizBallComponent quizBallState={this.state.currentQuizBallState}/>
+        <Text style={[styles.titleText, {marginTop: 80}]}>내일의 세례문답까지.</Text>
+        {this.QuizTimer()}
+      </View>
+    )
+  };
 
-    if ( isGiveUpTodayQuiz ) {
-      return (
-        <View>
-          <TouchableOpacity onPress={this.moveToScreen('TodayQuizCheckScreen')}>
-            <Image style={styles.quizResultQuestionImage} source={require('assets/ic_question_quiz_result.png')}/>
-          </TouchableOpacity>
-          <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_sad.png')}/>
-          <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 포기하셨네요.{"\n"}내일의 세례문답까지.</Text>
-          {this.QuizTimer()}
-        </View>
-      )
-    }
-
-    else {
-      return (
-        <View>
-          <TouchableOpacity onPress={this.moveToScreen('TodayQuizCheckScreen')}>
-            <Image style={styles.quizResultQuestionImage} source={require('assets/ic_question_quiz_result.png')}/>
-          </TouchableOpacity>
-          <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_weird.png')}/>
-          <Text style={styles.titleText}>오늘의 세례문답 성적은</Text>
-          <QuizBallComponent quizBallState={this.state.currentQuizBallState}/>
-          <Text style={[styles.titleText, {marginTop: 80}]}>내일의 세례문답까지.</Text>
-          {this.QuizTimer()}
-        </View>
-      )
-    }
+  TodayQuizResultGiveUp = () => {
+    return (
+      <View>
+        <TouchableOpacity onPress={this.moveToScreen('TodayQuizCheckScreen')}>
+          <Image style={styles.quizResultQuestionImage} source={require('assets/ic_question_quiz_result.png')}/>
+        </TouchableOpacity>
+        <Image style={styles.quizResultJesusImage} source={require('assets/ic_jesus_sad.png')}/>
+        <Text style={styles.titleText}>오늘의 세례문답{"\n"}퀴즈를 포기하셨네요.{"\n"}내일의 세례문답까지.</Text>
+        {this.QuizTimer()}
+      </View>
+    )
   };
 
 
   render() {
-    const { isCompleteTodayQuiz } = this.state;
+    const { isCompleteTodayQuiz, isGiveUpTodayQuiz } = this.state;
 
+    // 오늘의 퀴즈를 풀었을때의 화면
     if (isCompleteTodayQuiz) {
-    return (
-        <ScrollView style={styles.scrollViewContainer} contentContainerStyle ={{justifyContent: 'center'}}>
-          {this.TodayQuizResult()}
-        </ScrollView>
-    )
+      return (
+          <SafeAreaView style={styles.completeQuizContainer} contentContainerStyle ={{justifyContent: 'center'}}>
+            {this.TodayQuizResultComplete()}
+          </SafeAreaView>
+      )
     }
 
+
+    else if (isGiveUpTodayQuiz) {
+      return (
+        <SafeAreaView style={styles.completeQuizContainer} contentContainerStyle ={{justifyContent: 'center'}}>
+          {this.TodayQuizResultGiveUp()}
+        </SafeAreaView>
+      )
+    }
+
+
+    // 오늘의 퀴즈를 풀지 않았을때의 화면
     else {
       return (
         <View style={styles.container}>
@@ -287,6 +297,15 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     flex: 1,
     backgroundColor: 'white',
+  },
+
+  completeQuizContainer: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: 'center',
+    paddingBottom: '20%',
+    backgroundColor: 'white'
   },
 
   quizResultQuestionImage: {

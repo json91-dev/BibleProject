@@ -149,7 +149,6 @@ const FireStoreSingleton = (
         if(!firestoreInstance) {
           firestoreInstance = init()
         }
-        console.log(firestoreInstance);
 
         return firestoreInstance
       }

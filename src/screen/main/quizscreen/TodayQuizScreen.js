@@ -23,7 +23,8 @@ export default class TodayQuizScreen extends Component {
     pageState: 0,
     isFocusTextInput: false,
     textInputText: "",
-    isOpenAnswer: false,
+    checkAnswerText: "", // 입력된 정답에 대한 텍스트
+    isOpenAnswer: false, // 정답 확인화면일때 true, 문제입력 화면일때 false
     quizData: null,
     curPageQuizData: null,
   };
@@ -62,7 +63,6 @@ export default class TodayQuizScreen extends Component {
 
 
   render() {
-    const { pageState, currentQuizBallState } = this.state;
     // 버튼이 포커스되면 searchView를 보여줌
     const onFocus = () => {
       console.log('포커스');
@@ -91,6 +91,7 @@ export default class TodayQuizScreen extends Component {
      */
     const onAnswerSubmit = () => {
       const { curPageQuizData, pageState, textInputText, currentQuizBallState } = this.state;
+
       // 정답의 진위여부를 판단한다.
       const curPageQuizWord = curPageQuizData.quizWord;
       let updateQuizBallState;
@@ -117,6 +118,7 @@ export default class TodayQuizScreen extends Component {
           isOpenAnswer: true,
           isFocusTextInput: false,
           quizAnswerTextArray: [...prevState.quizAnswerTextArray, quizInputText],
+          checkAnswerText: quizInputText,
           textInputText: "",
         }
       });
@@ -140,6 +142,12 @@ export default class TodayQuizScreen extends Component {
       })
     };
 
+    const backToQuizMainScreen = () => {
+      const navigation = this.props.navigation;
+      const popAction = StackActions.pop(1);
+      navigation.dispatch(popAction);
+    };
+
     // TODO: quizAnswerTextArray를 AsynStorage에 저장.
     // reviewQuizDataList => 다음날이 되어 퀴즈를 시작할때 풀어야 하는 복습 문제들에 대한 정보를 저장함.
     // isCompleteTodayQuiz => 오늘의 퀴즈를 모두 풀었는지에 대한 정보를 확인함.
@@ -148,17 +156,15 @@ export default class TodayQuizScreen extends Component {
     // 모두 풀었을때 => 결과창 + 타이머 + 푼 문제 복습 링크
     // 안풀었을때 => 퀴즈 시작 링크 + 이전문제 복습
     const onCompleteTodayQuiz = () => {
-      const { quizData, quizAnswerTextArray } = this.state;
+      const { quizData, quizAnswerTextArray, currentQuizBallState } = this.state;
       const setReviewQuizDataList =  setItemToAsync('reviewQuizDataList', quizData);
       const setIsCompleteTodayQuiz =  setItemToAsync('isCompleteTodayQuiz', true);
+      const setIsGiveUpTodayQuiz =  setItemToAsync('isGiveUpTodayQuiz', false);
       const setQuizAnswerList = setItemToAsync('todayQuizAnswerList', quizAnswerTextArray);
       const setQuizBallState = setItemToAsync('todayQuizBallState', currentQuizBallState);
 
-      Promise.all([setReviewQuizDataList, setIsCompleteTodayQuiz, setQuizAnswerList, setQuizBallState]).then((result) =>  {
-        console.log(result);
-        const navigation = this.props.navigation;
-        const popAction = StackActions.pop(1);
-        navigation.dispatch(popAction);
+      Promise.all([setReviewQuizDataList, setIsCompleteTodayQuiz, setIsGiveUpTodayQuiz, setQuizAnswerList, setQuizBallState]).then((result) =>  {
+        backToQuizMainScreen();
       })
     };
 
@@ -167,16 +173,56 @@ export default class TodayQuizScreen extends Component {
       onAnswerSubmit();
     };
 
-    // 오늘의 퀴즈를 포기하는 함수
+    // 오늘의 퀴즈를 포기하는 함수이다.
+    // 현재 볼의 상태(맞춘 문제)와 정답에 대해서 AsyncStorage에 갱신.
+    // 기존에 푼 문제에 입력한 정답과, 퀴즈 Ball의 상태는 저장하고 남은 부분을 채워준다.
+    // Text는 없음으로 처리하고, 퀴즈볼 상태는 -1(빨간볼)로 처리한다.
     const onGiveUpTodayQuiz = () => {
       // TODO : 유저가 빈문자를 입력했을때는 '없음' // 남은문제는 빈공백으로 처리 // 입력했을때는 입력한 값을 처리함
+      const {pageState, currentQuizBallState, quizAnswerTextArray, isOpenAnswer, quizData} = this.state;
+      const maxPageCount = 5;
+
+      // AsyncStorage에 업데이트할 State를 선언함.
+      const updateQuizBallState = [...currentQuizBallState];
+      let updateQuizAnswerTextArray = [...quizAnswerTextArray];
+
+      let page;
+      // 해당 page 이후 정답을 모두 틀림으로 처리함
+      if (isOpenAnswer) {
+        page = pageState + 1;
+      } else {
+        page = pageState
+      }
+
+      // quizBallState => -1: 기본 , 0: 틀림, 1: 맞음
+      for (page; page < maxPageCount; page ++) {
+        console.log(page);
+        updateQuizBallState[page] = 0;
+        updateQuizAnswerTextArray = [...updateQuizAnswerTextArray, "없음"];
+      }
+
+      console.log(updateQuizAnswerTextArray);
+      console.log(updateQuizBallState);
+
+
+      const setReviewQuizDataList =  setItemToAsync('reviewQuizDataList', quizData);
+      const setIsCompleteTodayQuiz =  setItemToAsync('isCompleteTodayQuiz', false);
+      const setIsGiveUpTodayQuiz =  setItemToAsync('isGiveUpTodayQuiz', true);
+      const setQuizAnswerList = setItemToAsync('todayQuizAnswerList', updateQuizAnswerTextArray);
+      const setQuizBallState = setItemToAsync('todayQuizBallState', updateQuizBallState);
+
+
+      Promise.all([setReviewQuizDataList, setIsCompleteTodayQuiz, setIsGiveUpTodayQuiz, setQuizAnswerList, setQuizBallState]).then((result) =>  {
+        backToQuizMainScreen();
+      })
+
     };
 
     /**
      * 컴포넌트 분리.
      */
     const TodayQuizTitleView = () => {
-      const { isFocusTextInput, currentQuizBallState }  = this.state;
+      const { isFocusTextInput, currentQuizBallState, pageState }  = this.state;
       if (!isFocusTextInput) {
         return (
           <View style={styles.todayQuizTitleView}>
@@ -247,18 +293,21 @@ export default class TodayQuizScreen extends Component {
 
     // 정답에 대해 유저의 입력을 확인시켜주는 컴포넌트.
     const ConfirmCurrentQuizAnswer = () => {
-      const { isOpenAnswer} = this.state;
-      let { textInputText } = this.state;
+      const { isOpenAnswer } = this.state;
+      let { textInputText, checkAnswerText } = this.state;
 
-      if (textInputText === '' || textInputText === ' ') {
-        textInputText = '없음'
-      }
+
+      // console.log(textInputText);
+
+      // if (textInputText === '' || textInputText === ' '|| textInputText === '  ') {
+      //   textInputText = '없음'
+      // }
 
       if ( isOpenAnswer ) {
         return (
           <View style={styles.confirmAnswerView}>
             <Text style={styles.confirmAnswerLabel}>입력하신 정답은</Text>
-            <Text style={styles.confirmAnswerText}>{textInputText}</Text>
+            <Text style={styles.confirmAnswerText}>{checkAnswerText}</Text>
           </View>
         )
       } {

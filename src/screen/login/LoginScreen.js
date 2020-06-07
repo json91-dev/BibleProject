@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
+import {GoogleSignin, statusCodes} from '@react-native-community/google-signin';
 import {
   StyleSheet,
   View,
   Text,
   Image,
-  Button,
   TouchableOpacity,
 } from 'react-native';
 
@@ -24,6 +23,9 @@ export default class LoginScreen extends Component {
     this.props.navigation.navigate('Main');
   };
 
+  /**
+   * 구글 로그인을 수행한다.
+   */
   _signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -51,6 +53,9 @@ export default class LoginScreen extends Component {
     }
   };
 
+  /**
+   * Google Login에 대한 Access키를 취소한뒤 로그아웃을 수행한다.
+   */
   signOut = async () => {
     try {
       await GoogleSignin.revokeAccess();
@@ -69,6 +74,11 @@ export default class LoginScreen extends Component {
     }
   };
 
+  /**
+   * 로그인에 대한 준비 작업 및, localStorage에서 값 체크 후 화면 이동을 수행한다.
+   * 맨 처음 로그인시 (유저정보가 없을시)나 로그인 되어있지 않은 경우에는 로그인화면을 유지하고,
+   * 그렇지 않으면 성경화면으로 화면을 이동시켜준다.
+   */
   componentDidMount() {
     // 구글 로그인에대한 설정을 초기화합니다.
     GoogleSignin.configure({

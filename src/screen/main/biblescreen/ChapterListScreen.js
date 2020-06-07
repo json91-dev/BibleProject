@@ -69,7 +69,8 @@ export default class ChapterListScreen extends Component {
                     bookCode: item.bookCode,
                     chapterCode: chapterCode,
                   })}>
-                  <Text style={styles.flatListItemText}>{chapterCode}.    {item.bookName}{chapterCode}장</Text>
+                  <Text style={styles.flatListItemText}>{chapterCode}.    {item.bookName} {chapterCode}장</Text>
+                  {/*<Text style={styles.flatListItemText}>1장</Text>*/}
               </TouchableOpacity>
               )
           }}
@@ -102,14 +103,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'column',
-    paddingTop: 30,
-    paddingBottom: 30,
+    // paddingTop: 30,
+    // paddingBottom: 30,
     paddingLeft: 2,
     paddingRight: 2,
     borderBottomColor: '#AABBCC',
     borderBottomWidth: 1,
   },
   flatListItemText: {
-    color: 'black'
+    color: 'black',
   }
 });
