@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import {getItemFromAsync, setItemToAsync} from '../../utils';
+import {getItemFromAsync, setItemToAsync} from '../utils';
 
 export default class LoginScreen extends Component {
   state = {
@@ -111,16 +111,14 @@ export default class LoginScreen extends Component {
       <LinearGradient colors={['#F9DA4F', '#F7884F']} style={styles.linearGradient}>
         <View>
           <Image
-            source={require('../../assets/ic_thecross.png')}
+            source={require('../assets/ic_thecross.png')}
             style={styles.icon}
           />
           <Text style={styles.titleText}>THE BIBLE</Text>
           <Text style={styles.titleInfo}>로그인해서 성경공부를 해보세요.</Text>
-          {/*<GoogleSigninButton navigation= {navigation} test='zz' />*/}
-
         </View>
         <TouchableOpacity style={styles.googleLoginButtonContainer} onPress={this._signIn}>
-          <Image  style={styles.googleLoginButton} source={require('../../assets/btn_google_login.png')}/>
+          <Image  style={styles.googleLoginButton} source={require('../assets/btn_google_login.png')}/>
         </TouchableOpacity>
 
         {errorMessage && <Text>{errorMessage}</Text>}

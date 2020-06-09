@@ -7,34 +7,15 @@ import {
   SafeAreaView,
 } from 'react-native';
 
-import admob, { MaxAdContentRating, InterstitialAd, RewardedAd, BannerAd, TestIds, BannerAdSize} from '@react-native-firebase/admob';
-
 import {getOldBibleItems, getNewBibleItems} from '/utils'
 import { FlatGrid } from 'react-native-super-grid';
+import AdmobBannerBottom from '../../components/AdmobBannerBottom';
 
 
 export default class BookListScreen extends Component {
 
   componentDidMount() {
-    admob().setRequestConfiguration({
-      // 최대 광고 컨텐트 등급 지정
-      maxAdContentRating: MaxAdContentRating.PG,
-      // true인 경우 아동에 대한 컨텐츠 광고 올라옴.
-      tagForChildDirectedTreatment: true,
-      // true인 경우 동의 연령 미만 사용자에게 적합한 방식으로 광고 요청 처
-      tagForUnderAgeOfConsent: true,
-    }).then(() => {
-      console.log("adMob 초기화 성공")
-      this.setState({
-        test: 'test',
-      })
-    });
 
-    // // InterstitialAd 광고에 대한 테스트 아이디 지정
-    // InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL);
-    //
-    // // Rewarded 광고에 대한 테스트 아이디 지정
-    // RewardedAd.createForAdRequest(TestIds.REWARDED);
   }
 
   /**
@@ -72,17 +53,8 @@ export default class BookListScreen extends Component {
             </TouchableHighlight>
           )}
         />
-        <View style={styles.bannderView}>
-          <BannerAd
-            requestOptions={{
-              requestNonPersonalizedAdsOnly: true,
-            }}
-            onAdLoaded={function() {
-              console.log('Advert loaded');
-            }}
-            onAdFailToLoad={error => console.log(error)}
-            size={BannerAdSize.FULL_BANNER}
-            unitId={TestIds.BANNER} />
+        <View style={styles.bannerView}>
+          <AdmobBannerBottom/>
         </View>
 
       </SafeAreaView>
