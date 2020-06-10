@@ -9,9 +9,8 @@ import {
   View,
 } from 'react-native';
 import ReviewQuizItem from './components/ReviewQuizItem'
-import {getItemFromAsync, setItemToAsync} from '../../../utils';
+import {getDateStringByFormat, getItemFromAsync, setItemToAsync} from '../../../utils';
 import QuizBallComponent from './components/QuizBallComponent';
-import LoadingComponent from './components/LoadingComponent';
 let timer = null;
 
 export default class QuizScreen extends Component {
@@ -47,6 +46,7 @@ export default class QuizScreen extends Component {
 
   // 세례문답 Screen이 처음 시작될 떄 한번만 호출된다.
   // focus 이벤트를 등록하고 focus 이벤트에서는 초기 퀴즈에 대한 state 초기화를 진행한다.
+  // * componentDidMount 이후에 동작한다.
   onLoad = () => {
     // 즉 현재 Screen이 화면에서 보일때 (focus) 실행될수 있도록 이벤트를 등록하는 과정이다.
     this.didFoucsSubscription =  this.props.navigation.addListener('focus', () => {
@@ -55,55 +55,156 @@ export default class QuizScreen extends Component {
   };
 
 
-  // 초기 퀴즈 메인 컴포넌트들에 대한 State를 설정하는 함수.
-  // isCompleteTodayQuiz : 오늘의 퀴즈를 풀었는지?
-  // reviewQuizDataList : 복습 문제가 있는지?
-  // todayQuizAnswerList : 유저가 입력한 퀴즈의 정답 목록.
-  initialQuizState = () => {
-    const getIsCompleteTodayQuiz = getItemFromAsync('isCompleteTodayQuiz');
-    const getIsGiveUpTodayQuiz = getItemFromAsync('isGiveUpTodayQuiz');
-    const getReviewQuizDataList = getItemFromAsync('reviewQuizDataList');
-    const getTodayQuizAnswerList = getItemFromAsync('todayQuizAnswerList');
-    const getTodayQuizBallState = getItemFromAsync('todayQuizBallState');
+  /**
+   * 현재 날짜를 확인한뒤 새로운 날짜일때 퀴즈화면의 상태를 아래처럼 바꿔준다.
+   * - 오늘의 퀴즈를 풀었는지 : false
+   * - 오늘의 퀴즈의 포기를 눌렀는지 : false
+   *
+   * 초기 퀴즈 메인 컴포넌트들에 대한 State를 설정하는 함수.
+   * isCompleteTodayQuiz : 오늘의 퀴즈를 풀었으면 true
+   * isGiveUpTodayQuiz : 오늘의 퀴즈를 포기하였다면 true
+   * reviewQuizDataList : 오늘의 푼 퀴즈에 대한 복습문제
+   * todayQuizAnswerList : 유저가 입력한 퀴즈의 정답 목록.
+   * getTodayQuizBallState : 유저가 입력한 정답의 상태볼에 대한 배열값.
+   */
 
-    Promise.all([getIsCompleteTodayQuiz,getIsGiveUpTodayQuiz, getReviewQuizDataList, getTodayQuizAnswerList, getTodayQuizBallState]).then((result) => {
-      let isCompleteTodayQuiz = result[0];
-      let isGiveUpTodayQuiz = result[1];
-      const reviewQuizDataList = result[2];
-      const todayQuizAnswerList = result[3];
-      const todayQuizBallState = result[4];
+  initialQuizState = async () => {
+    // 현재 날짜가 바뀌었는지(어제날짜와 다른지) 확인한 뒤 새로운 날짜일때 퀴즈화면의 상태를 바꿔준다.
+    const quizDate = getItemFromAsync('quizDate');
+    if (quizDate !== null) {
+      const nowDate = parseInt(getDateStringByFormat(new Date(), 'yyyyMMdd'));
 
-      // 문제를 한번도 풀지 않아본 유저의 경우
-      if(isCompleteTodayQuiz === null && isGiveUpTodayQuiz === null) {
-        this.setState({
-          isCompleteTodayQuiz: false,
-          isGiveUpTodayQuiz: false,
-          reviewQuizData: reviewQuizDataList,
-        })
+      // 퀴즈를 푼 날짜보다 지난 날짜가 되면, 퀴즈 상태를 갱신.
+      if(nowDate > quizDate) {
+        await setItemToAsync('quizDate', nowDate);
+        await setItemToAsync('isCompleteTodayQuiz', false);
+        await setItemToAsync('isGiveUpTodayQuiz', false);
       }
+    }
 
-      // 오늘의 퀴즈를 모두 풀었거나, 오늘의 퀴즈를 포기한 경우
-      // 퀴즈를 푼 이후 => 결과창, 타이머, 내가 푼 성경 복습
-      else if(isCompleteTodayQuiz === true || isGiveUpTodayQuiz === true) {
-        this.setState({
-          isCompleteTodayQuiz: isCompleteTodayQuiz,
-          isGiveUpTodayQuiz: isGiveUpTodayQuiz,
-          reviewQuizData: reviewQuizDataList,
-          currentQuizBallState: todayQuizBallState,
-        })
-      }
 
-      // 오늘의 퀴즈를 오늘 풀지 않은 유저의 경우.
-      // 퀴즈를 아직 풀기 전 => 퀴즈 시작 버튼, 이전 문제에 대한 복습.
-      else if(isCompleteTodayQuiz === false && isGiveUpTodayQuiz === false) {
-        this.setState({
-          isCompleteTodayQuiz: false,
-          isGiveUpTodayQuiz: false,
-          reviewQuizData: reviewQuizDataList,
-        })
-      }
-    });
+    const isCompleteTodayQuiz = await getItemFromAsync('isCompleteTodayQuiz');
+    const isGiveUpTodayQuiz = await getItemFromAsync('isGiveUpTodayQuiz');
+    const reviewQuizDataList = await getItemFromAsync('reviewQuizDataList');
+    const getTodayQuizAnswerList = await getItemFromAsync('todayQuizAnswerList');
+    const todayQuizBallState = await getItemFromAsync('todayQuizBallState');
+
+
+    // 문제를 한번도 풀지 않았거나, 다음날이 되었을때
+    if(isCompleteTodayQuiz === null && isGiveUpTodayQuiz === null) {
+      this.setState({
+        isCompleteTodayQuiz: false,
+        isGiveUpTodayQuiz: false,
+        reviewQuizData: reviewQuizDataList,
+      })
+    }
+
+    // 오늘의 퀴즈를 모두 풀었거나, 오늘의 퀴즈를 포기한 경우
+    // 퀴즈를 푼 이후 => 결과창, 타이머, 내가 푼 성경 복습
+    else if(isCompleteTodayQuiz === true || isGiveUpTodayQuiz === true) {
+      this.setState({
+        isCompleteTodayQuiz: isCompleteTodayQuiz,
+        isGiveUpTodayQuiz: isGiveUpTodayQuiz,
+        reviewQuizData: reviewQuizDataList,
+        currentQuizBallState: todayQuizBallState,
+      })
+    }
+
+    // 오늘의 퀴즈를 오늘 풀지 않은 유저의 경우.
+    // 퀴즈를 아직 풀기 전 => 퀴즈 시작 버튼, 이전 문제에 대한 복습.
+    else if(isCompleteTodayQuiz === false && isGiveUpTodayQuiz === false) {
+      this.setState({
+        isCompleteTodayQuiz: false,
+        isGiveUpTodayQuiz: false,
+        reviewQuizData: reviewQuizDataList,
+      })
+    }
+
+
+    // Promise.all([getIsCompleteTodayQuiz,getIsGiveUpTodayQuiz, getReviewQuizDataList, getTodayQuizAnswerList, getTodayQuizBallState]).then((result) => {
+    //   let isCompleteTodayQuiz = result[0];
+    //   let isGiveUpTodayQuiz = result[1];
+    //   const reviewQuizDataList = result[2];
+    //   const todayQuizAnswerList = result[3];
+    //   const todayQuizBallState = result[4];
+    //
+    //   // 문제를 한번도 풀지 않았거나, 다음날이 되었을때
+    //   if(isCompleteTodayQuiz === null && isGiveUpTodayQuiz === null) {
+    //     this.setState({
+    //       isCompleteTodayQuiz: false,
+    //       isGiveUpTodayQuiz: false,
+    //       reviewQuizData: reviewQuizDataList,
+    //     })
+    //   }
+    //
+    //   // 오늘의 퀴즈를 모두 풀었거나, 오늘의 퀴즈를 포기한 경우
+    //   // 퀴즈를 푼 이후 => 결과창, 타이머, 내가 푼 성경 복습
+    //   else if(isCompleteTodayQuiz === true || isGiveUpTodayQuiz === true) {
+    //     this.setState({
+    //       isCompleteTodayQuiz: isCompleteTodayQuiz,
+    //       isGiveUpTodayQuiz: isGiveUpTodayQuiz,
+    //       reviewQuizData: reviewQuizDataList,
+    //       currentQuizBallState: todayQuizBallState,
+    //     })
+    //   }
+    //
+    //   // 오늘의 퀴즈를 오늘 풀지 않은 유저의 경우.
+    //   // 퀴즈를 아직 풀기 전 => 퀴즈 시작 버튼, 이전 문제에 대한 복습.
+    //   else if(isCompleteTodayQuiz === false && isGiveUpTodayQuiz === false) {
+    //     this.setState({
+    //       isCompleteTodayQuiz: false,
+    //       isGiveUpTodayQuiz: false,
+    //       reviewQuizData: reviewQuizDataList,
+    //     })
+    //   }
+    // });
   };
+
+  // initialQuizState = () => {
+  //   const getIsCompleteTodayQuiz = getItemFromAsync('isCompleteTodayQuiz');
+  //   const getIsGiveUpTodayQuiz = getItemFromAsync('isGiveUpTodayQuiz');
+  //   const getReviewQuizDataList = getItemFromAsync('reviewQuizDataList');
+  //   const getTodayQuizAnswerList = getItemFromAsync('todayQuizAnswerList');
+  //   const getTodayQuizBallState = getItemFromAsync('todayQuizBallState');
+  //
+  //   Promise.all([getIsCompleteTodayQuiz,getIsGiveUpTodayQuiz, getReviewQuizDataList, getTodayQuizAnswerList, getTodayQuizBallState]).then((result) => {
+  //     let isCompleteTodayQuiz = result[0];
+  //     let isGiveUpTodayQuiz = result[1];
+  //     const reviewQuizDataList = result[2];
+  //     const todayQuizAnswerList = result[3];
+  //     const todayQuizBallState = result[4];
+  //
+  //     // 문제를 한번도 풀지 않았거나, 다음날이 되었을때
+  //     if(isCompleteTodayQuiz === null && isGiveUpTodayQuiz === null) {
+  //       this.setState({
+  //         isCompleteTodayQuiz: false,
+  //         isGiveUpTodayQuiz: false,
+  //         reviewQuizData: reviewQuizDataList,
+  //       })
+  //     }
+  //
+  //     // 오늘의 퀴즈를 모두 풀었거나, 오늘의 퀴즈를 포기한 경우
+  //     // 퀴즈를 푼 이후 => 결과창, 타이머, 내가 푼 성경 복습
+  //     else if(isCompleteTodayQuiz === true || isGiveUpTodayQuiz === true) {
+  //       this.setState({
+  //         isCompleteTodayQuiz: isCompleteTodayQuiz,
+  //         isGiveUpTodayQuiz: isGiveUpTodayQuiz,
+  //         reviewQuizData: reviewQuizDataList,
+  //         currentQuizBallState: todayQuizBallState,
+  //       })
+  //     }
+  //
+  //     // 오늘의 퀴즈를 오늘 풀지 않은 유저의 경우.
+  //     // 퀴즈를 아직 풀기 전 => 퀴즈 시작 버튼, 이전 문제에 대한 복습.
+  //     else if(isCompleteTodayQuiz === false && isGiveUpTodayQuiz === false) {
+  //       this.setState({
+  //         isCompleteTodayQuiz: false,
+  //         isGiveUpTodayQuiz: false,
+  //         reviewQuizData: reviewQuizDataList,
+  //       })
+  //     }
+  //   });
+  // };
 
   moveToScreen = (screenName) => () => {
     this.props.navigation.navigate(screenName);

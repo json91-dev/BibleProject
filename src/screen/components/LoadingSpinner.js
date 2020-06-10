@@ -6,7 +6,7 @@ import {
   Easing
 } from 'react-native';
 
-export default class LoadingComponent extends Component{
+export default class LoadingSpinner extends Component{
 
   constructor() {
     super();
