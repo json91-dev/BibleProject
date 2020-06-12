@@ -37,13 +37,13 @@ export default class LoadingSpinner extends Component{
     });
 
     return (
-      <View>
+      <View style={styles.container}>
         <Animated.Image
           style={{
             transform: [
               {rotate: RotateData}],
-            width: 100,
-            height: 100,
+            width: 50,
+            height: 50,
           }}
           source={{uri: 'https://res.cloudinary.com/df9jsefb9/image/upload/c_scale,h_84,q_auto/v1501869525/assets/idc-loading-t_3x.png'}}/>
       </View>
@@ -56,6 +56,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
 
   spinnerImage: {

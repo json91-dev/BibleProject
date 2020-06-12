@@ -18,11 +18,13 @@ import FontChangeOption from './components/FontChangeOption';
 import {uuidv4, getItemFromAsync, setItemToAsync} from '/utils';
 import { StackActions } from '@react-navigation/native';
 import { getSqliteDatabase, printIsNewOrOldBibleByBookCode } from '/utils'
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default class VerseListScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isLoading: true,
       verseItems: [],
       modalVisible: false,
       memoModalVisible: false,
@@ -222,6 +224,7 @@ export default class VerseListScreen extends Component {
         this.setState({
           verseItems,
           bibleType,
+          isLoading: false,
         });
       })
   }
@@ -681,6 +684,14 @@ export default class VerseListScreen extends Component {
   };
 
   render() {
+    const { isLoading } = this.state;
+
+    if(isLoading) {
+      return (
+        <LoadingSpinner/>
+      )
+    }
+
     return (
       <View style={styles.container}>
         {this.LongClickModal()}

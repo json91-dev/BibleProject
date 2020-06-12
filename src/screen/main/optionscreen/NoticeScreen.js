@@ -9,28 +9,14 @@ import {
 } from 'react-native';
 
 import {getFireStore} from '../../../utils'
+import LoadingSpinner from '../../components/LoadingSpinner'
 
-const SECTIONS = [
-  {
-    title: '테스트 1',
-    content: '공지사항 1번입니다.',
-  },
-
-  {
-    title: '테스트 2',
-    content: '공지사항 2번입니다. 공지사항 2번입니다. 공지사항 2번입니다. 공지사항 2번입니다. 공지사항 2번입니다. 공지사항 2번입니다. 공지사항 2번입니다. 공지사항 2번입니다. 공지사항 2번입니다. 공지사항 2번입니다. ',
-  },
-
-  {
-    title: '테스트 3',
-    content: '공지사항 3번입니다. 공지사항 3번입니다. 공지사항 3번입니다. 공지사항 3번입니다. 공지사항 3번입니다. ',
-  },
-];
 
 export default class ContentScreen extends Component {
   state = {
     activeSections: [],
     sectionDataArray: [],
+    isLoading: true,
   };
 
   readNotification(doc) {
@@ -70,11 +56,15 @@ export default class ContentScreen extends Component {
   componentDidMount() {
     // 서버로부터 데이터를 가져옵니다.
     getFireStore().collection('notification').get().then((colSnapshot) => {
-      alert('서버로부터 데이터 받아옴');
       colSnapshot.docs.forEach(doc => {
         this.readNotification(doc);
+      });
+
+      this.setState({
+        isLoading: false,
       })
-    })
+     }
+    )
   }
 
   _renderHeader = (section, index, isActive, sections) => {
@@ -102,18 +92,31 @@ export default class ContentScreen extends Component {
   };
 
   render() {
-    return (
-      <Accordion
-        containerStyle={{backgroundColor: 'white', height: '100%'}}
-        sections={this.state.sectionDataArray}
-        activeSections={this.state.activeSections}
-        // renderSectionTitle={this._renderSectionTitle}
-        renderHeader={this._renderHeader}
-        renderContent={this._renderContent}
-        onChange={this._updateSections}
-        underlayColor='yellow'
-      />
-    );
+    const { isLoading }= this.state;
+    // console.log('render');
+    // return (
+    //   <LoadingSpinner/>
+    // )
+
+    if(isLoading) {
+      return (
+        <LoadingSpinner/>
+      )
+    } else {
+      console.log('accordian');
+      return (
+        <Accordion
+          containerStyle={{backgroundColor: 'white', height: '100%'}}
+          sections={this.state.sectionDataArray}
+          activeSections={this.state.activeSections}
+          // renderSectionTitle={this._renderSectionTitle}
+          renderHeader={this._renderHeader}
+          renderContent={this._renderContent}
+          onChange={this._updateSections}
+          underlayColor='yellow'
+        />
+      );
+    }
   }
 }
 

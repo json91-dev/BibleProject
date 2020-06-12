@@ -60,6 +60,12 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 });
 
 
+/**
+ * 매일 0시 0분에 오늘의 성경퀴즈와, 오늘의 말씀을 업데이트하는 cron function 이다.
+ * 0시 0분에 정확히 실행되지는 않으며 15초 정도의 딜레이가 있음
+ * 엑셀파일에서 데이터를 파싱한뒤 firestore의 데이터를 갱신한다.
+ * @type {CloudFunction<unknown>}
+ */
 exports.scheduledFunctionCrontab
   // = functions.pubsub.schedule('0 0 * * *')
   = functions.pubsub.schedule('11 17 * * *') // min, hour, day of month, month, day of week
@@ -67,29 +73,63 @@ exports.scheduledFunctionCrontab
   .onRun((context) => {
     console.log('매일 오전 0시 0분에 시행됨 (한국 기준)');
 
-    // 1. xlsx에서 '성경문제' 시트를 얻어옴.
-    // 2. '성경문제' 시트를 json으로 치환
-    const bibleQuiz = xlsx.readFile('xlsx/bible_deploy.xlsx');
-    const bibleSheet = bibleQuiz.Sheets.성경문제;
-    const bibleRecordsJson = xlsx.utils.sheet_to_json(bibleSheet);
-    // 3. 오늘의 날짜에 해당하는 성경 구절 5개에 대한 정보를 하나의 JSON array로 저장함.
-    const todayQuizArray = bibleRecordsJson.filter((item, index) => {
-      const todayDateString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy.MM.dd');
-      return item.date === todayDateString;
-    });
 
-    const todayQuizArrayJson = {quizData: todayQuizArray};
+    // 오늘의 퀴즈 업데이트
+    const updateTodayQuiz = () => {
+      // 1. xlsx에서 '성경문제' 시트를 얻어옴.
+      const bibleQuiz = xlsx.readFile('xlsx/today_quiz_deploy.xlsx');
+      const bibleSheet = bibleQuiz.Sheets.성경문제;
 
-    const todayDateFirebaseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy-MM-dd');
+      // 2. '성경문제' 시트를 json으로 치환
+      const bibleRecordsJson = xlsx.utils.sheet_to_json(bibleSheet);
 
-    db.firestore().collection('todayQuiz').doc(todayDateFirebaseString).set(todayQuizArrayJson).then(() => {
-      console.log('testBible Data updated');
-    }).catch(error => {
-      console.log('error occured' + error.message);
-    });
+      // 3. 오늘의 날짜에 해당하는 성경 구절 5개에 대한 정보를 하나의 JSON array로 저장함.
+      const todayQuizArray = bibleRecordsJson.filter((item, index) => {
+        const todayDateString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy.MM.dd');
+        return item.date === todayDateString;
+      });
+
+      const todayQuizArrayJson = {quizData: todayQuizArray};
+      const todayDateFirebaseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy-MM-dd');
+
+      db.firestore().collection('todayQuiz').doc(todayDateFirebaseString).set(todayQuizArrayJson).then(() => {
+        console.log('오늘의 퀴즈 업데이트 완료');
+      }).catch(error => {
+        console.log('error occured' + error.message);
+      });
+    };
+    updateTodayQuiz();
 
 
+    // 오늘의 성경 구절 업데이트
+    const updateTodayVerse = () => {
+      // 1. xlsx에서 '오늘의성경' 시트를 얻어옴.
+      const todayVerse = xlsx.readFile('xlsx/today_verse_deploy.xlsx');
+      const todayVerseSheet = todayVerse.Sheets.오늘의구절;
+
+      // 2. '오늘의구절' 시트를 json으로 치환
+      const todayVerseJson = xlsx.utils.sheet_to_json(todayVerseSheet);
+
+      // 3. 오늘의 구절에 해당하는 성경 구절 1개에 대한 정보를 하나의 JSON array로 저장함.
+      const todayVerseArray = todayVerseJson.filter((item, index) => {
+        const todayVerseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy.MM.dd');
+        return item.date === todayVerseString;
+      });
+
+      // 4. 현재 todayVerseArray는 배열이므로 배열의 첫번째 데이터를 입력합니다.
+      const todayVerseData = todayVerseArray[0];
+      const todayDateFirebaseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy-MM-dd');
+
+      db.firestore().collection('todayVerse').doc(todayDateFirebaseString).set(todayVerseData).then(() => {
+        console.log('오늘의 성경구절 업데이트 완료');
+      }).catch(error => {
+        console.log('error 발생' + error.message);
+      })
+    };
+
+    updateTodayVerse()
   });
+
 
 // JSON Array 저장 테스트
 exports.testFirestore = functions.https.onRequest((request, response) => {
