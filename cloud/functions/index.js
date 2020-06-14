@@ -7,58 +7,14 @@ const admin = require('firebase-admin');
 const db = admin.initializeApp();
 
 //  TODO: 2020년 3월 전까지 node 버전 10이상으로 업데이트 해야함. => 현재 deprecated 됨.
-
-function getSeoulTimezoneDate() {
-  let nowDateFormat = moment().tz("Asia/Seoul").format(); //format을 통해 특정 String으로 반환할수 있다.
-  console.log(nowDateFormat);
-
-  let nowDate = new Date(nowDateFormat);
-  return nowDate;
+function getSeoulTimezoneDateFormat(format) {
+  // format을 통해 특정 String으로 반환할수 있다.
+  if(format) {
+    return moment().tz("Asia/Seoul").format(format)
+  } else {
+    return moment().tz("Asia/Seoul").format();
+  }
 }
-
-// 특정 형식대로 데이터 Format를 출력시켜주는 모듈
-function formatDate(time, format) {
-  var t = new Date(time);
-
-  // 10보다 작으면 0을 붙여줌 =>
-  // ex: 9 => 09
-  var tf = function (i) {
-    return (i < 10 ? '0' : '') + i;
-  };
-  // 정규식을 통해 yyyy, MM, dd 등을 검색하여 해당 날짜로 치환
-  return format.replace(/yyyy|MM|dd|HH|mm|ss/g, function (a) {
-
-    switch (a) {
-      case 'yyyy':
-        return tf(t.getFullYear());
-        break;
-      case 'MM':
-        return tf(t.getMonth() + 1);
-        break;
-      case 'mm':
-        return tf(t.getMinutes());
-        break;
-      case 'dd':
-        return tf(t.getDate());
-        break;
-      case 'HH':
-        return tf(t.getHours());
-        break;
-      case 'ss':
-        return tf(t.getSeconds());
-        break;
-    }
-  });
-}
-
-
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
-
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  response.send('Hello from Firebase!');
-});
-
 
 /**
  * 매일 0시 0분에 오늘의 성경퀴즈와, 오늘의 말씀을 업데이트하는 cron function 이다.
@@ -67,8 +23,8 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
  * @type {CloudFunction<unknown>}
  */
 exports.scheduledFunctionCrontab
-  // = functions.pubsub.schedule('0 0 * * *')
-  = functions.pubsub.schedule('11 17 * * *') // min, hour, day of month, month, day of week
+  = functions.pubsub.schedule('51 0 * * *')
+  // = functions.pubsub.schedule('11 17 * * *') // min, hour, day of month, month, day of week
   .timeZone('Asia/Seoul')
   .onRun((context) => {
     console.log('매일 오전 0시 0분에 시행됨 (한국 기준)');
@@ -85,14 +41,14 @@ exports.scheduledFunctionCrontab
 
       // 3. 오늘의 날짜에 해당하는 성경 구절 5개에 대한 정보를 하나의 JSON array로 저장함.
       const todayQuizArray = bibleRecordsJson.filter((item, index) => {
-        const todayDateString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy.MM.dd');
+        const todayDateString = getSeoulTimezoneDateFormat('YYYY.MM.DD');
         return item.date === todayDateString;
       });
 
       const todayQuizArrayJson = {quizData: todayQuizArray};
-      const todayDateFirebaseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy-MM-dd');
+      const todayDateString = getSeoulTimezoneDateFormat('YYYY-MM-DD');
 
-      db.firestore().collection('todayQuiz').doc(todayDateFirebaseString).set(todayQuizArrayJson).then(() => {
+      db.firestore().collection('todayQuiz').doc(todayDateString).set(todayQuizArrayJson).then(() => {
         console.log('오늘의 퀴즈 업데이트 완료');
       }).catch(error => {
         console.log('error occured' + error.message);
@@ -112,15 +68,15 @@ exports.scheduledFunctionCrontab
 
       // 3. 오늘의 구절에 해당하는 성경 구절 1개에 대한 정보를 하나의 JSON array로 저장함.
       const todayVerseArray = todayVerseJson.filter((item, index) => {
-        const todayVerseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy.MM.dd');
-        return item.date === todayVerseString;
+        const todayDateString = getSeoulTimezoneDateFormat('YYYY.MM.DD');
+        return item.date === todayDateString;
       });
 
       // 4. 현재 todayVerseArray는 배열이므로 배열의 첫번째 데이터를 입력합니다.
       const todayVerseData = todayVerseArray[0];
-      const todayDateFirebaseString = formatDate(getSeoulTimezoneDate().getTime(), 'yyyy-MM-dd');
+      const todayDateString = getSeoulTimezoneDateFormat('YYYY-MM-DD');
 
-      db.firestore().collection('todayVerse').doc(todayDateFirebaseString).set(todayVerseData).then(() => {
+      db.firestore().collection('todayVerse').doc(todayDateString).set(todayVerseData).then(() => {
         console.log('오늘의 성경구절 업데이트 완료');
       }).catch(error => {
         console.log('error 발생' + error.message);
