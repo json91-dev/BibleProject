@@ -13,9 +13,8 @@ import {
 
 import Toast from 'react-native-easy-toast';
 import { StackActions } from '@react-navigation/native';
-
-import {printIsNewOrOldBibleByBookCode, getOldBibleItems, getNewBibleItems, getSqliteDatabase, getBibleType} from '/utils';
-
+import { printIsNewOrOldBibleByBookCode, getOldBibleItems, getNewBibleItems, getSqliteDatabase, getBibleType } from '/utils';
+import { getDateStringByFormat, getFireStore } from '../../../utils';
 
 export default class BibleMainScreen extends Component {
   state = {
@@ -31,41 +30,62 @@ export default class BibleMainScreen extends Component {
     searchResultItems: [],
     isOpenLatelyReadBibleView: false,
     latelyReadItem: {},
+    verseSentence: '너는 하나님과 화목하고 평안하라. 그리하면 복이 네게 임하리라.',
+    verseString: '요한복음 1장 27절',
   };
 
+  /**
+   * componentDidMount
+   * 1. 자신이 검색한 성경 목록을 가져옴.
+   * 2. 마지막에 읽은 성경구절을 가져옴.
+   * 3. 오늘의 성경구절을 firestore에서 가져옴
+   */
   componentDidMount() {
-    // AsyncStorage에서 최근 검색어를 가져오는 기능 구현
-    getItemFromAsync('searchWordList').then((items) => {
-      if (items === null) items = [];
-
-      this.setState({
-        searchWordItems: items,
-      })
-    });
-
-    getItemFromAsync('latelyReadList').then((item) => {
-      const {bibleName, bookName, bookCode, chapterCode} = item;
-      // 맨 처음 로딩시 예외처리 => 빈배열일때는 최근 읽은 성경에 값이 존재하지 않음.
-
-      if (item === null) {
+    (
+      async () => {
+        // 최근 검색어를 가져옴.
+        let searchWordList = await getItemFromAsync('searchWordList');
+        if (searchWordList === null)
+          searchWordList = [];
         this.setState({
-          isOpenLatelyReadBibleView: false,
+          searchWordItems: searchWordList,
         });
-      } else {
-        this.setState((prevState) => {
-          return {
-            latelyReadItem: {
-              ...prevState.latelyReadBibleView,
-              bibleName,
-              bookName,
-              bookCode,
-              chapterCode,
-            },
-            isOpenLatelyReadBibleView: true,
-          }
+
+        // 최근 읽은 성경구절 정보를 가져온뒤 이어보기 화면 값 설정
+        let latelyReadList = await getItemFromAsync('latelyReadList');
+        if (latelyReadList === null) {
+          this.setState({
+            isOpenLatelyReadBibleView: false,
+          });
+        } else {
+          const { bibleName, bookName, bookCode, chapterCode } = latelyReadList;
+          this.setState((prevState) => {
+            return {
+              latelyReadItem: {
+                ...prevState.latelyReadBibleView,
+                bibleName,
+                bookName,
+                bookCode,
+                chapterCode,
+              },
+              isOpenLatelyReadBibleView: true,
+            }
+          })
+        }
+
+        // 서버에서 오늘의 성경을 가져옴.
+        const todayDateString = getDateStringByFormat(new Date(), 'yyyy-MM-dd');
+        const todayVerseDocument = await getFireStore().collection('todayVerse').doc(todayDateString).get();
+        // todayVerseDocument.data();
+        const verseSentence = todayVerseDocument.data().sentence;
+        const verseString = todayVerseDocument.data().verse;
+
+        this.setState({
+          isLoading: false,
+          verseSentence,
+          verseString,
         })
-      }
-    })
+    })();
   }
 
   /**
@@ -84,11 +104,13 @@ export default class BibleMainScreen extends Component {
     if (isOpenSearchMode) {
       return null
     } else {
+      const {verseSentence, verseString} = this.state;
+
       return (
         <View style={styles.mainView}>
           <Image style={styles.todayImage} source={require('assets/ic_today_title.png')}/>
-          <Text style={styles.todayWord}>너는 하나님과 화목하고 평안하라. 그리하면 복이 네게 임하리라.</Text>
-          <Text style={styles.todayWordDetail}>요한복음 1장 27절</Text>
+          <Text style={styles.todayWord}>{verseSentence}</Text>
+          <Text style={styles.todayWordDetail}>{verseString}</Text>
           <Text style={styles.linkLabel}>성경책 읽기</Text>
           <TouchableOpacity
             style={styles.bibleLink}
@@ -158,7 +180,6 @@ export default class BibleMainScreen extends Component {
         const query = `SELECT book, chapter, verse, content from bible_korHRV WHERE content LIKE '%${text}%' `;
         tx.executeSql(query, [], (tx, results) => {
           const searchResultItems = [];
-          console.log(results.rows.length);
           for (let i = 0; i < results.rows.length ; i++) {
             const bookCode = results.rows.item(i).book;
             const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
@@ -217,7 +238,6 @@ export default class BibleMainScreen extends Component {
 
     // 버튼의 Text가 변경되었을 시.
     const onChangeText = (text) => {
-      console.log(text);
       this.setState({
         searchText: text,
       })
@@ -244,6 +264,7 @@ export default class BibleMainScreen extends Component {
         this.searchWord(this.state.searchText);
       }
     };
+
     return (
       <View style={styles.searchView}>
         <TouchableOpacity style={styles.searchIcon} onPress={onSearchPress}>
@@ -381,7 +402,6 @@ export default class BibleMainScreen extends Component {
     // 검색결과 화면을 클릭시 링크를 통해 해당 성경의 '장'으로 이동
     const moveToBibleChapter = (item) => () => {
       const navigation = this.props.navigation;
-      console.log(item);
       const {bookCode, bookName, chapterCode, VerseCode} = item;
 
       const pushVerseList = StackActions.push('VerseListScreen', {
@@ -434,9 +454,7 @@ export default class BibleMainScreen extends Component {
           {this.CurrentWordView()}
           {this.SearchResultView()}
           {this.LatelyReadBibleView()}
-
         </View>
-
 
         <Toast ref="toast"
                positionValue={130}
