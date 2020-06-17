@@ -69,6 +69,7 @@ export default class TodayQuizItem extends Component {
     let resultTextArray = [];
     try{
       splitTextArray = quizSentence.split(quizWord);
+      console.log(splitTextArray)
       splitTextArray.map((item, index) => {
         if(index > 0 && index < splitTextArray.length)
         {
@@ -80,17 +81,18 @@ export default class TodayQuizItem extends Component {
       console.log(err);
       return;
     }
+
     return (
       <Text style={{marginTop: 5}}>
         {
-          resultTextArray.map((item) => {
+          resultTextArray.map((item, index) => {
             if (item === quizWord) {
               return (
-                <Text style={{color: '#F9DA4F'}}>{item}</Text>
+                <Text key={index + item} style={{color: '#F9DA4F'}}>{item}</Text>
               )
             } else {
               return (
-                <Text style={{color: 'white'}}>{item}</Text>
+                <Text key={index + item} style={{color: 'white'}}>{item}</Text>
               )
             }
           })

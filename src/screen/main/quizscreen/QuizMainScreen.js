@@ -22,10 +22,14 @@ export default class QuizScreen extends Component {
     currentQuizBallState: [-1, -1, -1, -1, -1],
   };
 
+  /**
+   * componentDidMount
+   *
+   * stackNavigation에서 back버튼을 눌렀을때나 화면이 전환될 때 componentDidMount가 다시 수행되지 않으므로,
+   * focus이벤트를 등록시킨뒤 componentDidMount에서 해야할 목록들을 onLoad 함수를 등록하여 처리한다.
+   * 내부 타이머도 선언하여 사용.
+   */
   componentDidMount() {
-    // stackNavigation에서 pop이나 back버튼을 눌렀을때 componentDidMount가 다시 수행되지 않으므로,
-    // focus이벤트를 등록시킨뒤 componentDidMount의 로직들을 onLoad 함수를 이용하여 처리한다.
-    // 내부 타이머 실행
     if (timer) {
       clearInterval(timer);
     }
@@ -70,13 +74,22 @@ export default class QuizScreen extends Component {
 
   initialQuizState = async () => {
     // 현재 날짜가 바뀌었는지(어제날짜와 다른지) 확인한 뒤 새로운 날짜일때 퀴즈화면의 상태를 바꿔준다.
-    const quizDate = getItemFromAsync('quizDate');
+    // 간단하게 여기서는 날짜의 형식을 yyyyMMdd 의 정수로만 표시한뒤 크기를 비교하는 방법으로 날짜를 비교한다.
+    const quizDate = await getItemFromAsync('quizDate');
     if (quizDate !== null) {
       const nowDate = parseInt(getDateStringByFormat(new Date(), 'yyyyMMdd'));
 
-      // 퀴즈를 푼 날짜보다 지난 날짜가 되면, 퀴즈 상태를 갱신.
+      console.log(nowDate);
+      console.log(quizDate);
+      /**
+       *퀴즈를 푼 날짜보다 지난 날짜가 되면, 퀴즈 상태를 갱신.
+       * quizData는 complete나 giveup시 갱신된다.
+       * 즉 complete나 giveup을 누르면 nowDate = quizDate와 같기 때문에 무조건 타이머 화면이 나오게 된다
+       * 하지만 다음날이 되면 nowDate는 quizDate보다 1일 증가하므로 복습과 링크화면이 나오게 된다.
+       */
       if(nowDate > quizDate) {
-        await setItemToAsync('quizDate', nowDate);
+        console.log('오늘의 퀴즈로 갱신');
+        // await setItemToAsync('quizDate', nowDate);
         await setItemToAsync('isCompleteTodayQuiz', false);
         await setItemToAsync('isGiveUpTodayQuiz', false);
       }
@@ -119,93 +132,11 @@ export default class QuizScreen extends Component {
         reviewQuizData: reviewQuizDataList,
       })
     }
-
-
-    // Promise.all([getIsCompleteTodayQuiz,getIsGiveUpTodayQuiz, getReviewQuizDataList, getTodayQuizAnswerList, getTodayQuizBallState]).then((result) => {
-    //   let isCompleteTodayQuiz = result[0];
-    //   let isGiveUpTodayQuiz = result[1];
-    //   const reviewQuizDataList = result[2];
-    //   const todayQuizAnswerList = result[3];
-    //   const todayQuizBallState = result[4];
-    //
-    //   // 문제를 한번도 풀지 않았거나, 다음날이 되었을때
-    //   if(isCompleteTodayQuiz === null && isGiveUpTodayQuiz === null) {
-    //     this.setState({
-    //       isCompleteTodayQuiz: false,
-    //       isGiveUpTodayQuiz: false,
-    //       reviewQuizData: reviewQuizDataList,
-    //     })
-    //   }
-    //
-    //   // 오늘의 퀴즈를 모두 풀었거나, 오늘의 퀴즈를 포기한 경우
-    //   // 퀴즈를 푼 이후 => 결과창, 타이머, 내가 푼 성경 복습
-    //   else if(isCompleteTodayQuiz === true || isGiveUpTodayQuiz === true) {
-    //     this.setState({
-    //       isCompleteTodayQuiz: isCompleteTodayQuiz,
-    //       isGiveUpTodayQuiz: isGiveUpTodayQuiz,
-    //       reviewQuizData: reviewQuizDataList,
-    //       currentQuizBallState: todayQuizBallState,
-    //     })
-    //   }
-    //
-    //   // 오늘의 퀴즈를 오늘 풀지 않은 유저의 경우.
-    //   // 퀴즈를 아직 풀기 전 => 퀴즈 시작 버튼, 이전 문제에 대한 복습.
-    //   else if(isCompleteTodayQuiz === false && isGiveUpTodayQuiz === false) {
-    //     this.setState({
-    //       isCompleteTodayQuiz: false,
-    //       isGiveUpTodayQuiz: false,
-    //       reviewQuizData: reviewQuizDataList,
-    //     })
-    //   }
-    // });
   };
 
-  // initialQuizState = () => {
-  //   const getIsCompleteTodayQuiz = getItemFromAsync('isCompleteTodayQuiz');
-  //   const getIsGiveUpTodayQuiz = getItemFromAsync('isGiveUpTodayQuiz');
-  //   const getReviewQuizDataList = getItemFromAsync('reviewQuizDataList');
-  //   const getTodayQuizAnswerList = getItemFromAsync('todayQuizAnswerList');
-  //   const getTodayQuizBallState = getItemFromAsync('todayQuizBallState');
-  //
-  //   Promise.all([getIsCompleteTodayQuiz,getIsGiveUpTodayQuiz, getReviewQuizDataList, getTodayQuizAnswerList, getTodayQuizBallState]).then((result) => {
-  //     let isCompleteTodayQuiz = result[0];
-  //     let isGiveUpTodayQuiz = result[1];
-  //     const reviewQuizDataList = result[2];
-  //     const todayQuizAnswerList = result[3];
-  //     const todayQuizBallState = result[4];
-  //
-  //     // 문제를 한번도 풀지 않았거나, 다음날이 되었을때
-  //     if(isCompleteTodayQuiz === null && isGiveUpTodayQuiz === null) {
-  //       this.setState({
-  //         isCompleteTodayQuiz: false,
-  //         isGiveUpTodayQuiz: false,
-  //         reviewQuizData: reviewQuizDataList,
-  //       })
-  //     }
-  //
-  //     // 오늘의 퀴즈를 모두 풀었거나, 오늘의 퀴즈를 포기한 경우
-  //     // 퀴즈를 푼 이후 => 결과창, 타이머, 내가 푼 성경 복습
-  //     else if(isCompleteTodayQuiz === true || isGiveUpTodayQuiz === true) {
-  //       this.setState({
-  //         isCompleteTodayQuiz: isCompleteTodayQuiz,
-  //         isGiveUpTodayQuiz: isGiveUpTodayQuiz,
-  //         reviewQuizData: reviewQuizDataList,
-  //         currentQuizBallState: todayQuizBallState,
-  //       })
-  //     }
-  //
-  //     // 오늘의 퀴즈를 오늘 풀지 않은 유저의 경우.
-  //     // 퀴즈를 아직 풀기 전 => 퀴즈 시작 버튼, 이전 문제에 대한 복습.
-  //     else if(isCompleteTodayQuiz === false && isGiveUpTodayQuiz === false) {
-  //       this.setState({
-  //         isCompleteTodayQuiz: false,
-  //         isGiveUpTodayQuiz: false,
-  //         reviewQuizData: reviewQuizDataList,
-  //       })
-  //     }
-  //   });
-  // };
-
+  /**
+   * 다른 스크린으로 이동시키는 함수.
+   */
   moveToScreen = (screenName) => () => {
     this.props.navigation.navigate(screenName);
   };
@@ -213,7 +144,6 @@ export default class QuizScreen extends Component {
   /**
    * 현재 시간으로부터 다음날 정각 0시 0분까지의 초를 반환하여 해당 초에 대한 Text를 state에 저장하는 함수. (컴포넌트 아님)
    */
-
   CountDownQuizTimer = (dt) => {
     const end = new Date(dt);
     const second = 1000;
@@ -234,7 +164,7 @@ export default class QuizScreen extends Component {
         clearInterval(timer);
         // 종류 문구 선언
         // 이곳에 다음 퀴즈를 푸는 버튼을 만들어준다. 해당버튼을 눌렀을시 오늘의 퀴즈(다음날)로 이동한다.
-
+        this.initialQuizState();
         return;
       }
 
@@ -287,10 +217,10 @@ export default class QuizScreen extends Component {
     // 복습퀴즈 데이터가 있으면 복습퀴즈와 링크, 바로가기를 보여준다.
     else if ( reviewQuizData.length > 0 ) {
       return (
-        <View>
-          <View style={{ borderBottomWidth: 1, paddingBottom: 20, alignItems: 'flex-end', paddingRight: 16, borderBottomColor: '#CCCCCC'}}>
+        <ScrollView>
+          <View style={{ borderBottomWidth: 1,marginTop: 10, paddingBottom: 15, alignItems: 'flex-end', paddingRight: 16, borderBottomColor: '#CCCCCC'}}>
             <TouchableOpacity onPress={this.moveToScreen('TodayQuizScreen')}>
-              <Text style={{fontSize: 18}}>건너뛰기</Text>
+              <Text style={{fontSize: 16}}>건너뛰기</Text>
             </TouchableOpacity>
           </View>
 
@@ -298,7 +228,7 @@ export default class QuizScreen extends Component {
           {
             reviewQuizData.map((item, index) => {
               return (
-                <ReviewQuizItem index={index + 1} quizVerse={item.quizVerse} quizWord={item.quizWord} quizSentence={item.quizSentence}/>
+                <ReviewQuizItem key={index + item.quizWord} index={index + 1} quizVerse={item.quizVerse} quizWord={item.quizWord} quizSentence={item.quizSentence}/>
               )
             })
           }
@@ -308,7 +238,7 @@ export default class QuizScreen extends Component {
           <TouchableOpacity style={styles.quizButton} onPress={this.moveToScreen('TodayQuizScreen')}>
             <Text style={styles.quizButtonText}>오늘의 세례문답 시작!</Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       )
     }
   };
@@ -377,9 +307,9 @@ export default class QuizScreen extends Component {
     // 오늘의 퀴즈를 풀지 않았을때의 화면
     else {
       return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
           {this.ReviewQuizAndTodayQuizLink()}
-        </View>
+        </SafeAreaView>
       )
     }
 

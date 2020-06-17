@@ -14,10 +14,10 @@ function MainScreenNavigator () {
   return (
     <Stack.Navigator initialRouteName = "OptionMainScreen">
       <Stack.Screen name="OptionMainScreen" options={{ headerShown: false}} component={OptionMainScreen}/>
-      <Stack.Screen name="ProfileEditScreen" options={{title: '프로필 수정', headerTitleAlign: 'center'}} component={ProfileEditScreen}/>
-      <Stack.Screen name="AppVersionScreen" options={{title: '앱 버전', headerTitleAlign: 'center'}} component={AppVersionScreen}/>
-      <Stack.Screen name="NoticeScreen" options={{title: '공지사항', headerTitleAlign: 'center'}} component={NoticeScreen}/>
-      <Stack.Screen name="CopyrightScreen" options={{title: '저작권', headerTitleAlign: 'center'}} component={CopyrightScreen}/>
+      <Stack.Screen name="ProfileEditScreen" options={{title: '프로필 수정', headerTitleAlign: 'center', headerBackTitle: '',}} component={ProfileEditScreen}/>
+      <Stack.Screen name="AppVersionScreen" options={{title: '앱 버전', headerTitleAlign: 'center', headerBackTitle: '',}} component={AppVersionScreen}/>
+      <Stack.Screen name="NoticeScreen" options={{title: '공지사항', headerTitleAlign: 'center', headerBackTitle: '',}} component={NoticeScreen}/>
+      <Stack.Screen name="CopyrightScreen" options={{title: '저작권', headerTitleAlign: 'center', headerBackTitle: '',}} component={CopyrightScreen}/>
       <Stack.Screen name="PrivacyScreen" component={PrivacyScreenNavigator} />
     </Stack.Navigator>
   )

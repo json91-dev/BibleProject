@@ -733,6 +733,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     paddingBottom: 15,
     backgroundColor: 'white',
+
   },
 
   titleText: {

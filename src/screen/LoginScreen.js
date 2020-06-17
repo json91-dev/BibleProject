@@ -20,7 +20,7 @@ export default class LoginScreen extends Component {
   };
 
   goToMainBible = () => {
-    this.props.navigation.navigate('Main');
+    this.props.navigation.replace('Main');
   };
 
   /**
