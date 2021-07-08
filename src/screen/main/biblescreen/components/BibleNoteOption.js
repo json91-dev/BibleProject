@@ -117,7 +117,7 @@ export default class BibleNoteOption extends Component {
         <FlatList
           style={styles.flatList}
           data={noteItems}
-          keyExtractor={item => item.id}
+          keyExtractor={(item, index) => item.toString() + index.toString()}
           ref={(ref) => {
             this.flatListRef = ref;
           }}

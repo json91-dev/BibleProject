@@ -8,18 +8,8 @@
 
 import React, {Component} from 'react';
 import {
-  Platform,
   StyleSheet,
-  Text,
-  View,
-  Image,
-  TextInput,
 } from 'react-native';
-
-const instructions = Platform.select({
-  ios: 'IOS 입니다.',
-  android: 'android 입니다.!',
-});
 
 type Props = {};
 

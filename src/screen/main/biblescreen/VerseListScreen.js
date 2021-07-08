@@ -676,7 +676,7 @@ export default class VerseListScreen extends Component {
         style={styles.flatList}
         contentContainerStyle={{alignItems: 'center'}}
         data={this.state.verseItems}
-        keyExtractor={item => item.id}
+        keyExtractor={(item, index) => index.toString()}
         ref={(ref) => {this.flatListRef = ref;}}
         renderItem={VerseItemContainer}
       />

@@ -43,7 +43,6 @@ const MainBottomTabNavigator = function() {
           const iconPath = setBottomIconImagePath(route.name, focused);
           // You can return any component that you like here!
           return <Image style={{width: 25, height: 25}} source={iconPath}/>;
-
         },
       })}
     >
