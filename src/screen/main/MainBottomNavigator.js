@@ -33,8 +33,7 @@ const setBottomIconImagePath = (navName, focused) => {
   return imagePath[key];
 };
 
-
-const MainBottomTabNavigator = function() {
+const MainBottomTabNavigator = () => {
   return (
     <Tab.Navigator
       initialRouteName="BibleScreen"

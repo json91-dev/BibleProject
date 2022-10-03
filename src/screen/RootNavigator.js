@@ -3,10 +3,9 @@ import LoginScreen from './LoginScreen';
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 const Stack = createStackNavigator();
-
 import  MainBottomTabNavigator  from './main/MainBottomNavigator';
 
-function App() {
+const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName = "Login">

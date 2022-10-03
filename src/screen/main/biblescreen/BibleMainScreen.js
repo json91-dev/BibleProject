@@ -291,7 +291,6 @@ export default class BibleMainScreen extends Component {
     )
   };
 
-
   // 검색 결과를 보여주는 화면
   SearchWordListView = () => {
     const {isOpenSearchWordListView, searchWordItems} = this.state;
@@ -396,6 +395,7 @@ export default class BibleMainScreen extends Component {
     }
   };
 
+  // 검색 이후 결과를 보여주는 View
   SearchResultView = () => {
     const {isOpenSearchResultView} = this.state;
 
