@@ -375,7 +375,6 @@ export default class BibleMainScreen extends Component {
         this.setState({
           isOpenLatelyReadBibleView: false,
         })
-
     };
 
     if (this.state.isOpenLatelyReadBibleView) {

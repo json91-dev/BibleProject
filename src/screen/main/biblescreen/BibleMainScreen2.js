@@ -10,6 +10,9 @@ import {
 // import Toast from 'react-native-easy-toast';
 import { getDateStringByFormat, getFireStore } from '../../../utils';
 import MainBibleView from '../../../components/biblemain/MainBibleView';
+import { printIsNewOrOldBibleByBookCode, getOldBibleItems, getNewBibleItems, getSqliteDatabase, getBibleType } from '/utils';
+import {StackActions} from '@react-navigation/native';
+import LatelyReadBibleView from '../../../components/biblemain/LatelyReadBibleView';
 
 const BibleMainScreen = (props) => {
   const [isOpenSearchMode, setIsOpenSearchMode] = useState(false)
@@ -27,10 +30,40 @@ const BibleMainScreen = (props) => {
   const [verseSentence, setVerseSentence] = useState('너는 하나님과 화목하고 평안하라, 그리하면 복이 네게 임하리라.')
   const [verseString, setVerseString] = useState('요한복음 1장 27절')
 
+  /** 구약, 신약 성경 '장' 페이지로 이동하는 Link **/
   const goToBookListScreen = useCallback((type) => {
     props.navigation.navigate('BookListScreen', {bibleType: type});
     setIsOpenLatelyReadBibleView(false)
   }, [isOpenLatelyReadBibleView]);
+
+  /** 최근 읽은 성경 가기 Link **/
+  const goToLatestReadScreen = useCallback((bookName, bookCode, chapterCode) => {
+    console.log(bookName, bookCode, chapterCode)
+
+    const navigation = props.navigation;
+
+    const bibleType = getBibleType(bookCode);
+
+    const pushBookList = StackActions.push('BookListScreen', {
+      bibleType
+    });
+    navigation.dispatch(pushBookList);
+
+    const pushChapterList = StackActions.push('ChapterListScreen', {
+      bookCode,
+      bookName,
+    });
+    navigation.dispatch(pushChapterList);
+
+    const pushVerseList = StackActions.push('VerseListScreen', {
+      bookCode,
+      bookName,
+      chapterCode,
+    });
+    navigation.dispatch(pushVerseList);
+
+    setIsOpenLatelyReadBibleView(false)
+  }, []);
 
 
   useEffect(() => {
@@ -73,12 +106,26 @@ const BibleMainScreen = (props) => {
       {/* 성경 검색 TextInput에 focus에 따라 View를 다르게 보여줌. */}
 
       <View style={styles.contentContainer}>
-        <MainBibleView
-          goToBookListScreen={goToBookListScreen}
-          visible={!isOpenSearchMode}
-          verseSentence={verseSentence}
-          verseString={verseString}
-        />
+        {
+          !isOpenSearchMode && (
+            <MainBibleView
+              goToBookListScreen={goToBookListScreen}
+              visible={!isOpenSearchMode}
+              verseSentence={verseSentence}
+              verseString={verseString}
+            />
+          )
+        }
+
+        {
+          isOpenLatelyReadBibleView && (
+            <LatelyReadBibleView
+              goToLatestReadScreen={goToLatestReadScreen}
+              latelyReadItem={latelyReadItem}
+            />
+          )
+        }
+
       </View>
 
       {/*<Toast ref="toast"*/}
