@@ -1,25 +1,34 @@
 import React from 'react'
 import {Image, StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
 
-const SearchHeaderView = () => {
+const SearchHeaderView = (props) => {
+  const {
+    onFocusSearchHeaderViewText,
+    searchHeaderViewTextOnChange,
+    searchHeaderViewCancelPress,
+    searchHeaderViewSearchPress,
+    searchTextEditable,
+    searchTextPlaceHolder,
+    textInputRef
+  } = props
+
   return (
     <View style={styles.searchView}>
-      <TouchableOpacity style={styles.searchIcon} onPress={onSearchPress}>
+      <TouchableOpacity style={styles.searchIcon} onPress={searchHeaderViewSearchPress}>
         <Image style={styles.searchIconImage} source={require('assets/ic_search.png')}/>
       </TouchableOpacity>
       <View style={styles.searchViewInput}>
         <TextInput
-          editable={this.state.searchTextEditable}
+          editable={searchTextEditable}
           style={styles.searchTextInput}
-          placeholder={this.state.searchTextPlaceHolder}
-          onFocus = {onFocus}
-          onBlur = {onBlur}
-          onChangeText = {(value) => onChangeText(value)}
-          ref="textInputRef"
+          placeholder={searchTextPlaceHolder}
+          onFocus = {onFocusSearchHeaderViewText}
+          onChangeText = {(value) => searchHeaderViewTextOnChange(value)}
+          ref={textInputRef}
         >
         </TextInput>
       </View>
-      <TouchableOpacity style={styles.searchCancel} onPress={onCancelPress}>
+      <TouchableOpacity style={styles.searchCancel} onPress={searchHeaderViewCancelPress}>
         <Image style={styles.searchCancelImage} source={require('assets/ic_close.png')}/>
       </TouchableOpacity>
 

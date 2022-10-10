@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {getItemFromAsync, setItemToAsync} from '/utils'
 import {
-
   StyleSheet,
   View,
   SafeAreaView,

@@ -1,4 +1,4 @@
-import React, {Component, useCallback, useEffect, useState} from 'react';
+import React, {Component, useCallback, useEffect, useRef, useState} from 'react';
 import {getItemFromAsync, setItemToAsync} from '/utils'
 import {
   StyleSheet,
@@ -7,12 +7,13 @@ import {
 
 } from 'react-native';
 
-// import Toast from 'react-native-easy-toast';
+import Toast from 'react-native-easy-toast';
 import { getDateStringByFormat, getFireStore } from '../../../utils';
 import MainBibleView from '../../../components/biblemain/MainBibleView';
 import { printIsNewOrOldBibleByBookCode, getOldBibleItems, getNewBibleItems, getSqliteDatabase, getBibleType } from '/utils';
 import {StackActions} from '@react-navigation/native';
 import LatelyReadBibleView from '../../../components/biblemain/LatelyReadBibleView';
+import SearchHeaderView from '../../../components/biblemain/SearchHeaderView';
 
 const BibleMainScreen = (props) => {
   const [isOpenSearchMode, setIsOpenSearchMode] = useState(false)
@@ -29,6 +30,8 @@ const BibleMainScreen = (props) => {
   const [latelyReadItem, setLatelyReadItem] = useState({})
   const [verseSentence, setVerseSentence] = useState('너는 하나님과 화목하고 평안하라, 그리하면 복이 네게 임하리라.')
   const [verseString, setVerseString] = useState('요한복음 1장 27절')
+  const textInputRef = useRef(null)
+  const toastRef = useRef(null)
 
   /** 구약, 신약 성경 '장' 페이지로 이동하는 Link **/
   const goToBookListScreen = useCallback((type) => {
@@ -65,6 +68,114 @@ const BibleMainScreen = (props) => {
     setIsOpenLatelyReadBibleView(false)
   }, []);
 
+  /** 상단 Search Text Focus **/
+  const searchHeaderViewTextFocus = useCallback(() => {
+    setIsOpenSearchMode(true)
+    setIsOpenSearchWordListView(true)
+    setIsOpenLatelyReadBibleView(false)
+  }, []);
+
+  /** 상단 Search Text Change **/
+  const searchHeaderViewTextOnChange = useCallback((text) => {
+    setSearchText(text)
+  }, [searchText]);
+
+  /** 상단 Search 취소 버튼 클릭 **/
+  const searchHeaderViewCancelPress = useCallback(() => {
+    textInputRef.current.blur();
+    textInputRef.current.clear();
+
+    setIsOpenSearchMode(false)
+    setIsOpenSearchWordListView(false)
+    setIsOpenCurrentWordView(false)
+    setIsOpenSearchResultView(false)
+    setCurrentWordText('')
+    setSearchTextPlaceHolder("다시 일고 싶은 말씀이 있나요?")
+    setSearchTextEditable(true)
+    setSearchText('')
+  }, []);
+
+  /** 상단 Search 검색 버튼 클릭 **/
+  const searchHeaderViewSearchPress = useCallback(() => {
+    if(searchText.length !== 0 ) {
+      searchWordAndShowResult(searchText);
+    }
+  }, [searchText]);
+
+  /**
+   *  왼쪽 상단 검색버튼 눌렀을때의 동작 로직.
+   *  0. text가 2개 이상일때만 검색 수행
+   *  1. AsyncStorage에 현재 textInput의 값 저장.
+   *  2. 현재 검색 단어(searchWordList) 가 6개 이상일경우 1개의 아이템을 제거함.
+   *  3. 현재 입력 단어(currentWordView)를 열어서 현재 검색한 단어를 화면에 보여줌.
+   *  4. 현재 검색 단어(searchWordList)를 화면에서 없애고, 검색 결과 성경(searchResultView)에 대한 쿼리 진행
+   */
+  const searchWordAndShowResult = (searchTextValue) => {
+    textInputRef.current.blur();
+    textInputRef.current.clear();
+
+    if(searchTextValue.length < 2) {
+      toastRef.current.show('2자 이상으로 검색어를 입력해주세요 :)');
+      return;
+    }
+
+    /** pushSearchTextToSearchWordList **/
+    getItemFromAsync('searchWordList').then((items) => {
+      let searchWordItems = items;
+      if (searchWordItems === null)
+        searchWordItems = [];
+
+      searchWordItems.push(searchTextValue);
+      const currentWordText = searchTextValue;
+
+      // 5개가 넘어가면 searchWordItems(검색어 목록)에서 아이템 1개 삭제.
+      if (searchWordItems.length > 5) {
+        searchWordItems.shift();
+      }
+      setItemToAsync('searchWordList', searchWordItems).then(() => {
+        setSearchWordItems(searchWordItems)
+        setSearchText('')
+        setCurrentWordText(currentWordText)
+        setSearchTextEditable(false)
+      });
+    });
+
+
+    /** getSearchResult **/
+    getSqliteDatabase().transaction((tx) => {
+      const query = `SELECT book, chapter, verse, content from bible_korHRV WHERE content LIKE '%${searchTextValue}%' `;
+      tx.executeSql(query, [], (tx, results) => {
+        const searchResultItems = [];
+        for (let i = 0; i < results.rows.length ; i++) {
+          const bookCode = results.rows.item(i).book;
+          const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
+          const bibleItems = (bibleName === '구약') ? getOldBibleItems() : getNewBibleItems();
+          const bookName = bibleItems.find((item, index) => {
+            return (item.bookCode === bookCode)
+          }).bookName;
+          const chapterCode = results.rows.item(i).chapter;
+          const verseCode = results.rows.item(i).verse;
+          const content = results.rows.item(i).content;
+
+          searchResultItems.push({
+            bibleName,
+            bookName,
+            bookCode,
+            chapterCode,
+            verseCode,
+            content,
+          })
+        }
+
+        setIsOpenSearchWordListView(false)
+        setIsOpenSearchResultView(true)
+        setSearchResultItems(searchResultItems)
+      })
+    });
+
+    setIsOpenCurrentWordView(true)
+    setSearchTextPlaceHolder("")
+  };
 
   useEffect(() => {
     (async () => {
@@ -106,6 +217,16 @@ const BibleMainScreen = (props) => {
       {/* 성경 검색 TextInput에 focus에 따라 View를 다르게 보여줌. */}
 
       <View style={styles.contentContainer}>
+        <SearchHeaderView
+          searchHeaderViewTextFocus={searchHeaderViewTextFocus}
+          searchHeaderViewTextOnChange={searchHeaderViewTextOnChange}
+          searchHeaderViewCancelPress={searchHeaderViewCancelPress}
+          searchHeaderViewSearchPress={searchHeaderViewSearchPress}
+          searchTextEditable={searchTextEditable}
+          searchTextPlaceHolder={searchTextPlaceHolder}
+          textInputRef={textInputRef}
+        />
+
         {
           !isOpenSearchMode && (
             <MainBibleView
@@ -125,14 +246,13 @@ const BibleMainScreen = (props) => {
             />
           )
         }
-
       </View>
 
-      {/*<Toast ref="toast"*/}
-      {/*       positionValue={130}*/}
-      {/*       fadeInDuration={200}*/}
-      {/*       fadeOutDuration={1000}*/}
-      {/*/>*/}
+      <Toast ref={toastRef}
+             positionValue={130}
+             fadeInDuration={200}
+             fadeOutDuration={1000}
+      />
     </SafeAreaView>
   )
 }
