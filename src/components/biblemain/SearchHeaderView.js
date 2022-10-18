@@ -3,7 +3,8 @@ import {Image, StyleSheet, TextInput, TouchableOpacity, View} from 'react-native
 
 const SearchHeaderView = (props) => {
   const {
-    onFocusSearchHeaderViewText,
+    searchHeaderViewTextFocus,
+    searchHeaderViewTextBlur,
     searchHeaderViewTextOnChange,
     searchHeaderViewCancelPress,
     searchHeaderViewSearchPress,
@@ -22,7 +23,8 @@ const SearchHeaderView = (props) => {
           editable={searchTextEditable}
           style={styles.searchTextInput}
           placeholder={searchTextPlaceHolder}
-          onFocus = {onFocusSearchHeaderViewText}
+          onFocus = {searchHeaderViewTextFocus}
+          onBlur = {searchHeaderViewTextBlur}
           onChangeText = {(value) => searchHeaderViewTextOnChange(value)}
           ref={textInputRef}
         >
@@ -40,12 +42,7 @@ const SearchHeaderView = (props) => {
 export default SearchHeaderView;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    height: '100%',
-    justifyContent: 'flex-start',
-  },
+
 
   contentContainer: {
     flex: 1,
@@ -71,6 +68,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: 60,
+    position: 'absolute',
+    top: 0,
   },
 
   searchIcon: {

@@ -14,6 +14,7 @@ import { printIsNewOrOldBibleByBookCode, getOldBibleItems, getNewBibleItems, get
 import {StackActions} from '@react-navigation/native';
 import LatelyReadBibleView from '../../../components/biblemain/LatelyReadBibleView';
 import SearchHeaderView from '../../../components/biblemain/SearchHeaderView';
+import SearchResultView from '../../../components/biblemain/SearchResultView';
 
 const BibleMainScreen = (props) => {
   const [isOpenSearchMode, setIsOpenSearchMode] = useState(false)
@@ -75,6 +76,10 @@ const BibleMainScreen = (props) => {
     setIsOpenLatelyReadBibleView(false)
   }, []);
 
+  const searchHeaderViewTextBlur = useCallback(() => {
+    console.log('111')
+  }, []);
+
   /** 상단 Search Text Change **/
   const searchHeaderViewTextOnChange = useCallback((text) => {
     setSearchText(text)
@@ -110,7 +115,7 @@ const BibleMainScreen = (props) => {
    *  3. 현재 입력 단어(currentWordView)를 열어서 현재 검색한 단어를 화면에 보여줌.
    *  4. 현재 검색 단어(searchWordList)를 화면에서 없애고, 검색 결과 성경(searchResultView)에 대한 쿼리 진행
    */
-  const searchWordAndShowResult = (searchTextValue) => {
+  const searchWordAndShowResult = useCallback((searchTextValue) => {
     textInputRef.current.blur();
     textInputRef.current.clear();
 
@@ -175,7 +180,19 @@ const BibleMainScreen = (props) => {
 
     setIsOpenCurrentWordView(true)
     setSearchTextPlaceHolder("")
-  };
+    setIsOpenSearchMode(true)
+  }, []);
+
+  const moveToBibleChapter = useCallback((item)  => {
+    const {bookCode, bookName, chapterCode, VerseCode} = item;
+
+    const pushVerseList = StackActions.push('VerseListScreen', {
+      bookCode,
+      bookName,
+      chapterCode,
+    });
+    props.navigation.dispatch(pushVerseList);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -211,6 +228,8 @@ const BibleMainScreen = (props) => {
     })()
   }, [])
 
+  console.log(isOpenSearchMode)
+
   return (
     <SafeAreaView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}>
       {/*{this.SearchHeaderView()}*/}
@@ -225,13 +244,13 @@ const BibleMainScreen = (props) => {
           searchTextEditable={searchTextEditable}
           searchTextPlaceHolder={searchTextPlaceHolder}
           textInputRef={textInputRef}
+          searchHeaderViewTextBlur={searchHeaderViewTextBlur}
         />
 
         {
           !isOpenSearchMode && (
             <MainBibleView
               goToBookListScreen={goToBookListScreen}
-              visible={!isOpenSearchMode}
               verseSentence={verseSentence}
               verseString={verseString}
             />
@@ -239,13 +258,24 @@ const BibleMainScreen = (props) => {
         }
 
         {
-          isOpenLatelyReadBibleView && (
+          (isOpenLatelyReadBibleView && !isOpenSearchMode) && (
             <LatelyReadBibleView
               goToLatestReadScreen={goToLatestReadScreen}
               latelyReadItem={latelyReadItem}
             />
           )
         }
+
+        {
+          isOpenSearchResultView && (
+            <SearchResultView
+              searchResultItems={searchResultItems}
+              moveToBibleChapter={moveToBibleChapter}
+            />
+          )
+        }
+
+
       </View>
 
       <Toast ref={toastRef}
@@ -273,226 +303,4 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
   },
-
-  searchViewInput: {
-    width: '70%',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-  },
-
-  searchTextInput: {
-    borderColor:'red',
-    height:'100%',
-    width: '100%',
-  },
-
-  searchView: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
-    height: 60,
-  },
-
-  searchIcon: {
-    width: '15%',
-    height: '100%',
-    position:'absolute',
-    left: 1,
-  },
-  searchIconImage: {
-    height:'100%',
-    width: '100%',
-    resizeMode: 'contain',
-  },
-
-  searchCancel: {
-    width: '15%',
-    height: '100%',
-    position:'absolute',
-    right: 1,
-  },
-
-  searchCancelImage: {
-    height:'100%',
-    width: '100%',
-    resizeMode: 'contain'
-  },
-
-  searchViewBottom: {
-    width: '80%',
-    height: 10,
-    position:'absolute',
-    top: 52,
-    left: 0,
-  },
-
-  mainView: {
-    height: '82%',
-    marginBottom: '6%',
-  },
-
-  todayImage: {
-    marginTop: '3%',
-    marginLeft: 36,
-    aspectRatio: 2,
-    height:'10%',
-    resizeMode:'contain',
-  },
-
-  todayWord: {
-    paddingLeft: 36,
-    paddingRight: 36,
-    marginTop: '5%',
-    fontSize: 18,
-  },
-
-  todayWordDetail: {
-    textAlign: 'right',
-    paddingTop: 34,
-    paddingRight: 36,
-    color: '#828282',
-  },
-
-  linkLabel: {
-    paddingLeft: 36,
-    marginTop: '10%',
-    marginBottom: '6%',
-  },
-
-  bibleLink: {
-    marginBottom: 20,
-    height: '20%',
-    width: '100%',
-
-  },
-
-  bibleLinkImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-
-  searchWord: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'column',
-    paddingBottom: '3%',
-  },
-
-  searchWordTitle: {
-    marginBottom: '5%',
-    color: '#BDBDBD',
-  },
-
-  searchWordItem: {
-    color: 'black',
-    fontSize: 24,
-    marginBottom: '2%',
-    fontWeight: 'bold',
-  },
-
-  currentWord: {
-    position: 'absolute',
-    top: 0,
-    width: '70%',
-    height: 50,
-    marginLeft: '15%',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-
-  currentWordText: {
-    fontSize: 17,
-  },
-
-  currentWordCancelImageWrapper: {
-    padding: 5,
-    marginLeft: 10,
-  },
-
-  currentWordCancelImage: {
-    resizeMode: 'contain',
-    width: 25,
-    height: 25,
-  },
-
-  searchResultView: {
-    height: '90%',
-    marginTop: 10,
-    paddingTop: 20,
-    paddingBottom: 15,
-  },
-
-  searchResultFlat: {
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
-
-  searchResultFlatItem: {
-    borderWidth: 1,
-    paddingTop: 16,
-    paddingBottom: 16,
-    marginBottom: 5,
-    paddingLeft: 13,
-    borderRadius: 6,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  searchResultFlatItemTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-
-  searchResultFlatItemContent: {
-
-  },
-
-  searchResultFlatItemImage: {
-    resizeMode: 'contain',
-    width: 10,
-    height: 30,
-    marginRight: 12,
-  },
-
-  latelyReadBibleView: {
-    position:'absolute',
-    width: '100%',
-    height: '10%',
-    bottom: 0,
-    borderWidth: 1,
-    backgroundColor: '#000000',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingLeft: '5%',
-    paddingRight: '3%',
-  },
-
-  latelyReadBibleViewInfo: {
-    flexDirection: 'column',
-    justifyContent: 'space-evenly'
-  },
-  latelyReadBibleViewInfoLabel: {
-    color: 'white',
-    fontSize: 12,
-  },
-
-  latelyReadBibleViewInfoText: {
-    color: 'white'
-  },
-
-  latelyReadBibleViewButton: {
-    color: '#F9DA4F',
-    paddingLeft: 10,
-    paddingBottom: 10,
-    paddingTop: 10,
-    paddingRight: 10,
-    borderWidth: 1,
-  }
 });

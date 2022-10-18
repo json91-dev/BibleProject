@@ -31,16 +31,10 @@ const MainBibleView = (props) => {
 export default MainBibleView;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    height: '100%',
-    justifyContent: 'flex-start',
-  },
-
   mainView: {
     height: '82%',
     marginBottom: '6%',
+    marginTop: 60,
   },
 
   todayImage: {

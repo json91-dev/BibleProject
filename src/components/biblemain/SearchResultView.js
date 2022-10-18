@@ -1,16 +1,18 @@
 import React from 'react'
 import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-const SearchResultView = () => {
+const SearchResultView = (props) => {
+  const {searchResultItems, moveToBibleChapter} = props
+
   return (
     <View style={styles.searchResultView}>
       <FlatList
         style={styles.searchResultFlat}
-        data={this.state.searchResultItems}
+        data={searchResultItems}
         keyExtractor={(item,index) => item + index}
         renderItem={({item, index}) => {
           return (
-            <TouchableOpacity style={styles.searchResultFlatItem} onPress={moveToBibleChapter(item)}>
+            <TouchableOpacity style={styles.searchResultFlatItem} onPress={() => moveToBibleChapter(item)}>
               <View style={{width: '90%'}}>
                 <Text style={styles.searchResultFlatItemTitle}>{item.bibleName}-{item.bookName} {item.chapterCode}장 {item.verseCode}절</Text>
                 <Text style={styles.searchResultFlatItemContent}>{item.content}</Text>
