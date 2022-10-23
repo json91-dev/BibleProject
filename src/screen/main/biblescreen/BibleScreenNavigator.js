@@ -3,8 +3,8 @@
 import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 
+// import BibleMainScreenOld from './BibleMainScreenOld'
 import BibleMainScreen from './BibleMainScreen'
-import BibleMainScreen2 from './BibleMainScreen2'
 import BookListScreen from './BookListScreen';
 import ChapterListScreen from './ChapterListScreen';
 import VerseListScreen from './VerseListScreen';
@@ -72,7 +72,7 @@ function BibleScreenNavigator ({navigation, route}) {
   }
   return (
     <Stack.Navigator screenOptions={DefaultScreenOption} initialRouteName = "BibleMainScreen">
-      <Stack.Screen name="BibleMainScreen" options={{ headerShown: false, }}  component={BibleMainScreen2}/>
+      <Stack.Screen name="BibleMainScreen" options={{ headerShown: false, }}  component={BibleMainScreen}/>
       <Stack.Screen name="BookListScreen" options={BookListScreenOption} component={BookListScreen}/>
       <Stack.Screen name="ChapterListScreen" options={ChapterListScreenOption} component={ChapterListScreen} />
       <Stack.Screen name="VerseListScreen" options={VerseListScreenOption} component={VerseListScreen} />
