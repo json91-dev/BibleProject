@@ -50,9 +50,11 @@ export const uuidv4 = () => {
 
 // 아무값도 들어있지 않으면 빈 배열을 반환합니다.
 export const getItemFromAsync = (arrayName) => {
-  if(arrayName === null || arrayName === undefined)
-    return null;
   return new Promise((resolve, reject) => {
+    if(arrayName === null || arrayName === undefined) {
+      resolve(null);
+    }
+
     AsyncStorage.getItem(arrayName, (err, result) => {
       if(err) { reject(err); }
       if(result === null) { resolve(null) }
@@ -133,6 +135,51 @@ let bibleDB = SQLite.openDatabase({name : "BibleDB.db", createFromLocation : 1},
 export const getSqliteDatabase = () => {
   console.log(bibleDB);
   return bibleDB
+};
+
+// sqlite 데이터베이스에서 성경의 정보를 가져와서 verseItems을 만들어서 다음 Promise chain으로 전달하는 메서드
+export const getBibleVerseItems = (bookName, bookCode, chapterCode) => {
+  return new Promise((resolve, reject) => {
+    bibleDB.transaction((tx) => {
+      // 성경의 절과 내용을 모두 가져오는 쿼리를 선언
+      // subQuery를 통해 현재 아이템의 최대 chapterCode를 가져온다.
+      const query = `SELECT verse, content, (SELECT max(chapter) From bible_korHRV where book = ${bookCode}) as maxChapter FROM bible_korHRV where book = ${bookCode} and chapter = ${chapterCode}`;
+      tx.executeSql(query, [],
+        (tx, results) => {
+          let verseItemsLength = results.rows.length;
+          const verseItems = [];
+
+          for (let i = 0; i < verseItemsLength; i++) {
+            const content = results.rows.item(i).content;
+            const verseCode = results.rows.item(i).verse;
+            const maxChapterCode = results.rows.item(i).maxChapter;
+            verseItems.push(
+              {
+                bookName,
+                bookCode,
+                chapterCode,
+                content,
+                verseCode,
+                maxChapterCode
+              });
+
+            // 마지막 성경 이동 버튼을 위해 현재 verseItems의 마지막행에 하나의 목록을 더 추가한다.
+            if (i === (verseItemsLength -1)) {
+              verseItems.push({
+                isButton: true,
+                bookName,
+                bookCode,
+                chapterCode,
+                maxChapterCode,
+                content,
+                verseCode
+              });
+            }
+          }
+          resolve(verseItems);
+        })
+    })
+  })
 };
 
 // Firebase를 얻기 위해 SingleTon 사용.

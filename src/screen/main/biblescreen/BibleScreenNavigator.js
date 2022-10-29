@@ -7,7 +7,7 @@ import React from 'react';
 import BibleMainScreen from './BibleMainScreen'
 import BookListScreen from './BookListScreen';
 import ChapterListScreen from './ChapterListScreen';
-import VerseListScreen from './VerseListScreen';
+import VerseListScreen from './VerseListScreenOld';
 import {TouchableOpacity, Image} from 'react-native';
 
 const Stack = createStackNavigator();
