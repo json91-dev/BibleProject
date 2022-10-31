@@ -13,6 +13,7 @@ import {
 
 import Toast, { DURATION } from 'react-native-easy-toast';
 import {getBibleVerseItems, getItemFromAsync, printIsNewOrOldBibleByBookCode, setItemToAsync} from '../../../utils';
+import CommandModal from '../../../components/verselist/CommandModal';
 
 
 
@@ -142,6 +143,8 @@ const VerseListScreen = () => {
     })()
   }, [])
 
+
+  /** 구 setModalVisible **/
   const actionModalCommand = useCallback(async (modalAction) => {
     const {bookName, bookCode, chapterCode, verseCode, content, isHighlight} = modalBibleItem;
     switch (modalAction) {
@@ -184,9 +187,40 @@ const VerseListScreen = () => {
     }
   }, [])
 
+  const openBibleListOptionModal = useCallback(() => {
+    setModalVisible(false);
+    setOptionComponentState('bibleList')
+    setBibleListOptionIconUri(require('assets/ic_option_list_on.png'))
+    setBibleNoteOptionIconUri(require('assets/ic_option_note_off.png'))
+    setFontChangeOptionIconUri(require('assets/ic_option_font_off.png'))
+  }, []);
+
+  const openBibleNoteOptionModal = useCallback(() => {
+    setModalVisible(false);
+    setOptionComponentState('bibleNote')
+    setBibleListOptionIconUri(require('assets/ic_option_list_off.png'))
+    setBibleNoteOptionIconUri(require('assets/ic_option_note_on.png'))
+    setFontChangeOptionIconUri(require('assets/ic_option_font_off.png'))
+  }, [modalVisible]);
+
+  const openFontChangeOptionModal = useCallback(() => {
+    setModalVisible(false);
+    setOptionComponentState('fontChange')
+    setBibleListOptionIconUri(require('assets/ic_option_list_off.png'))
+    setBibleNoteOptionIconUri(require('assets/ic_option_note_off.png'))
+    setFontChangeOptionIconUri(require('assets/ic_option_font_on.png'))
+
+  }, [])
+
   return (
     <View style={styles.container}>
-      {this.LongClickModal()}
+      <CommandModal
+        modelBibleItem={modalBibleItem}
+        setModalVisible={setModalVisible}
+        actionModalCommand={actionModalCommand}
+        openBibleNoteOptionModal={openBibleNoteOptionModal}
+      />
+
       {this.MemoModal()}
       {this.VerseFlatList()}
 
@@ -272,32 +306,6 @@ const styles = StyleSheet.create({
     height: 19,
     resizeMode: 'contain',
     borderColor: 'red',
-  },
-
-
-  copyButton: {
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
-  },
-
-  highlightButton: {
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
-  },
-
-  highlightButtonChecked: {
-    backgroundColor: '#F9DA4F',
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
   },
 
   memoButton: {
