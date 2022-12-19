@@ -3,7 +3,7 @@ import {Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from 
 import {getItemFromAsync, setItemToAsync, uuidv4} from '../../utils';
 
 const MemoModal = (props) => {
-  const {modalBibleItem, setMemoModalSaveButtonActive, setMemoModalVisible} = props;
+  const {memoModalVisible, modalBibleItem, setMemoModalSaveButtonActive, setMemoModalVisible, memoModalSaveButtonActive} = props;
   const {bookName, bookCode, chapterCode, verseCode, content} = modalBibleItem;
   let memo = useRef('');
 
@@ -12,7 +12,7 @@ const MemoModal = (props) => {
       setMemoModalSaveButtonActive(false)
     }
     // setState가 반복적으로 호출되는것을 막기 위해 memoModalSaveButtonActive 설정.
-    else if (!this.state.memoModalSaveButtonActive && text.length >= 1) {
+    else if (!memoModalSaveButtonActive && text.length >= 1) {
       setMemoModalSaveButtonActive(true)
     }
     memo = text;
@@ -34,13 +34,13 @@ const MemoModal = (props) => {
     <Modal
       style={styles.modal}
       transparent={true}
-      visible={this.state.memoModalVisible}>
+      visible={memoModalVisible}>
       <View style={styles.memoModalContainer}>
         <View style={styles.memoModalView}>
           <View style={styles.memoModalHeader}>
             <TouchableOpacity style={styles.memoModalHeaderSave}>
               {
-                this.state.memoModalSaveButtonActive
+                memoModalSaveButtonActive
                   ? <Text style={styles.memoModalHeaderSaveTextActive} onPress={onPressSaveButton}>저장</Text>
                   : <Text style={styles.memoModalHeaderSaveText}>저장</Text>
               }

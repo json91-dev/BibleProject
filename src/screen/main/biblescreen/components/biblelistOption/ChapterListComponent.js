@@ -25,7 +25,8 @@ export default class ChapterListComponent extends Component {
   componentDidMount() {
     const {bookName, bookCode} = this.props;
     // 성경의 장을 모두 가져오는 쿼리를 수행.
-    let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
+    console.log(bookName, bookCode);
+    let bibleDB = SQLite.openDatabase({name : "BibleDB.db", createFromLocation : 1}, okCallback, errorCallback);
     bibleDB.transaction((tx) => {
       const query = `SELECT max(chapter) as count FROM bible_korHRV where book = ${bookCode}`;
       tx.executeSql(query, [], (tx, results) => {

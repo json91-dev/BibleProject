@@ -22,7 +22,7 @@ export default class VerseListComponent extends Component {
 
   componentDidMount() {
     const {bookName, bookCode, chapterCode}  = this.props;
-    let bibleDB = SQLite.openDatabase({name : "bible.db", createFromLocation : 1}, okCallback, errorCallback);
+    let bibleDB = SQLite.openDatabase({name : "BibleDB.db", createFromLocation : 1}, okCallback, errorCallback);
     bibleDB.transaction((tx) => {
       //성경의 절과 내용을 모두 가져오는 쿼리를 선언
       const query = `SELECT verse, content FROM bible_korHRV where book = ${bookCode} and chapter = ${chapterCode}`;

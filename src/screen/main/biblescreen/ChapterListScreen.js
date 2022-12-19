@@ -1,4 +1,4 @@
-import React, {Component, useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -20,7 +20,6 @@ const ChapterListScreen = (props) => {
     // 성경의 장을 모두 가져오는 쿼리를 수행.
     getSqliteDatabase().transaction((tx) => {
       const query = `SELECT max(chapter) as count FROM bible_korHRV where book = ${bookCode}`;
-      console.log(query);
       tx.executeSql(query, [], (tx, results) => {
         let chapterItemsLength = results.rows.item(0).count;
         const chapterItems = [];
@@ -38,7 +37,7 @@ const ChapterListScreen = (props) => {
         setChapterItems(chapterItems)
       })
     })
-  })
+  }, [])
 
   const goToChapterListScreen = useCallback((bookInfo) => {
     navigation.navigate('VerseListScreen',

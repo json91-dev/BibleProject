@@ -1,12 +1,9 @@
-import React, {Component, useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   View,
   Text,
-  FlatList,
   TouchableOpacity,
-  Modal,
-  TextInput,
   Image,
   Clipboard,
 } from 'react-native';
@@ -14,20 +11,24 @@ import {
 import Toast, { DURATION } from 'react-native-easy-toast';
 import {getBibleVerseItems, getItemFromAsync, printIsNewOrOldBibleByBookCode, setItemToAsync} from '../../../utils';
 import CommandModal from '../../../components/verselist/CommandModal';
+import BibleListOption from './components/biblelistOption/BibleListOption';
+import BibleNoteOption from './components/BibleNoteOption';
+import FontChangeOption from './components/FontChangeOption';
+import {StackActions} from '@react-navigation/native';
+import MemoModal from '../../../components/verselist/MemoModal';
+import VerseFlatList from '../../../components/verselist/VerseFlatList/VerseFlatList';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
-
-
-const VerseListScreen = () => {
+const VerseListScreen = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(true)
   const [verseItems, setVerseItems] = useState([])
-  const [modalVisible, setModalVisible] = useState(false)
+  const [commandModalVisible, setCommandModalVisible] = useState(false)
   const [memoModalVisible, setMemoModalVisible] = useState(false)
   const [memoModalSaveButtonActive, setMemoModalSaveButtonActive] = useState(false)
   const [bibleListOptionIconUri, setBibleListOptionIconUri] = useState(require('assets/ic_option_list_off.png'));
   const [bibleNoteOptionIconUri, setBibleNoteOptionIconUri] = useState(require('assets/ic_option_list_off.png'));
   const [fontChangeOptionIconUri, setFontChangeOptionIconUri] = useState(require('assets/ic_option_list_off.png'));
   const [optionComponentState, setOptionComponentState] = useState('')
-  const [changeVerse, setChangeVerse] = useState(false)
   const [bibleType, setBibleType] = useState(0)
   const [modalBibleItem, setModalBibleItem] = useState({})
   const [verseItemFontSize, setVerseItemFontSize] = useState(14)
@@ -139,14 +140,12 @@ const VerseListScreen = () => {
       setVerseItems(verseItems);
       setBibleType(bibleType);
       setIsLoading(false);
-
     })()
   }, [])
 
-
   /** 구 setModalVisible **/
-  const actionModalCommand = useCallback(async (modalAction) => {
-    const {bookName, bookCode, chapterCode, verseCode, content, isHighlight} = modalBibleItem;
+  const actionCommandModal = useCallback(async (modalAction) => {
+    const {bookCode, chapterCode, verseCode, content, isHighlight} = modalBibleItem;
     switch (modalAction) {
       case 'copy': {
         Clipboard.setString(content);
@@ -176,7 +175,7 @@ const VerseListScreen = () => {
           await setItemToAsync('highlightList', highlightItems)
           toastRef.current.show('형광펜으로 밑줄 ^^');
         }
-        this.componentDidMount();
+        // this.componentDidMount();
         break;
       }
       case 'memo': {
@@ -187,67 +186,126 @@ const VerseListScreen = () => {
     }
   }, [])
 
+  /** 하단 3개의 옵션 버튼중 성경 목록 보기 열기 **/
   const openBibleListOptionModal = useCallback(() => {
-    setModalVisible(false);
+    setCommandModalVisible(false);
     setOptionComponentState('bibleList')
     setBibleListOptionIconUri(require('assets/ic_option_list_on.png'))
     setBibleNoteOptionIconUri(require('assets/ic_option_note_off.png'))
     setFontChangeOptionIconUri(require('assets/ic_option_font_off.png'))
-  }, []);
+  }, [commandModalVisible, optionComponentState]);
 
+  /** 하단 3개의 옵션 버튼중 성경 노트 열기 **/
   const openBibleNoteOptionModal = useCallback(() => {
-    setModalVisible(false);
+    setCommandModalVisible(false);
     setOptionComponentState('bibleNote')
     setBibleListOptionIconUri(require('assets/ic_option_list_off.png'))
     setBibleNoteOptionIconUri(require('assets/ic_option_note_on.png'))
     setFontChangeOptionIconUri(require('assets/ic_option_font_off.png'))
-  }, [modalVisible]);
+  }, [commandModalVisible, optionComponentState]);
 
+  /** 하단 3개의 옵션 버튼중 폰트 열기 **/
   const openFontChangeOptionModal = useCallback(() => {
-    setModalVisible(false);
+    setCommandModalVisible(false);
     setOptionComponentState('fontChange')
     setBibleListOptionIconUri(require('assets/ic_option_list_off.png'))
     setBibleNoteOptionIconUri(require('assets/ic_option_note_off.png'))
     setFontChangeOptionIconUri(require('assets/ic_option_font_on.png'))
+  }, [commandModalVisible, optionComponentState])
 
-  }, [])
+  // closeFooterOption (old)
+  /** 하단 3개의 옵션 버튼 모두 닫기 **/
+  const closeAllOptionModal = useCallback(() => {
+    setOptionComponentState('default')
+    setBibleListOptionIconUri(require('assets/ic_option_list_off.png'))
+    setBibleNoteOptionIconUri(require('assets/ic_option_note_off.png'))
+    setFontChangeOptionIconUri(require('assets/ic_option_font_off.png'))
+    // this.componentDidMount()
+  })
 
-  return (
-    <View style={styles.container}>
-      <CommandModal
-        modelBibleItem={modalBibleItem}
-        setModalVisible={setModalVisible}
-        actionModalCommand={actionModalCommand}
-        openBibleNoteOptionModal={openBibleNoteOptionModal}
-      />
+  const changeScreenNavigation = (bookName, bookCode, chapterCode, verseCode) => () => {
+    const popAction = StackActions.pop(2);
+    navigation.dispatch(popAction);
 
-      {this.MemoModal()}
-      {this.VerseFlatList()}
+    const pushChapterList = StackActions.push('ChapterListScreen', {
+      bookCode,
+      bookName,
+    });
+    navigation.dispatch(pushChapterList);
 
-      {/* 하단 목차, 성경노트, 보기설정에 대한 footer option */}
-      <View keyboardVerticalOffset={10} contentContainerStyle={{borderColor: 'red'}} style={styles.footerOptionContainer}>
-        <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.switchFooterOptionButtonIconAndState('bibleList')}>
-          <Image style={styles.footerOptionIcon} source={this.state.bibleListOptionIconUri} />
-          <Text>목차</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.switchFooterOptionButtonIconAndState('bibleNote')}>
-          <Image style={styles.footerOptionIcon} source={this.state.bibleNoteOptionIconUri} />
-          <Text>성경노트</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerOptionContainerItem} onPress={this.switchFooterOptionButtonIconAndState('fontChange')}>
-          <Image style={styles.footerOptionIcon} source={this.state.fontChangeOptionIconUri} />
-          <Text>보기설정</Text>
-        </TouchableOpacity>
+    const pushVerseList = StackActions.push('VerseListScreen', {
+      bookCode,
+      bookName,
+      chapterCode,
+    });
+    navigation.dispatch(pushVerseList);
+  };
+
+  // 성경의 아이템을 길게 눌렀을때 모달 화면을 보여주는 메서드.
+  // 복사, 형광펜, 메모 기능을 위해 해당 값을 전달받는다.
+  const onLongPressButton = (verseItem) => {
+    setModalBibleItem(verseItem)
+    setCommandModalVisible(true)
+  };
+
+  if (isLoading) {
+    return (
+      <LoadingSpinner/>
+    )
+  } else {
+    return (
+      <View style={styles.container}>
+        <CommandModal
+          modelBibleItem={modalBibleItem}
+          setCommandModalVisible={setCommandModalVisible}
+          actionCommandModal={actionCommandModal}
+          openBibleNoteOptionModal={openBibleNoteOptionModal}
+        />
+
+        <MemoModal
+          modalBibleItem={modalBibleItem}
+          memoModalVisible={memoModalVisible}
+          setMemoModalSaveButtonActive={setMemoModalSaveButtonActive}
+          setMemoModalVisible={setMemoModalVisible}
+          memoModalSaveButtonActive={memoModalSaveButtonActive}
+        />
+
+        <VerseFlatList
+          navigation={navigation}
+          verseItems={verseItems}
+          verseItemFontSize={verseItemFontSize}
+          verseItemFontFamily={verseItemFontFamily}
+          onLongPressButton={onLongPressButton}
+        />
+
+        {/* 하단 목차, 성경노트, 보기설정에 대한 footer option */}
+        <View keyboardVerticalOffset={10} contentContainerStyle={{borderColor: 'red'}} style={styles.footerOptionContainer}>
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={openBibleListOptionModal}>
+            <Image style={styles.footerOptionIcon} source={bibleListOptionIconUri} />
+            <Text>목차</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={openBibleNoteOptionModal}>
+            <Image style={styles.footerOptionIcon} source={bibleNoteOptionIconUri} />
+            <Text>성경노트</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerOptionContainerItem} onPress={openFontChangeOptionModal}>
+            <Image style={styles.footerOptionIcon} source={fontChangeOptionIconUri} />
+            <Text>보기설정</Text>
+          </TouchableOpacity>
+        </View>
+
+        {optionComponentState === 'bibleList' && <BibleListOption changeScreenHandler={changeScreenNavigation}  bibleType={bibleType} closeHandler={closeAllOptionModal}/>}
+        {optionComponentState === 'bibleNote' && <BibleNoteOption toastRef={toastRef} closeHandler={closeAllOptionModal}/>}
+        {optionComponentState === 'fontChange' && <FontChangeOption changeFontSizeHandler={setVerseItemFontSize} changeFontFamilyHandler={setVerseItemFontFamily} closeHandler={closeAllOptionModal}/>}
+
+        <Toast ref={toastRef}
+               positionValue={130}
+               fadeInDuration={200}
+               fadeOutDuration={1000}
+        />
       </View>
-
-      {this.showOptionComponent()}
-      <Toast ref={toastRef}
-             positionValue={130}
-             fadeInDuration={200}
-             fadeOutDuration={1000}
-      />
-    </View>
-  )
+    )
+  }
 }
 
 
@@ -307,6 +365,92 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     borderColor: 'red',
   },
+  /* 모달 뷰 */
+  modal: {
+    borderWidth: 1,
+    borderColor: 'red',
+  },
+
+  modalContainer: {
+    // backgroundColor: 'rgba(0,0,0,0.5)',
+    width: '100%',
+    height: '100%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  modalView: {
+    width: 250,
+    height: 200,
+    borderWidth: 1,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+
+  modalHeader: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginTop: 10
+  },
+
+  modalViewItems: {
+    width: '90%',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginTop: 25
+  },
+
+  modalItemText: {
+    color: 'black',
+    fontSize: 15,
+    textAlign: 'center',
+  },
+
+  modalItemImage: {
+    width: 40,
+    height: 30,
+    resizeMode: 'contain',
+  },
+
+  modalCancel: {
+    width: '100%',
+    height: 50,
+    marginTop: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F4F4F4',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+
+  copyButton: {
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  highlightButton: {
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  highlightButtonChecked: {
+    backgroundColor: '#F9DA4F',
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
 
   memoButton: {
     paddingLeft: 11,
@@ -325,6 +469,95 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
 
+  /* 메모 모달 뷰 */
+
+  memoModalContainer: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    width: '100%',
+    height: '100%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  memoModalView: {
+    width: '80%',
+    borderWidth: 1,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+
+  memoModalHeader: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginTop: 10,
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '90%',
+  },
+
+  memoModalHeaderSave: {},
+
+  memoModalHeaderSaveText: {
+    fontSize: 16,
+    color: '#E0E0E0'
+  },
+
+  memoModalHeaderSaveTextActive: {
+    fontSize: 16,
+    color: '#2F80ED'
+  },
+
+  memoModalHeaderText: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    marginRight: 1,
+  },
+
+  memoModalHeaderCancel: {},
+
+  memoModalHeaderCancelText: {
+    fontSize: 20,
+  },
+
+  memoModalHeaderCancelImage: {
+    width: 25,
+    height: 25,
+  },
+
+  memoModalBible: {
+    width:'100%',
+    backgroundColor: '#F3F4F9',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    justifyContent: 'space-evenly',
+    flexDirection: 'column',
+  },
+
+  memoModalBibleVerse: {
+    marginTop: '5%',
+    marginLeft: '5%',
+    marginRight: '5%',
+    fontWeight: 'bold',
+  },
+
+  memoModalBibleContent: {
+    marginTop: '5%',
+    marginLeft: '5%',
+    marginRight: '5%',
+    marginBottom: '5%'
+  },
+
+  memoModalTextInput: {
+    width: '100%',
+    height: 100,
+    textAlignVertical: 'top',
+    padding: '5%'
+  },
 
 
   /* 푸터 옵션 */
@@ -379,3 +612,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+

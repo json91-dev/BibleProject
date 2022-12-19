@@ -1,8 +1,14 @@
 import React from 'react';
 import {Image, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-const CommandModal = (props) => {
-  const { modalBibleItem, setModalVisible, actionModalCommand, openBibleNoteOptionModal } = modalBibleItem;
+/**
+ * LongClick 시에 중앙에 있는 (복사, 형광펜, 메모)의 전체 모달 화면
+ * @param props
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const CommandModal = () => {
+  const { modalBibleItem, setCommandModalVisible, actionCommandModal, openBibleNoteOptionModal } = modalBibleItem;
   const { isHighlight, isMemo } = modalBibleItem
 
   return (
@@ -11,7 +17,7 @@ const CommandModal = (props) => {
       transparent={true}
       visible={this.state.modalVisible}
       onRequestClose={() => {
-        this.setModalVisible(false);
+        setCommandModalVisible(false)
       }}>
       <View style={styles.modalContainer}>
         <View style={styles.modalView}>
@@ -21,7 +27,8 @@ const CommandModal = (props) => {
             <TouchableOpacity
               style={styles.copyButton}
               onPress={() => {
-                this.setModalVisible(false, 'copy');
+                setCommandModalVisible(false)
+                actionCommandModal('copy')
               }}>
               <Image style={[styles.modalItemImage, {marginRight: 2}]} source={require('/assets/ic_copy.png')}/>
               <Text style={styles.modalItemText}>복사</Text>
@@ -32,7 +39,8 @@ const CommandModal = (props) => {
               <TouchableOpacity
                 style={styles.highlightButtonChecked}
                 onPress={() => {
-                  this.setModalVisible(false, 'highlight');
+                  setCommandModalVisible(false)
+                  actionCommandModal('highlight')
                 }}>
                 <Image style={styles.modalItemImage} source={require('/assets/ic_color_pen.png')}/>
                 <Text style={styles.modalItemText}>형광펜</Text>
@@ -41,7 +49,8 @@ const CommandModal = (props) => {
               <TouchableOpacity
                 style={styles.highlightButton}
                 onPress={() => {
-                  this.setModalVisible(false, 'highlight');
+                  setCommandModalVisible(false)
+                  actionCommandModal('highlight')
                 }}>
                 <Image style={styles.modalItemImage} source={require('/assets/ic_color_pen.png')}/>
                 <Text style={styles.modalItemText}>형광펜</Text>
@@ -60,8 +69,8 @@ const CommandModal = (props) => {
               <TouchableOpacity
                 style={styles.memoButton}
                 onPress={() => {
-                  setModalVisible(false)
-                  actionModalCommand('memo')
+                  setCommandModalVisible(false)
+                  actionCommandModal('memo')
                 }}>
                 <Image style={[styles.modalItemImage, {marginLeft: 3}]} source={require('/assets/ic_memo.png')}/>
                 <Text style={styles.modalItemText}>메모</Text>
@@ -71,7 +80,7 @@ const CommandModal = (props) => {
           <TouchableOpacity
             style={styles.modalCancel}
             onPress={() => {
-              this.setModalVisible(false);
+              setCommandModalVisible(false)
             }}>
             <Text style={styles.modalItemText}>취소</Text>
           </TouchableOpacity>
