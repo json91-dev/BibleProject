@@ -19,7 +19,7 @@ import MemoModal from '../../../components/verselist/MemoModal';
 import VerseFlatList from '../../../components/verselist/VerseFlatList/VerseFlatList';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
-const VerseListScreen = ({navigation}) => {
+const VerseListScreen = ({navigation, route}) => {
   const [isLoading, setIsLoading] = useState(true)
   const [verseItems, setVerseItems] = useState([])
   const [commandModalVisible, setCommandModalVisible] = useState(false)
@@ -37,7 +37,7 @@ const VerseListScreen = ({navigation}) => {
 
   useEffect(() => {
     (async () => {
-      const { route } = this.props;
+      // const { route } = this.props;
       const { bookName, bookCode, chapterCode }  = route.params;
 
       /** 1. 최근 읽은 성경 주소 저장 **/
@@ -123,7 +123,11 @@ const VerseListScreen = ({navigation}) => {
         const index = highlightsItems.findIndex((highlightItem) => {
           return ((highlightItem.bookCode === verse.bookCode) && (highlightItem.chapterCode === verse.chapterCode) && (highlightItem.verseCode === verse.verseCode))
         })
-        (index > -1) ? verse.isHighlight = true : verse.isHighlight = false;
+        if (index > -1) {
+          verse.isHighlight = true
+        } else {
+          verse.isHighlight = false;
+        };
       })
 
 
@@ -134,7 +138,11 @@ const VerseListScreen = ({navigation}) => {
         const index = memoListItems.findIndex((memoItem) => {
           return ((memoItem.bookCode === verse.bookCode) && (memoItem.chapterCode === verse.chapterCode) && (memoItem.verseCode === verse.verseCode))
         });
-        (index > -1) ? verse.isMemo = true : verse.isMemo = false;
+        if (index > -1) {
+          verse.isMemo = true
+        } else {
+          verse.isMemo = false;
+        }
       });
 
       setVerseItems(verseItems);
@@ -256,8 +264,9 @@ const VerseListScreen = ({navigation}) => {
     return (
       <View style={styles.container}>
         <CommandModal
-          modelBibleItem={modalBibleItem}
+          modalBibleItem={modalBibleItem}
           setCommandModalVisible={setCommandModalVisible}
+          commandModalVisible={commandModalVisible}
           actionCommandModal={actionCommandModal}
           openBibleNoteOptionModal={openBibleNoteOptionModal}
         />
@@ -307,6 +316,8 @@ const VerseListScreen = ({navigation}) => {
     )
   }
 }
+
+export default VerseListScreen
 
 
 const styles = StyleSheet.create({

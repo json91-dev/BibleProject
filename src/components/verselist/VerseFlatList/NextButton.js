@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 
 // 마지막 장일경우에는 이전장 보기 버튼만 출력
-const NextButton = () => {
+const NextButton = ({moveChapter, chapterCode, item, maxChapterCode}) => {
   if (chapterCode < maxChapterCode) {
     return (
       <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode + 1)}>

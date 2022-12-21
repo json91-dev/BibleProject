@@ -1,8 +1,7 @@
 import React from 'react'
 import {Image, StyleSheet, View} from 'react-native';
 
-const memoIndicator = ({item}) => {
-  const { verseItemFontSize } = this.state;
+const memoIndicator = ({item, verseItemFontSize}) => {
   // indicator 이미지의 위치를 폰트 사이즈에 따라 상대적으로 마진값 조절.
   const indicatorMarginTop = (verseItemFontSize - 14) / 2;
 

@@ -7,23 +7,23 @@ import {Image, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-nati
  * @returns {JSX.Element}
  * @constructor
  */
-const CommandModal = () => {
-  const { modalBibleItem, setCommandModalVisible, actionCommandModal, openBibleNoteOptionModal } = modalBibleItem;
+const CommandModal = ({modalBibleItem, setCommandModalVisible, openBibleNoteOptionModal, actionCommandModal, commandModalVisible}) => {
+
   const { isHighlight, isMemo } = modalBibleItem
 
   return (
     <Modal
       style={styles.modal}
       transparent={true}
-      visible={this.state.modalVisible}
+      visible={commandModalVisible}
       onRequestClose={() => {
         setCommandModalVisible(false)
       }}>
       <View style={styles.modalContainer}>
         <View style={styles.modalView}>
-          <Text style={styles.modalHeader}>{this.state.modalBibleItem.bookName} {this.state.modalBibleItem.chapterCode}장 {this.state.modalBibleItem.verseCode}절</Text>
+          <Text style={styles.modalHeader}>{modalBibleItem.bookName} {modalBibleItem.chapterCode}장 {modalBibleItem.verseCode}절</Text>
           <View style={styles.modalViewItems}>
-            <!-- Copy 버튼 -->
+            {/*Copy 버튼*/}
             <TouchableOpacity
               style={styles.copyButton}
               onPress={() => {
@@ -34,7 +34,7 @@ const CommandModal = () => {
               <Text style={styles.modalItemText}>복사</Text>
             </TouchableOpacity>
 
-            <!-- Highlight 버튼 -->
+            {/*Highlight 버튼*/}
             {isHighlight ? (
               <TouchableOpacity
                 style={styles.highlightButtonChecked}
@@ -57,7 +57,7 @@ const CommandModal = () => {
               </TouchableOpacity>
             )}
 
-            <!-- 메모 버튼 -->
+            {/*메모 버튼*/}
             {isMemo ? (
               <TouchableOpacity
                 style={styles.memoButtonChecked}

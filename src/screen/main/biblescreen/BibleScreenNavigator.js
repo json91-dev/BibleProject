@@ -7,7 +7,7 @@ import React from 'react';
 import BibleMainScreen from './BibleMainScreen'
 import BookListScreen from './BookListScreen';
 import ChapterListScreen from './ChapterListScreen';
-import VerseListScreen from './VerseListScreenOld';
+import VerseListScreen from './VerseListScreen';
 
 const Stack = createStackNavigator();
 let stackIndex = 0;
