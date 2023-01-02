@@ -56,7 +56,6 @@ export default class FontChangeOption extends Component {
   // 3: 기린체 applemyungjo-regular.ttf
  FontFamilyButtonComponent = () => {
      const onChangeFontFamily = (option) => () => {
-       console.log(this.props);
        const { changeFontFamilyHandler } = this.props;
 
        switch(option) {
@@ -179,7 +178,6 @@ export default class FontChangeOption extends Component {
     // 폰트변경 버튼이 눌렸을시 폰트사이즈를 바꿔줍니다.
     // 부모 컴포넌트인 VerseListScreen으로 부터 changeFontHandler를 넘겨받아 바뀔 폰트 사이즈를 전달.
     const onChangeFontSize = (option) => () => {
-      console.log(this.props);
       const { changeFontSizeHandler } = this.props;
 
       switch(option) {

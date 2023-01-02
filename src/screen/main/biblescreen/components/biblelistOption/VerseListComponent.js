@@ -5,11 +5,9 @@ import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
   console.log('DB connection fail');
-  // console.log(e.message);
 };
 const okCallback = (result) => {
   console.log('DB connection success');
-  // console.log(result);
 };
 
 export default class VerseListComponent extends Component {

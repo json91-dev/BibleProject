@@ -265,7 +265,6 @@ export default class VerseListScreen extends Component {
 
             items.splice(itemIndex, 1);
             setItemToAsync('highlightList', items).then((result) => {
-              console.log(result);
               this.refs.toast.show('형광펜 밑줄 제거 ^^');
             })
           });
@@ -274,7 +273,6 @@ export default class VerseListScreen extends Component {
             if (items === null) items = [];
             items.push({bookCode, chapterCode, verseCode});
             setItemToAsync('highlightList', items).then((result) => {
-              console.log(result);
               this.refs.toast.show('형광펜으로 밑줄 ^^');
             })
           });
@@ -307,7 +305,6 @@ export default class VerseListScreen extends Component {
 
   // 하단 3개의 옵션 버튼 클릭시 아이콘을 바꿔주고 해당 옵션에 대한 컴포넌트를 렌더링 하기 위한 state를 바꿔줌.
   switchFooterOptionButtonIconAndState = (optionType) => () => {
-    console.log(optionType);
     switch (optionType) {
       case 'bibleList':
         this.setState({

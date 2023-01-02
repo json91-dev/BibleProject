@@ -14,7 +14,6 @@ export default class BookListComponent extends Component {
     const oldBibleItems = getOldBibleItems();
     const newBibleItems = getNewBibleItems();
 
-    console.log(this.props.bibleType);
     const item = (this.props.bibleType === 0)? oldBibleItems : newBibleItems ;
     const activeItemColor = '#F9DA4F';
     return (

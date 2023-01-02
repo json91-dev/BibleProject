@@ -5,7 +5,7 @@ import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 const NextButton = ({moveChapter, chapterCode, item, maxChapterCode}) => {
   if (chapterCode < maxChapterCode) {
     return (
-      <TouchableOpacity style={styles.moveChapterBtn} onPress={moveChapter(item, item.chapterCode + 1)}>
+      <TouchableOpacity style={styles.moveChapterBtn} onPress={() => moveChapter(item, item.chapterCode + 1)}>
         <Text style={styles.moveChapterText}>다음장 보기</Text>
       </TouchableOpacity>
     )

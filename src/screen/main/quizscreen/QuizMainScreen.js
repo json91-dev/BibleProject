@@ -79,8 +79,6 @@ export default class QuizScreen extends Component {
     if (quizDate !== null) {
       const nowDate = parseInt(getDateStringByFormat(new Date(), 'yyyyMMdd'));
 
-      console.log(nowDate);
-      console.log(quizDate);
       /**
        *퀴즈를 푼 날짜보다 지난 날짜가 되면, 퀴즈 상태를 갱신.
        * quizData는 complete나 giveup시 갱신된다.

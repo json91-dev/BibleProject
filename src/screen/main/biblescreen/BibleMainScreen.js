@@ -42,12 +42,8 @@ const BibleMainScreen = (props) => {
 
   /** 최근 읽은 성경 가기 Link **/
   const goToLatestReadScreen = useCallback((bookName, bookCode, chapterCode) => {
-    console.log(bookName, bookCode, chapterCode)
-
     const navigation = props.navigation;
-
     const bibleType = getBibleType(bookCode);
-
     const pushBookList = StackActions.push('BookListScreen', {
       bibleType
     });
@@ -77,7 +73,6 @@ const BibleMainScreen = (props) => {
   }, []);
 
   const searchHeaderViewTextBlur = useCallback(() => {
-    console.log('111')
   }, []);
 
   /** 상단 Search Text Change **/
@@ -218,7 +213,6 @@ const BibleMainScreen = (props) => {
       /** 서버에서 오늘의 성경을 가져와 화면에 출력. **/
       const todayDateString = getDateStringByFormat(new Date(), 'yyyy-MM-dd');
       const todayVerseDocument = await getFireStore().collection('todayVerse').doc(todayDateString).get();
-      console.log(todayVerseDocument)
       // todayVerseDocument.data();
       const verseSentence = todayVerseDocument.data().sentence;
       const verseString = todayVerseDocument.data().verse;
@@ -227,8 +221,6 @@ const BibleMainScreen = (props) => {
       setVerseString(verseString)
     })()
   }, [])
-
-  console.log(isOpenSearchMode)
 
   return (
     <SafeAreaView style={styles.container} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}>

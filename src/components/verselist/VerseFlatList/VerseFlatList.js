@@ -11,6 +11,7 @@ const VerseFlatList = (props) => {
 
   /** 하단(이전,다음) 버튼에 대한 이벤트 처리 메서드 **/
   const moveChapter = useCallback((item, index) => {
+    console.log(item, index)
     const popAction = StackActions.pop(1);
     navigation.dispatch(popAction);
     const pushChapterList = StackActions.push('VerseListScreen', {
@@ -27,7 +28,7 @@ const VerseFlatList = (props) => {
 
     return (
       <View>
-        {index < verseItems.length -1 && (
+        {index < verseItems.length -1 ? (
           <TouchableOpacity style={styles.flatList}  onLongPress={() => onLongPressButton(item)}>
             <View style={styles.flatListVerseItem}>
               <MemoIndicator item={item} verseItemFontSize={verseItemFontSize}/>
@@ -35,26 +36,24 @@ const VerseFlatList = (props) => {
               <HighlightText item={item} verseItemFontSize={verseItemFontSize} verseItemFontFamily={verseItemFontFamily}/>
             </View>
           </TouchableOpacity>
-        )}
-
-
-        {index >= verseItems.length -1 && chapterCode > 1 && (
+        ) : (
           <View style={styles.moveChapter}>
-            <PrevButton
-              moveChapter={moveChapter}
-              chapterCode={chapterCode}
-              item={item}/>
-          </View>
-        )}
+            {index >= verseItems.length -1 && chapterCode > 1 && (
+              <PrevButton
+                moveChapter={moveChapter}
+                chapterCode={chapterCode}
+                item={item}/>
 
-        {index >= verseItems.length -1 && chapterCode < maxChapterCode && (
-          <View style={styles.moveChapter}>
-            <NextButton
-              moveChapter={moveChapter}
-              chapterCode={chapterCode}
-              item={item}
-              maxChapterCode={maxChapterCode}
-            />
+            )}
+
+            {index >= verseItems.length -1 && chapterCode < maxChapterCode && (
+              <NextButton
+                moveChapter={moveChapter}
+                chapterCode={chapterCode}
+                item={item}
+                maxChapterCode={maxChapterCode}
+              />
+            )}
           </View>
         )}
       </View>

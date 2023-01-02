@@ -65,7 +65,6 @@ export default class TodayQuizScreen extends Component {
   render() {
     // 버튼이 포커스되면 searchView를 보여줌
     const onFocus = () => {
-      console.log('포커스');
       this.setState((prevState) => {
         return {
           isFocusTextInput: true
@@ -75,7 +74,6 @@ export default class TodayQuizScreen extends Component {
 
     // 버튼의 Focus가 풀렸을 시 동작함.
     const onBlur = () => {
-      console.log('Blur');
       this.setState((prevState) => {
         return {
           isFocusTextInput: false,
@@ -202,14 +200,9 @@ export default class TodayQuizScreen extends Component {
 
       // quizBallState => -1: 기본 , 0: 틀림, 1: 맞음
       for (page; page < maxPageCount; page ++) {
-        console.log(page);
         updateQuizBallState[page] = 0;
         updateQuizAnswerTextArray = [...updateQuizAnswerTextArray, "없음"];
       }
-
-      console.log(updateQuizAnswerTextArray);
-      console.log(updateQuizBallState);
-
 
       const setReviewQuizDataList =  setItemToAsync('reviewQuizDataList', quizData);
       const setIsCompleteTodayQuiz =  setItemToAsync('isCompleteTodayQuiz', false);
@@ -301,9 +294,6 @@ export default class TodayQuizScreen extends Component {
     const ConfirmCurrentQuizAnswer = () => {
       const { isOpenAnswer } = this.state;
       let { textInputText, checkAnswerText } = this.state;
-
-
-      // console.log(textInputText);
 
       // if (textInputText === '' || textInputText === ' '|| textInputText === '  ') {
       //   textInputText = '없음'

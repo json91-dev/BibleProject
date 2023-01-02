@@ -31,10 +31,6 @@ export default class ContentScreen extends Component {
       const month = zeroSet(date.getMonth() + 1);
       const day = zeroSet(date.getDate());
 
-      console.log(year);
-      console.log(month);
-      console.log(day);
-
       return `${year}.${month}.${day}`;
     };
 
@@ -93,7 +89,6 @@ export default class ContentScreen extends Component {
 
   render() {
     const { isLoading }= this.state;
-    // console.log('render');
     // return (
     //   <LoadingSpinner/>
     // )
@@ -103,7 +98,6 @@ export default class ContentScreen extends Component {
         <LoadingSpinner/>
       )
     } else {
-      console.log('accordian');
       return (
         <Accordion
           containerStyle={{backgroundColor: 'white', height: '100%'}}

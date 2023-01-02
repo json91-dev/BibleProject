@@ -26,8 +26,8 @@ const VerseListScreen = ({navigation, route}) => {
   const [memoModalVisible, setMemoModalVisible] = useState(false)
   const [memoModalSaveButtonActive, setMemoModalSaveButtonActive] = useState(false)
   const [bibleListOptionIconUri, setBibleListOptionIconUri] = useState(require('assets/ic_option_list_off.png'));
-  const [bibleNoteOptionIconUri, setBibleNoteOptionIconUri] = useState(require('assets/ic_option_list_off.png'));
-  const [fontChangeOptionIconUri, setFontChangeOptionIconUri] = useState(require('assets/ic_option_list_off.png'));
+  const [bibleNoteOptionIconUri, setBibleNoteOptionIconUri] = useState(require('assets/ic_option_note_off.png'));
+  const [fontChangeOptionIconUri, setFontChangeOptionIconUri] = useState(require('assets/ic_option_font_off.png'));
   const [optionComponentState, setOptionComponentState] = useState('')
   const [bibleType, setBibleType] = useState(0)
   const [modalBibleItem, setModalBibleItem] = useState({})

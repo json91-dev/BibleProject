@@ -23,7 +23,6 @@ export default class TodayQuizItem extends Component {
   shouldComponentUpdate(nextProps) {
     // isOpened가 달라졌을때에만 렌더링.
     if (this.props.isOpened !== nextProps.isOpened) {
-      console.log('shouldComponent 업데이트');
       return true
     }
 
@@ -46,7 +45,6 @@ export default class TodayQuizItem extends Component {
    */
   static getDerivedStateFromProps(nextProps, prevState) {
     if (prevState.isOpenAnswer !== nextProps.isOpened) {
-      console.log('getDerivedStateFromProps 업데이트');
       return {
         isOpenAnswer: nextProps.isOpened
       }
@@ -69,7 +67,6 @@ export default class TodayQuizItem extends Component {
     let resultTextArray = [];
     try{
       splitTextArray = quizSentence.split(quizWord);
-      console.log(splitTextArray)
       splitTextArray.map((item, index) => {
         if(index > 0 && index < splitTextArray.length)
         {

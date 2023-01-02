@@ -123,17 +123,14 @@ export const getNewBibleItems = () => {
 
 // SQLITE 성공/실패 예외처리
 const errorCallback = (e) => {
-  // console.log('DB connection fail');
-  // console.log(e.message);
+
 };
 const okCallback = (result) => {
-  // console.log('DB connection success');
-  // console.log(result);
+
 };
 
 let bibleDB = SQLite.openDatabase({name : "BibleDB.db", createFromLocation : 1}, okCallback, errorCallback);
 export const getSqliteDatabase = () => {
-  console.log(bibleDB);
   return bibleDB
 };
 

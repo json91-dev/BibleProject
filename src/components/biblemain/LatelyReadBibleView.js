@@ -4,7 +4,6 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 const LatelyReadBibleView = (props) => {
   const {goToLatestReadScreen, latelyReadItem} = props
   const {bibleName, bookName, bookCode, chapterCode} = latelyReadItem;
-  console.log(latelyReadItem)
 
   return (
     <View style={styles.latelyReadBibleView}>

@@ -57,7 +57,6 @@ export default class ContentScreen extends Component {
   }
 
   moveToScreen = (screenName) => () => {
-    console.log(screenName);
     this.props.navigation.navigate(screenName);
   };
 
