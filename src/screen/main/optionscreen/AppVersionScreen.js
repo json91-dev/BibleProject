@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Image,
-  View,
+  View, Text,
 } from 'react-native';
 
-export default class ContentScreen extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Image style={styles.appVersionImage} source={require('/assets/ic_bible_version.png')} />
-      </View>
-    )
-  }
+const ContentScreen = () => {
+  return (
+    <View style={styles.container}>
+      <Image style={styles.appVersionImage} source={require('/assets/ic_bible_version.png')} />
+    </View>
+  )
 }
+
+export default ContentScreen;
+
 
 const styles = StyleSheet.create({
   container: {

@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Accordion from 'react-native-collapsible/Accordion';
 
 import {
   StyleSheet,
-  Image,
   View,
   Text,
 } from 'react-native';
@@ -11,108 +10,93 @@ import {
 import {getFireStore} from '../../../utils'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
+const renderHeader = (section, index) => {
+  return (
+    <View style={styles.header}>
+      <Text style={styles.headerTextLabel}>{index + 1}. </Text>
+      <Text style={styles.headerText}>{section.title} </Text>
+      <View style={styles.headerDateContainer}>
+        <Text style={styles.headerDate}>{section.dateString}</Text>
+      </View>
+    </View>
+  )
+}
 
-export default class ContentScreen extends Component {
-  state = {
-    activeSections: [],
-    sectionDataArray: [],
-    isLoading: true,
-  };
+const renderContent = (section) => {
+  return (
+    <View style={styles.content}>
+      <Text>{section.content}</Text>
+    </View>
+  );
+}
 
-  readNotification(doc) {
-    const zeroSet = function (i) {
-      return (i < 10 ? '0' : '') + i
-    };
+const NoticeScreen = () => {
+  const [notificationDataArray, setNotificationDataArray] = useState([])
+  const [activeSections, setActiveSections] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-    const getDateString = (timestamp) => {
+  const zeroSet = useCallback((i) => {
+    return (i < 10 ? '0' : '') + i
+  }, []);
 
-      const date = timestamp.toDate();
-      const year = date.getFullYear();
-      const month = zeroSet(date.getMonth() + 1);
-      const day = zeroSet(date.getDate());
+  const getDateString = useCallback((timestamp) => {
+    const date = timestamp.toDate();
+    const year = date.getFullYear();
+    const month = zeroSet(date.getMonth() + 1);
+    const day = zeroSet(date.getDate());
 
-      return `${year}.${month}.${day}`;
-    };
+    return `${year}.${month}.${day}`;
+  }, [])
 
-    const dateString = getDateString(doc.data().timestamp);
+  const updateSections = useCallback((activeSections) => {
+    setActiveSections(activeSections)
+  }, [])
 
-    const sectionData = {
-      dateString: dateString,
-      title: doc.data().title,
-      content: doc.data().content,
-    };
+  const initNotification = useCallback(async () => {
+    const snapshot = await getFireStore().collection('notification').get()
+    const notificationDataArray = []
 
-    this.setState((prevState => {
-      return {
-        sectionDataArray: [...prevState.sectionDataArray, sectionData]
-      }
-    }))
-  }
+    snapshot.docs.forEach(doc => {
+      const timestamp = doc.data().timestamp
+      const dateString = getDateString(timestamp)
+      const title = doc.data().title
+      const content = doc.data().content
 
-  componentDidMount() {
-    // 서버로부터 데이터를 가져옵니다.
-    getFireStore().collection('notification').get().then((colSnapshot) => {
-      colSnapshot.docs.forEach(doc => {
-        this.readNotification(doc);
-      });
-
-      this.setState({
-        isLoading: false,
+      notificationDataArray.push({
+        dateString,
+        title,
+        content,
       })
-     }
+    })
+
+    setNotificationDataArray(notificationDataArray)
+    setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    initNotification().then()
+  }, [])
+
+  if(isLoading) {
+    return (
+      <LoadingSpinner/>
     )
-  }
-
-  _renderHeader = (section, index, isActive, sections) => {
+  } else {
     return (
-      <View style={styles.header}>
-        <Text style={styles.headerTextLabel}>{index + 1}. </Text>
-        <Text style={styles.headerText}>{section.title} </Text>
-        <View style={styles.headerDateContainer}>
-          <Text style={styles.headerDate}>{section.dateString}</Text>
-        </View>
-      </View>
+      <Accordion
+        containerStyle={{backgroundColor: 'white', height: '100%'}}
+        sections={notificationDataArray}
+        activeSections={activeSections}
+        renderHeader={renderHeader}
+        renderContent={renderContent}
+        onChange={updateSections}
+        underlayColor='yellow'
+      />
     );
-  };
-
-  _renderContent = (section, index, isActive, sections) => {
-    return (
-      <View style={styles.content}>
-        <Text>{section.content}</Text>
-      </View>
-    );
-  };
-
-  _updateSections = activeSections => {
-    this.setState({ activeSections });
-  };
-
-  render() {
-    const { isLoading }= this.state;
-    // return (
-    //   <LoadingSpinner/>
-    // )
-
-    if(isLoading) {
-      return (
-        <LoadingSpinner/>
-      )
-    } else {
-      return (
-        <Accordion
-          containerStyle={{backgroundColor: 'white', height: '100%'}}
-          sections={this.state.sectionDataArray}
-          activeSections={this.state.activeSections}
-          // renderSectionTitle={this._renderSectionTitle}
-          renderHeader={this._renderHeader}
-          renderContent={this._renderContent}
-          onChange={this._updateSections}
-          underlayColor='yellow'
-        />
-      );
-    }
   }
 }
+
+export default NoticeScreen;
 
 
 const styles = StyleSheet.create({

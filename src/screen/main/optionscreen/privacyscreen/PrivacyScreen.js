@@ -2,28 +2,19 @@ import React, { Component } from 'react';
 
 import {
   StyleSheet,
-  Image,
   View,
   Text,
 } from 'react-native';
 
-export default class PrivacyScreen extends Component {
-  state = {
-  };
-
-
-  componentDidMount() {
-
-  }
-
-  render() {
-    return (
-      <View>
-        <Text>My Name is Privacy</Text>
-      </View>
-    );
-  }
+const PrivacyScreen = () => {
+  return (
+    <View>
+      <Text>My Name is Privacy</Text>
+    </View>
+  )
 }
+
+export default PrivacyScreen;
 
 
 const styles = StyleSheet.create({

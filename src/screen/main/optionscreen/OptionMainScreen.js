@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import {
-
   StyleSheet,
   View,
   ScrollView,
   Text,
   Image,
-  Alert,
-  Button,
   TouchableOpacity,
   SafeAreaView
 

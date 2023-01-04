@@ -2,27 +2,20 @@ import React, { Component } from 'react';
 
 import {
   StyleSheet,
-  Image,
   View,
   Text,
 } from 'react-native';
 
-export default class TermScreen extends Component {
-  state = {
-  };
-
-  componentDidMount() {
-
-  }
-
-  render() {
-    return (
-      <View>
-        <Text>My Name is Privacy</Text>
-      </View>
-    );
-  }
+const TermScreen = () => {
+  return (
+    <View>
+      <Text>My Name is Privacy</Text>
+    </View>
+  )
 }
+
+export default TermScreen;
+
 
 
 const styles = StyleSheet.create({
