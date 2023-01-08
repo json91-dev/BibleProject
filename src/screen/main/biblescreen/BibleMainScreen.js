@@ -213,12 +213,15 @@ const BibleMainScreen = (props) => {
       /** 서버에서 오늘의 성경을 가져와 화면에 출력. **/
       const todayDateString = getDateStringByFormat(new Date(), 'yyyy-MM-dd');
       const todayVerseDocument = await getFireStore().collection('todayVerse').doc(todayDateString).get();
-      // todayVerseDocument.data();
-      const verseSentence = todayVerseDocument.data().sentence;
-      const verseString = todayVerseDocument.data().verse;
+      const todayVerseObject = todayVerseDocument.data();
 
-      setVerseSentence(verseSentence)
-      setVerseString(verseString)
+      if (todayVerseObject) {
+        const verseSentence = todayVerseDocument.data().sentence;
+        const verseString = todayVerseDocument.data().verse;
+
+        setVerseSentence(verseSentence)
+        setVerseString(verseString)
+      }
     })()
   }, [])
 
@@ -266,7 +269,6 @@ const BibleMainScreen = (props) => {
             />
           )
         }
-
 
       </View>
 
