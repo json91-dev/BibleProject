@@ -299,11 +299,10 @@ export default class FontChangeOption extends Component {
           </TouchableOpacity>
         </View>
         <Text style={styles.fontFamily}>글꼴</Text>
+        {this.FontFamilyButtonComponent()}
 
         <Text style={[styles.fontSize,{marginTop: 20}]}>글짜크기</Text>
         {this.FontSizeButtonComponent()}
-        {this.FontFamilyButtonComponent()}
-
       </View>
     )
   }

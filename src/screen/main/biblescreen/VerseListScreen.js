@@ -34,10 +34,11 @@ const VerseListScreen = ({navigation, route}) => {
   const [verseItemFontSize, setVerseItemFontSize] = useState(14)
   const [verseItemFontFamily, setVerseItemFontFamily] = useState('system font')
   const toastRef = useRef(null)
+  // const [,updateState] = useState()
+  // const forceUpdate = useCallback(() => updateState({}), [])
 
   useEffect(() => {
     (async () => {
-      // const { route } = this.props;
       const { bookName, bookCode, chapterCode }  = route.params;
 
       /** 1. 최근 읽은 성경 주소 저장 **/
@@ -108,7 +109,6 @@ const VerseListScreen = ({navigation, route}) => {
         }
       }
 
-
       const verseItems = await getBibleVerseItems(bookName, bookCode, chapterCode)
 
       /**
@@ -129,7 +129,6 @@ const VerseListScreen = ({navigation, route}) => {
           verse.isHighlight = false;
         };
       })
-
 
       /** VerseItem을 입력받아 memo 처리 **/
       let memoListItems = await getItemFromAsync('memoList')
@@ -177,13 +176,18 @@ const VerseListScreen = ({navigation, route}) => {
         else {
           let highlightItems = await getItemFromAsync('highlightList');
 
-          if (highlightItems === null) highlightItems = [];
+          if (highlightItems === null) {
+            highlightItems = [];
+          }
           highlightItems.push({bookCode, chapterCode, verseCode});
+          console.log(highlightItems)
 
           await setItemToAsync('highlightList', highlightItems)
           toastRef.current.show('형광펜으로 밑줄 ^^');
         }
         // this.componentDidMount();
+        // forceUpdate()
+
         break;
       }
       case 'memo': {
@@ -192,7 +196,7 @@ const VerseListScreen = ({navigation, route}) => {
         break;
       }
     }
-  }, [])
+  }, [modalBibleItem])
 
   /** 하단 3개의 옵션 버튼중 성경 목록 보기 열기 **/
   const openBibleListOptionModal = useCallback(() => {
@@ -251,10 +255,11 @@ const VerseListScreen = ({navigation, route}) => {
 
   // 성경의 아이템을 길게 눌렀을때 모달 화면을 보여주는 메서드.
   // 복사, 형광펜, 메모 기능을 위해 해당 값을 전달받는다.
-  const onLongPressButton = (verseItem) => {
+  const onLongPressButton = useCallback((verseItem) => {
+    console.log(verseItem)
     setModalBibleItem(verseItem)
     setCommandModalVisible(true)
-  };
+  }, []);
 
   if (isLoading) {
     return (

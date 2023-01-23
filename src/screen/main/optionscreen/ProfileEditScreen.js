@@ -56,8 +56,6 @@ const ProfileEditScreen = (props) => {
         const source = { uri: response.uri };
         // You can also display the image using data:
         // const source = { uri: 'data:image/jpeg;base64,' + response.data };
-        console.log('222')
-        console.log(source)
         setProfilePic(source);
         setIsImageAvailable(true)
       }
@@ -67,7 +65,6 @@ const ProfileEditScreen = (props) => {
   const completeProfileEdit = useCallback(async () => {
     try {
       if (profileNickText.length === 0) {
-        console.log("닉네임을 입력하지 않음.");
         toastRef.current.show("닉네임을 한글자 이상 입력해주세요 ^^");
         return null;
       }
@@ -75,7 +72,6 @@ const ProfileEditScreen = (props) => {
       if (profilePic !== null) {
         await setItemToAsync("profilePic", profilePic);
         await setItemToAsync("profileNick", profileNickText);
-        console.log("프로필사진, 닉네임 저장 완료");
       } else {
         await setItemToAsync("profileNick", profileNickText);
       }
