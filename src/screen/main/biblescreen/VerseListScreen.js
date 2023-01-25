@@ -24,7 +24,6 @@ const VerseListScreen = ({navigation, route}) => {
   const [verseItems, setVerseItems] = useState([])
   const [commandModalVisible, setCommandModalVisible] = useState(false)
   const [memoModalVisible, setMemoModalVisible] = useState(false)
-  const [memoModalSaveButtonActive, setMemoModalSaveButtonActive] = useState(false)
   const [bibleListOptionIconUri, setBibleListOptionIconUri] = useState(require('assets/ic_option_list_off.png'));
   const [bibleNoteOptionIconUri, setBibleNoteOptionIconUri] = useState(require('assets/ic_option_note_off.png'));
   const [fontChangeOptionIconUri, setFontChangeOptionIconUri] = useState(require('assets/ic_option_font_off.png'));
@@ -37,117 +36,120 @@ const VerseListScreen = ({navigation, route}) => {
   // const [,updateState] = useState()
   // const forceUpdate = useCallback(() => updateState({}), [])
 
-  useEffect(() => {
-    (async () => {
-      const { bookName, bookCode, chapterCode }  = route.params;
+  const updateVerseItems = useCallback(async () => {
+    const { bookName, bookCode, chapterCode }  = route.params;
 
-      /** 1. 최근 읽은 성경 주소 저장 **/
-      const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
-      const readItem = {
-        bibleName,
-        bookName,
-        bookCode,
-        chapterCode,
-      };
-      await setItemToAsync('latelyReadList', readItem)
+    /** 1. 최근 읽은 성경 주소 저장 **/
+    const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
+    const readItem = {
+      bibleName,
+      bookName,
+      bookCode,
+      chapterCode,
+    };
+    await setItemToAsync('latelyReadList', readItem)
 
-      /** 2. 로컬 스토리지에 저장된 폰트 사이즈와 폰트 패밀리를 불러옴. **/
-      const fontSizeOption = await getItemFromAsync('fontSizeOption')
-      switch (fontSizeOption) {
-        case null: {
-          setVerseItemFontSize(14)
-          break;
-        }
-
-        case 0: {
-          setVerseItemFontSize(12)
-          break;
-        }
-
-        case 1: {
-          setVerseItemFontSize(14)
-          break;
-        }
-
-        case 2: {
-          setVerseItemFontSize(16)
-          break;
-        }
-
-        case 3: {
-          setVerseItemFontSize(18)
-          break;
-        }
+    /** 2. 로컬 스토리지에 저장된 폰트 사이즈와 폰트 패밀리를 불러옴. **/
+    const fontSizeOption = await getItemFromAsync('fontSizeOption')
+    switch (fontSizeOption) {
+      case null: {
+        setVerseItemFontSize(14)
+        break;
       }
 
-      /** 3. 초기에 로컬 스토리지에서 저장된 폰트 사이즈와 폰트 패밀리 설정 **/
-      const fontFamilyOption = await getItemFromAsync('fontFamilyOption')
-      switch (fontFamilyOption) {
-        case null: {
-          setVerseItemFontFamily('system font')
-          break;
-        }
-
-        case 0: {
-          setVerseItemFontFamily('system font')
-          break;
-        }
-
-        case 1: {
-          setVerseItemFontFamily('nanumbrush')
-          break;
-        }
-
-        case 2: {
-          setVerseItemFontFamily('tmonmonsori')
-          break;
-        }
-
-        case 3: {
-          setVerseItemFontFamily('applemyungjo')
-          break;
-        }
+      case 0: {
+        setVerseItemFontSize(12)
+        break;
       }
 
-      const verseItems = await getBibleVerseItems(bookName, bookCode, chapterCode)
+      case 1: {
+        setVerseItemFontSize(14)
+        break;
+      }
 
-      /**
-       * 4. VerseItem을 입력받아 하이라이트 처리
-       * => Json 파싱을 통해 highlightList에서부터 하이라이트 목록을 받아온다.
-       * => 현재 verseItems중 hightlightList에 bookCode, chapterCode, VerseCode가 일치하는 목록이 있다면 isHighlight = true인 verseItems을 return한다.
-       */
-      let highlightsItems = await getItemFromAsync('highlightList')
-      highlightsItems = highlightsItems? highlightsItems : [];
+      case 2: {
+        setVerseItemFontSize(16)
+        break;
+      }
 
-      verseItems.forEach((verse) => {
-        const index = highlightsItems.findIndex((highlightItem) => {
-          return ((highlightItem.bookCode === verse.bookCode) && (highlightItem.chapterCode === verse.chapterCode) && (highlightItem.verseCode === verse.verseCode))
-        })
-        if (index > -1) {
-          verse.isHighlight = true
-        } else {
-          verse.isHighlight = false;
-        };
+      case 3: {
+        setVerseItemFontSize(18)
+        break;
+      }
+    }
+
+    /** 3. 초기에 로컬 스토리지에서 저장된 폰트 사이즈와 폰트 패밀리 설정 **/
+    const fontFamilyOption = await getItemFromAsync('fontFamilyOption')
+    switch (fontFamilyOption) {
+      case null: {
+        setVerseItemFontFamily('system font')
+        break;
+      }
+
+      case 0: {
+        setVerseItemFontFamily('system font')
+        break;
+      }
+
+      case 1: {
+        setVerseItemFontFamily('nanumbrush')
+        break;
+      }
+
+      case 2: {
+        setVerseItemFontFamily('tmonmonsori')
+        break;
+      }
+
+      case 3: {
+        setVerseItemFontFamily('applemyungjo')
+        break;
+      }
+    }
+
+    const verseItems = await getBibleVerseItems(bookName, bookCode, chapterCode)
+
+    /**
+     * 4. VerseItem을 입력받아 하이라이트 처리
+     * => Json 파싱을 통해 highlightList에서부터 하이라이트 목록을 받아온다.
+     * => 현재 verseItems중 hightlightList에 bookCode, chapterCode, VerseCode가 일치하는 목록이 있다면 isHighlight = true인 verseItems을 return한다.
+     */
+    let highlightsItems = await getItemFromAsync('highlightList')
+    highlightsItems = highlightsItems? highlightsItems : [];
+
+    verseItems.forEach((verse) => {
+      const index = highlightsItems.findIndex((highlightItem) => {
+        return ((highlightItem.bookCode === verse.bookCode) && (highlightItem.chapterCode === verse.chapterCode) && (highlightItem.verseCode === verse.verseCode))
       })
+      if (index > -1) {
+        verse.isHighlight = true
+      } else {
+        verse.isHighlight = false;
+      };
+    })
 
-      /** VerseItem을 입력받아 memo 처리 **/
-      let memoListItems = await getItemFromAsync('memoList')
-      if (memoListItems === null) memoListItems = [];
-      verseItems.forEach((verse) => {
-        const index = memoListItems.findIndex((memoItem) => {
-          return ((memoItem.bookCode === verse.bookCode) && (memoItem.chapterCode === verse.chapterCode) && (memoItem.verseCode === verse.verseCode))
-        });
-        if (index > -1) {
-          verse.isMemo = true
-        } else {
-          verse.isMemo = false;
-        }
+    /** VerseItem을 입력받아 memo 처리 **/
+    let memoListItems = await getItemFromAsync('memoList')
+    if (memoListItems === null) memoListItems = [];
+    verseItems.forEach((verse) => {
+      const index = memoListItems.findIndex((memoItem) => {
+        return ((memoItem.bookCode === verse.bookCode) && (memoItem.chapterCode === verse.chapterCode) && (memoItem.verseCode === verse.verseCode))
       });
+      if (index > -1) {
+        verse.isMemo = true
+      } else {
+        verse.isMemo = false;
+      }
+    });
 
-      setVerseItems(verseItems);
-      setBibleType(bibleType);
-      setIsLoading(false);
-    })()
+    setVerseItems(verseItems);
+    setBibleType(bibleType);
+    setIsLoading(false);
+  }, [])
+
+
+  useEffect(() => {
+    updateVerseItems().then()
   }, [])
 
   /** 구 setModalVisible **/
@@ -185,8 +187,7 @@ const VerseListScreen = ({navigation, route}) => {
           await setItemToAsync('highlightList', highlightItems)
           toastRef.current.show('형광펜으로 밑줄 ^^');
         }
-        // this.componentDidMount();
-        // forceUpdate()
+        updateVerseItems().then()
 
         break;
       }
@@ -256,10 +257,11 @@ const VerseListScreen = ({navigation, route}) => {
   // 성경의 아이템을 길게 눌렀을때 모달 화면을 보여주는 메서드.
   // 복사, 형광펜, 메모 기능을 위해 해당 값을 전달받는다.
   const onLongPressButton = useCallback((verseItem) => {
+    console.log('111')
     console.log(verseItem)
     setModalBibleItem(verseItem)
     setCommandModalVisible(true)
-  }, []);
+  }, [verseItems]);
 
   if (isLoading) {
     return (
@@ -279,9 +281,7 @@ const VerseListScreen = ({navigation, route}) => {
         <MemoModal
           modalBibleItem={modalBibleItem}
           memoModalVisible={memoModalVisible}
-          setMemoModalSaveButtonActive={setMemoModalSaveButtonActive}
           setMemoModalVisible={setMemoModalVisible}
-          memoModalSaveButtonActive={memoModalSaveButtonActive}
         />
 
         <VerseFlatList

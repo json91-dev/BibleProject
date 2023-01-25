@@ -1,9 +1,10 @@
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {getItemFromAsync, setItemToAsync, uuidv4} from '../../utils';
 
 const MemoModal = (props) => {
-  const {memoModalVisible, modalBibleItem, setMemoModalSaveButtonActive, setMemoModalVisible, memoModalSaveButtonActive} = props;
+  const [memoModalSaveButtonActive, setMemoModalSaveButtonActive] = useState(false)
+  const {memoModalVisible, modalBibleItem,  setMemoModalVisible} = props;
   const {bookName, bookCode, chapterCode, verseCode, content} = modalBibleItem;
   let memo = useRef('');
 
@@ -16,19 +17,22 @@ const MemoModal = (props) => {
       setMemoModalSaveButtonActive(true)
     }
     memo = text;
-  }, []);
+  }, [memoModalSaveButtonActive]);
 
   const onPressSaveButton = useCallback(async () => {
     let memoListItems = await getItemFromAsync('memoList')
-    if (memoListItems === null) memoListItems = [];
+    if (memoListItems === null) {
+      memoListItems = [];
+    }
     const objectId = uuidv4();
     const date = new Date();
+    console.log(bookName, bookCode, chapterCode, verseCode, memo, date)
     memoListItems.push({objectId ,bookName, bookCode, chapterCode, verseCode, memo, date, content});
     await setItemToAsync('memoList', memoListItems)
 
     setMemoModalVisible(false);
     setMemoModalSaveButtonActive(false)
-  }, []);
+  }, [memoModalVisible, memoModalSaveButtonActive, modalBibleItem]);
 
   return (
     <Modal
@@ -46,7 +50,7 @@ const MemoModal = (props) => {
               }
             </TouchableOpacity>
             <Text style={styles.memoModalHeaderText}>메모</Text>
-            <TouchableOpacity style={styles.memoModalHeaderCancel} onPress={() => this.setMemoModalVisible(false)}>
+            <TouchableOpacity style={styles.memoModalHeaderCancel} onPress={() => setMemoModalVisible(false)}>
               <Image style={styles.memoModalHeaderCancelImage} source={require('/assets/ic_close.png')}/>
             </TouchableOpacity>
           </View>

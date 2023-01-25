@@ -240,3 +240,42 @@ export const getDateStringByFormat = ((time, format) => {
   })
 });
 
+/**
+ * 60분 내외 : n분전
+ * 1시간 ~ 24시간 : n시간전
+ * 24시간 이상 : 1일전
+ * 30일 이상 1달전
+ */
+export const getPassTimeText = (oldDateString) => {
+
+  let nowDate = new Date();
+  let oldDate = new Date(oldDateString);
+
+  let now = nowDate.getTime();
+  let old = oldDate.getTime();
+
+  let min_gap = Math.floor((now - old) / 1000 / 60);
+  let hour_gap = Math.floor((now - old) / 1000 / 60 / 60);
+  let day_gap = Math.floor((now - old) / 1000 / 60 / 60 / 24);
+  let month_gap = Math.floor((now - old) / 1000 / 60 / 60 / 24 / 30);
+
+  if (min_gap < 1) {
+    return '방금전';
+  }
+
+  if (min_gap >= 1 && min_gap < 60) {
+    return min_gap + '분전';
+  }
+
+  if (hour_gap < 24) {
+    return hour_gap + '시간전';
+  }
+
+  if (day_gap < 31) {
+    return day_gap + "일전";
+  }
+
+  return month_gap + '달전';
+}
+
+

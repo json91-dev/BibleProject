@@ -12,13 +12,13 @@ import {
 } from 'react-native';
 
 import Toast, { DURATION } from 'react-native-easy-toast';
-import BibleListOption from './components/biblelistOption/BibleListOption';
-import BibleNoteOption from './components/BibleNoteOption';
-import FontChangeOption from './components/FontChangeOption';
+import BibleListOption from '../screen/main/biblescreen/components/biblelistOption/BibleListOption';
+import BibleNoteOption from '../screen/main/biblescreen/components/BibleNoteOption';
+import FontChangeOption from '../screen/main/biblescreen/components/FontChangeOption';
 import {uuidv4, getItemFromAsync, setItemToAsync} from '/utils';
 import { StackActions } from '@react-navigation/native';
 import { getSqliteDatabase, printIsNewOrOldBibleByBookCode } from '/utils'
-import LoadingSpinner from '../../components/LoadingSpinner';
+import LoadingSpinner from '../screen/components/LoadingSpinner';
 
 export default class VerseListScreen extends Component {
   constructor(props) {
