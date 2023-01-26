@@ -33,13 +33,7 @@ const VerseListScreen = ({navigation, route}) => {
   const [verseItemFontSize, setVerseItemFontSize] = useState(14)
   const [verseItemFontFamily, setVerseItemFontFamily] = useState('system font')
   const toastRef = useRef(null)
-  // const [,updateState] = useState()
-  // const forceUpdate = useCallback(() => updateState({}), [])
-
-  const updateVerseItems = useCallback(async () => {
-    const { bookName, bookCode, chapterCode }  = route.params;
-
-    /** 1. 최근 읽은 성경 주소 저장 **/
+  const saveLatestBibleVerse = useCallback(async (bookName, bookCode, chapterCode) => {
     const bibleName = printIsNewOrOldBibleByBookCode(bookCode);
     const readItem = {
       bibleName,
@@ -48,8 +42,9 @@ const VerseListScreen = ({navigation, route}) => {
       chapterCode,
     };
     await setItemToAsync('latelyReadList', readItem)
+  }, [])
 
-    /** 2. 로컬 스토리지에 저장된 폰트 사이즈와 폰트 패밀리를 불러옴. **/
+  const setFontSizeFromStorage = useCallback(async () => {
     const fontSizeOption = await getItemFromAsync('fontSizeOption')
     switch (fontSizeOption) {
       case null: {
@@ -77,8 +72,9 @@ const VerseListScreen = ({navigation, route}) => {
         break;
       }
     }
+  }, [verseItemFontSize])
 
-    /** 3. 초기에 로컬 스토리지에서 저장된 폰트 사이즈와 폰트 패밀리 설정 **/
+  const setFontFamilyFromStorage = useCallback(async () => {
     const fontFamilyOption = await getItemFromAsync('fontFamilyOption')
     switch (fontFamilyOption) {
       case null: {
@@ -106,18 +102,13 @@ const VerseListScreen = ({navigation, route}) => {
         break;
       }
     }
+  }, [verseItemFontFamily])
 
-    const verseItems = await getBibleVerseItems(bookName, bookCode, chapterCode)
-
-    /**
-     * 4. VerseItem을 입력받아 하이라이트 처리
-     * => Json 파싱을 통해 highlightList에서부터 하이라이트 목록을 받아온다.
-     * => 현재 verseItems중 hightlightList에 bookCode, chapterCode, VerseCode가 일치하는 목록이 있다면 isHighlight = true인 verseItems을 return한다.
-     */
+  const getUpdatedHighlightVerseItems = useCallback(async (items) => {
     let highlightsItems = await getItemFromAsync('highlightList')
     highlightsItems = highlightsItems? highlightsItems : [];
 
-    verseItems.forEach((verse) => {
+    items.forEach((verse) => {
       const index = highlightsItems.findIndex((highlightItem) => {
         return ((highlightItem.bookCode === verse.bookCode) && (highlightItem.chapterCode === verse.chapterCode) && (highlightItem.verseCode === verse.verseCode))
       })
@@ -128,10 +119,13 @@ const VerseListScreen = ({navigation, route}) => {
       };
     })
 
-    /** VerseItem을 입력받아 memo 처리 **/
+    return items;
+  }, [verseItems])
+
+  const getUpdatedMemoVerseItems = useCallback(async (items) => {
     let memoListItems = await getItemFromAsync('memoList')
     if (memoListItems === null) memoListItems = [];
-    verseItems.forEach((verse) => {
+    items.forEach((verse) => {
       const index = memoListItems.findIndex((memoItem) => {
         return ((memoItem.bookCode === verse.bookCode) && (memoItem.chapterCode === verse.chapterCode) && (memoItem.verseCode === verse.verseCode))
       });
@@ -142,11 +136,31 @@ const VerseListScreen = ({navigation, route}) => {
       }
     });
 
+    return items
+  }, [verseItems])
+
+  const updateVerseItems = useCallback(async () => {
+    /** 1. 최근 읽은 성경 주소 저장 **/
+    const { bookName, bookCode, chapterCode }  = route.params;
+    await saveLatestBibleVerse(bookName, bookCode, chapterCode);
+
+    /** 2. 로컬 스토리지에 저장된 폰트 사이즈와 폰트 패밀리를 불러옴. **/
+    await setFontSizeFromStorage()
+
+    /** 3. 초기에 로컬 스토리지에서 저장된 폰트 사이즈와 폰트 패밀리 설정 **/
+    await setFontFamilyFromStorage()
+
+    let verseItems = await getBibleVerseItems(bookName, bookCode, chapterCode)
+    /** 4. VerseItem을 입력받아 하이라이트 처리 **/
+    verseItems = await getUpdatedHighlightVerseItems(verseItems)
+
+    /** 5. VerseItem을 입력받아 memo 처리 **/
+    verseItems = await getUpdatedMemoVerseItems(verseItems)
+
     setVerseItems(verseItems);
     setBibleType(bibleType);
     setIsLoading(false);
   }, [])
-
 
   useEffect(() => {
     updateVerseItems().then()
@@ -257,8 +271,6 @@ const VerseListScreen = ({navigation, route}) => {
   // 성경의 아이템을 길게 눌렀을때 모달 화면을 보여주는 메서드.
   // 복사, 형광펜, 메모 기능을 위해 해당 값을 전달받는다.
   const onLongPressButton = useCallback((verseItem) => {
-    console.log('111')
-    console.log(verseItem)
     setModalBibleItem(verseItem)
     setCommandModalVisible(true)
   }, [verseItems]);
@@ -282,6 +294,7 @@ const VerseListScreen = ({navigation, route}) => {
           modalBibleItem={modalBibleItem}
           memoModalVisible={memoModalVisible}
           setMemoModalVisible={setMemoModalVisible}
+          updateVerseItems={updateVerseItems}
         />
 
         <VerseFlatList
@@ -324,7 +337,6 @@ const VerseListScreen = ({navigation, route}) => {
 
 export default VerseListScreen
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -332,7 +344,6 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     paddingBottom: 15,
     backgroundColor: 'white',
-
   },
 
   titleText: {
@@ -362,7 +373,6 @@ const styles = StyleSheet.create({
     marginRight: '3%',
     paddingRight: 5,
     marginLeft: 5,
-
   },
 
   flatListItemTextHighlight: {
@@ -381,6 +391,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     borderColor: 'red',
   },
+
   /* 모달 뷰 */
   modal: {
     borderWidth: 1,

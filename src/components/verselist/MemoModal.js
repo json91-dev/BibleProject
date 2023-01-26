@@ -4,7 +4,7 @@ import {getItemFromAsync, setItemToAsync, uuidv4} from '../../utils';
 
 const MemoModal = (props) => {
   const [memoModalSaveButtonActive, setMemoModalSaveButtonActive] = useState(false)
-  const {memoModalVisible, modalBibleItem,  setMemoModalVisible} = props;
+  const {memoModalVisible, modalBibleItem, setMemoModalVisible, updateVerseItems} = props;
   const {bookName, bookCode, chapterCode, verseCode, content} = modalBibleItem;
   let memo = useRef('');
 
@@ -32,6 +32,8 @@ const MemoModal = (props) => {
 
     setMemoModalVisible(false);
     setMemoModalSaveButtonActive(false)
+
+    updateVerseItems().then()
   }, [memoModalVisible, memoModalSaveButtonActive, modalBibleItem]);
 
   return (

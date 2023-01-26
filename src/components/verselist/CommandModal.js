@@ -8,8 +8,9 @@ import {Image, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-nati
  * @constructor
  */
 const CommandModal = ({modalBibleItem, setCommandModalVisible, openBibleNoteOptionModal, actionCommandModal, commandModalVisible}) => {
-
   const { isHighlight, isMemo } = modalBibleItem
+  console.log('333')
+  console.log(modalBibleItem)
 
   return (
     <Modal
