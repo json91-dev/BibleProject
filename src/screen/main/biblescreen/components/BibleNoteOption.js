@@ -13,7 +13,7 @@ import {getItemFromAsync, setItemToAsync} from '/utils'
 import Toast from 'react-native-easy-toast';
 import {getPassTimeText} from '../../../../utils';
 
-const BibleNoteOption = ({closeHandler}) => {
+const BibleNoteOption = ({closeHandler, updateVerseItems}) => {
   const [noteItems, setNoteItems] = useState([]);
   const [isNoteItemUpdate, setIsNoteItemUpdate] = useState(false);
   const [isOpenMemoEdit, setIsOpenMemoEdit] = useState(false);
@@ -39,7 +39,7 @@ const BibleNoteOption = ({closeHandler}) => {
         bookName: memoItem.bookName,
         chapterCode: memoItem.chapterCode,
         verseCode: memoItem.verseCode,
-        memo: memoItem.memo ,
+        memo: memoItem.memo.toString() ,
         content: memoItem.content,
         passTimeText: passTimeText
       });
@@ -47,7 +47,7 @@ const BibleNoteOption = ({closeHandler}) => {
 
     setNoteItems(noteItems.reverse())
     setIsNoteItemUpdate(true)
-  }, [])
+  }, [noteItems, isNoteItemUpdate])
 
   useEffect(() => {
     getBibleNotes().then();
@@ -90,6 +90,7 @@ const BibleNoteOption = ({closeHandler}) => {
     if(inputText.length < 1) {
       memoList.splice(editItemIndex, 1);
       toastRef.current.show('노트가 삭제되었습니다 :)');
+      updateVerseItems().then()
     } else {
       memoList[editItemIndex].memo = inputText;
       memoList[editItemIndex].date = new Date();
@@ -203,21 +204,23 @@ const BibleNoteOption = ({closeHandler}) => {
           <FlatList
             style={styles.flatList}
             data={noteItems}
-            keyExtractor={(item, index) => item.toString() + index.toString()}
+            keyExtractor={(item, index) => item.toString() + index.toString() + item.content}
             renderItem={({item, index}) => {
               const {objectId, bookName, chapterCode, verseCode, content, memo, passTimeText} = item;
               const verseText = `${bookName} ${chapterCode}장 ${verseCode}절`;
               return (
-                <TouchableOpacity onPress={() => openMemoEdit(objectId, verseText, content, memo)}>
-                  <View style={styles.memoItem}>
-                    <Text style={styles.memoItemIndex}>{index + 1}.</Text>
-                    <View style={styles.memoItemContent}>
-                      <Text style={styles.memoItemContentVerseText}>{verseText}</Text>
-                      <Text style={styles.memoItemContentMemo}>{memo}</Text>
-                      <Text style={styles.memoItemContentDate}>{passTimeText}</Text>
+                <View>
+                  <TouchableOpacity onPress={() => openMemoEdit(objectId, verseText, content, memo)}>
+                    <View style={styles.memoItem}>
+                      <Text style={styles.memoItemIndex}>{index + 1}.</Text>
+                      <View style={styles.memoItemContent}>
+                        <Text style={styles.memoItemContentVerseText}>{verseText}</Text>
+                        <Text style={styles.memoItemContentMemo}>{memo.toString()}</Text>
+                        <Text style={styles.memoItemContentDate}>{passTimeText}</Text>
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
               )
             }}
           />

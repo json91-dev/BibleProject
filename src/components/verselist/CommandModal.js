@@ -9,8 +9,6 @@ import {Image, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-nati
  */
 const CommandModal = ({modalBibleItem, setCommandModalVisible, openBibleNoteOptionModal, actionCommandModal, commandModalVisible}) => {
   const { isHighlight, isMemo } = modalBibleItem
-  console.log('333')
-  console.log(modalBibleItem)
 
   return (
     <Modal
@@ -91,12 +89,11 @@ const CommandModal = ({modalBibleItem, setCommandModalVisible, openBibleNoteOpti
   )
 }
 
-export default CommandModal;
+export default React.memo(CommandModal);
 
 
 const styles = StyleSheet.create({
-  highlightButtonChecked: {
-    backgroundColor: '#F9DA4F',
+  highlightButton: {
     paddingLeft: 11,
     paddingRight: 11,
     paddingTop: 9,
@@ -104,7 +101,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
 
-  highlightButton: {
+  highlightButtonChecked: {
+    backgroundColor: '#F9DA4F',
     paddingLeft: 11,
     paddingRight: 11,
     paddingTop: 9,
@@ -166,6 +164,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F4F4',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+  },
+
+  memoButton: {
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  memoButtonChecked: {
+    backgroundColor: '#F9DA4F',
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
+  },
+
+  copyButton: {
+    paddingLeft: 11,
+    paddingRight: 11,
+    paddingTop: 9,
+    paddingBottom: 7,
+    borderRadius: 20,
   },
 
 });

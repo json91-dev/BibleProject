@@ -2,9 +2,14 @@ import React, {useCallback, useRef, useState} from 'react';
 import {Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {getItemFromAsync, setItemToAsync, uuidv4} from '../../utils';
 
-const MemoModal = (props) => {
+/**
+ * Memo를 입력하는 Modal 창
+ * @param props
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const MemoModal = ({memoModalVisible, modalBibleItem, setMemoModalVisible, updateVerseItems, toastRef}) => {
   const [memoModalSaveButtonActive, setMemoModalSaveButtonActive] = useState(false)
-  const {memoModalVisible, modalBibleItem, setMemoModalVisible, updateVerseItems} = props;
   const {bookName, bookCode, chapterCode, verseCode, content} = modalBibleItem;
   let memo = useRef('');
 
@@ -34,6 +39,8 @@ const MemoModal = (props) => {
     setMemoModalSaveButtonActive(false)
 
     updateVerseItems().then()
+    toastRef.current.show('메모가 입력되었습니다.')
+
   }, [memoModalVisible, memoModalSaveButtonActive, modalBibleItem]);
 
   return (

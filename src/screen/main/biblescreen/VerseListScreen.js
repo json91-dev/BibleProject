@@ -160,7 +160,7 @@ const VerseListScreen = ({navigation, route}) => {
     setVerseItems(verseItems);
     setBibleType(bibleType);
     setIsLoading(false);
-  }, [])
+  }, [verseItems, verseItemFontSize, verseItemFontFamily])
 
   useEffect(() => {
     updateVerseItems().then()
@@ -295,6 +295,7 @@ const VerseListScreen = ({navigation, route}) => {
           memoModalVisible={memoModalVisible}
           setMemoModalVisible={setMemoModalVisible}
           updateVerseItems={updateVerseItems}
+          toastRef={toastRef}
         />
 
         <VerseFlatList
@@ -322,7 +323,7 @@ const VerseListScreen = ({navigation, route}) => {
         </View>
 
         {optionComponentState === 'bibleList' && <BibleListOption changeScreenHandler={changeScreenNavigation}  bibleType={bibleType} closeHandler={closeAllOptionModal}/>}
-        {optionComponentState === 'bibleNote' && <BibleNoteOption toastRef={toastRef} closeHandler={closeAllOptionModal}/>}
+        {optionComponentState === 'bibleNote' && <BibleNoteOption toastRef={toastRef} closeHandler={closeAllOptionModal} updateVerseItems={updateVerseItems}/>}
         {optionComponentState === 'fontChange' && <FontChangeOption changeFontSizeHandler={setVerseItemFontSize} changeFontFamilyHandler={setVerseItemFontFamily} closeHandler={closeAllOptionModal}/>}
 
         <Toast ref={toastRef}
@@ -454,47 +455,6 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
   },
 
-  copyButton: {
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
-  },
-
-  highlightButton: {
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
-  },
-
-  highlightButtonChecked: {
-    backgroundColor: '#F9DA4F',
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
-  },
-
-  memoButton: {
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
-  },
-
-  memoButtonChecked: {
-    backgroundColor: '#F9DA4F',
-    paddingLeft: 11,
-    paddingRight: 11,
-    paddingTop: 9,
-    paddingBottom: 7,
-    borderRadius: 20,
-  },
 
   /* 메모 모달 뷰 */
 
